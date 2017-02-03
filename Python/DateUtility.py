@@ -21,5 +21,5 @@ def quarterEndMonth(quarter):
     return quarter*3
 
 def quarterDate(year, quarter):
-    return str(year)+'-'+str(quarterEndMonth(quarter))+'-'+str(quarterEndDay(quarter))
+    return str(year)+'-'+str(quarterEndMonth(quarter)).zfill(2)+'-'+str(quarterEndDay(quarter)).zfill(2)
 
