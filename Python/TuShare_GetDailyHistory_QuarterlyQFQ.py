@@ -16,10 +16,10 @@ import datetime as dt
 #
 # Get Daily History Parameters
 #
-stock_ids  = ['600036']
-is_indexs  = [False]
-start_date = '2005-01-01'
-end_date   = '2016-12-31'
+stock_ids  = ['300059','600036']
+is_indexs  = [False,False]
+year_start = 2005
+year_end   = 2016
 path_datacenter = '../DataCenter/'
 
 #
@@ -40,6 +40,9 @@ def getQuarterStartMonth(quarter):
 def getQuarterEndMonth(quarter):
     return quarter*3
 
+def getQuarterDate(year, quarter):
+    return str(year)+'-'+str(getQuarterEndMonth(quarter))+'-'+str(getQuarterEndDay(quarter))
+
 #
 # Load Stock Basics
 #
@@ -48,21 +51,18 @@ basics.set_index('code', inplace=True)
 print(basics.head(10))
 
 # Check Start Date and End Date
-date_start = pd.to_datetime(start_date, format='%Y-%m-%d')
-print(date_start.year, date_start.month, date_start.day)
-date_end = pd.to_datetime(end_date, format='%Y-%m-%d')
-print(date_end.year, date_end.month, date_end.day)
-if date_end < date_start:
-    print('Start date should not be earlier than end date!')
+if year_end < year_start:
+    print('Start year should be no later than end year!')
     raise SystemExit
 
 # Prepare Daily Data Frame
 data_columns = ['open','high','close','low','volume','amount']
 data_columns_number = len(data_columns)
 data_index = []
-for year in range(date_start.year, date_end.year+1):
+for year in range(year_start, year_end+1):
     for quarter in range(1, 5):
-        data_index.append(str(year)+'Q'+str(quarter))
+        quarter_date = getQuarterDate(year, quarter)
+        data_index.append(quarter_date)
 print(data_index)
 data_index_number = len(data_index)
 
@@ -72,6 +72,7 @@ for i in range(data_index_number * data_columns_number):
     data_init[i] = np.nan
 df = pd.DataFrame(data_init.reshape(data_index_number, data_columns_number),
                   index = data_index, columns = data_columns)
+df.index.names = ['date']
 
 #
 # Iterate Over All Stocks
@@ -90,7 +91,7 @@ for i in range(stock_number):
     date_timeToMarket = dt.date(date.year, date.month, date.day)
 
     # Break start date and end date into quarters
-    for year in range(date_start.year, date_end.year+1):
+    for year in range(year_start, year_end+1):
         for quarter in range(1, 5):
             quarter_start = dt.date(year, getQuarterStartMonth(quarter), getQuarterStartDay(quarter))
             quarter_end = dt.date(year, getQuarterEndMonth(quarter), getQuarterEndDay(quarter))
@@ -107,35 +108,39 @@ for i in range(stock_number):
                                        start=quarter_start.strftime('%Y-%m-%d'),
                                        end=quarter_end.strftime('%Y-%m-%d'),
                                        autype='hfq', drop_factor=False)
-            print(stock_data.head(5))
-
-            # Resample to quarterly based data
-            period_type = 'Q'
-            period_stock_data = stock_data.resample(period_type).first()
-            if len(period_stock_data) == 0: # Ignore empty quarterly data
-                continue
-            print(len(period_stock_data))
-
-            period_stock_data['open']   = stock_data['open'].resample(period_type).first()
-            period_stock_data['high']   = stock_data['high'].resample(period_type).max()
-            period_stock_data['close']  = stock_data['close'].resample(period_type).last()
-            period_stock_data['low']    = stock_data['low'].resample(period_type).min()
-            period_stock_data['volume'] = stock_data['volume'].resample(period_type).sum()
-            period_stock_data['amount'] = stock_data['amount'].resample(period_type).sum()
-            period_stock_data['factor'] = stock_data['factor'].resample(period_type).last()
-
-            # Fill data frame
-            index = str(year)+'Q'+str(quarter)
-            fq_factor = period_stock_data['factor'][0]
-            df.loc[index, 'open']   = period_stock_data['open'][0]   / fq_factor
-            df.loc[index, 'high']   = period_stock_data['high'][0]   / fq_factor
-            df.loc[index, 'close']  = period_stock_data['close'][0]  / fq_factor
-            df.loc[index, 'low']    = period_stock_data['low'][0]    / fq_factor
-            df.loc[index, 'volume'] = period_stock_data['volume'][0] # Not touch it
-            df.loc[index, 'amount'] = period_stock_data['amount'][0]
+            # Handle stop-trading quarter
+            if len(stock_data) == 0: # stock_data == None or 
+                index = getQuarterDate(year, quarter)
+                for column in ['open','high','close','low','volume','amount']:
+                    df.loc[index,column] = np.nan
+            else: # Normal case - at least one trading day in the quarter
+                print(stock_data.head(5))
+    
+                # Resample to quarterly based data
+                period_type = 'Q'
+                period_stock_data = stock_data.resample(period_type).first()
+                if len(period_stock_data) == 0: # Ignore empty quarterly data
+                    continue
+                print(len(period_stock_data))
+    
+                period_stock_data['open']   = stock_data['open'].resample(period_type).first()
+                period_stock_data['high']   = stock_data['high'].resample(period_type).max()
+                period_stock_data['close']  = stock_data['close'].resample(period_type).last()
+                period_stock_data['low']    = stock_data['low'].resample(period_type).min()
+                period_stock_data['volume'] = stock_data['volume'].resample(period_type).sum()
+                period_stock_data['amount'] = stock_data['amount'].resample(period_type).sum()
+                period_stock_data['factor'] = stock_data['factor'].resample(period_type).last()
+    
+                # Fill data frame
+                index = getQuarterDate(year, quarter)
+                fq_factor = period_stock_data['factor'][0]
+                for column in ['open','high','close','low']:
+                    df.loc[index,column] = period_stock_data[column][0] / fq_factor
+                df.loc[index, 'volume'] = period_stock_data['volume'][0] # Not touch it
+                df.loc[index, 'amount'] = period_stock_data['amount'][0]
 
     # Save to CSV File
-    df.to_csv(path_datacenter+'StockDataQFQ_'+stock_id+'.csv',encoding='utf-8')
+    df.to_csv(path_datacenter+'StockData_QuarterlyQFQ_'+stock_id+'.csv',encoding='utf-8')
 
 
 
