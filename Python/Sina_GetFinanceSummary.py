@@ -22,7 +22,7 @@ except ImportError:
 #
 # Constants and Parameters
 #
-stock_ids  = ['600036', '300059']
+stock_ids  = ['300059','600036','000002','002024']
 path_datacenter = '../DataCenter/'
 
 DATA_GETTING_TIPS = '[Getting data:]'
