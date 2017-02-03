@@ -12,6 +12,7 @@ import tushare as ts
 import pandas as pd
 import numpy as np
 import datetime as dt
+import DateUtility as du
 
 #
 # Get Daily History Parameters
@@ -21,27 +22,6 @@ is_indexs  = [False,False]
 year_start = 2005
 year_end   = 2016
 path_datacenter = '../DataCenter/'
-
-#
-# Utility Functions
-#
-def getQuarterStartDay(quarter):
-    return 1
-
-def getQuarterEndDay(quarter):
-    if quarter == 1 or quarter == 4:
-        return 31
-    else:
-        return 30
-
-def getQuarterStartMonth(quarter):
-    return (quarter-1)*3 + 1
-
-def getQuarterEndMonth(quarter):
-    return quarter*3
-
-def getQuarterDate(year, quarter):
-    return str(year)+'-'+str(getQuarterEndMonth(quarter))+'-'+str(getQuarterEndDay(quarter))
 
 #
 # Load Stock Basics
@@ -61,7 +41,7 @@ data_columns_number = len(data_columns)
 data_index = []
 for year in range(year_start, year_end+1):
     for quarter in range(1, 5):
-        quarter_date = getQuarterDate(year, quarter)
+        quarter_date = du.quarterDate(year, quarter)
         data_index.append(quarter_date)
 print(data_index)
 data_index_number = len(data_index)
@@ -93,8 +73,8 @@ for i in range(stock_number):
     # Break start date and end date into quarters
     for year in range(year_start, year_end+1):
         for quarter in range(1, 5):
-            quarter_start = dt.date(year, getQuarterStartMonth(quarter), getQuarterStartDay(quarter))
-            quarter_end = dt.date(year, getQuarterEndMonth(quarter), getQuarterEndDay(quarter))
+            quarter_start = dt.date(year, du.quarterStartMonth(quarter), du.quarterStartDay(quarter))
+            quarter_end = dt.date(year, du.quarterEndMonth(quarter), du.quarterEndDay(quarter))
 
             if quarter_start < date_timeToMarket:
                 quarter_start = date_timeToMarket
@@ -110,7 +90,7 @@ for i in range(stock_number):
                                        autype='hfq', drop_factor=False)
             # Handle stop-trading quarter
             if len(stock_data) == 0: # stock_data == None or 
-                index = getQuarterDate(year, quarter)
+                index = du.quarterDate(year, quarter)
                 for column in ['open','high','close','low','volume','amount']:
                     df.loc[index,column] = np.nan
             else: # Normal case - at least one trading day in the quarter
@@ -132,7 +112,7 @@ for i in range(stock_number):
                 period_stock_data['factor'] = stock_data['factor'].resample(period_type).last()
     
                 # Fill data frame
-                index = getQuarterDate(year, quarter)
+                index = du.quarterDate(year, quarter)
                 fq_factor = period_stock_data['factor'][0]
                 for column in ['open','high','close','low']:
                     df.loc[index,column] = period_stock_data[column][0] / fq_factor
