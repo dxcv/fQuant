@@ -186,7 +186,7 @@ def get_historical_pe(stock_id, year_start, year_end):
 #
 # Historical PE Parameters
 #
-stock_ids  = ['000002'] #['300059','600036','000002','002024']
+stock_ids  = ['300059','600036','000002','002024']
 year_start = 2005
 year_end   = 2016
 
