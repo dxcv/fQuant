@@ -32,3 +32,17 @@ def timeToMarket(stock_basics, stock_id):
             print(date.year, date.month, date.day)
         d = dt.date(date.year, date.month, date.day)
     return d
+
+# Extract Stock Time-to-Market from Sector Stocks Data
+def timeToMarket2(sector_stocks, stock_id):
+    d = None
+    if (not sector_stocks is None) and (stock_id in sector_stocks.index): # Assume 'code' is index
+        date = sector_stocks.loc[stock_id, 'timeToMarket'] #上市日期YYYYMMDD
+        if cd.is_debug:
+            print(date)
+
+        date = pd.to_datetime(date, format='%Y%m%d')
+        if cd.is_debug:
+            print(date.year, date.month, date.day)
+        d = dt.date(date.year, date.month, date.day)
+    return d

@@ -8,4 +8,4 @@ Created on Fri Feb  3 20:42:57 2017
 import os
 
 def hasFile(path, file):
-    return os.path.isfile(path+'StockBasics.csv')
+    return os.path.isfile(path+file)
