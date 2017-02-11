@@ -48,6 +48,10 @@ folder_shibor = 'Shibor/'
 
 folder_boxoffice = 'BoxOffice/'
 
+folder_indicator                = 'Indicator/'
+folder_indicator_hpeq           = folder_indicator + 'HPEQ/'
+folder_indicator_qfqq           = folder_indicator + 'QFQQ/'
+
 # Data Files (Relative to Data Folders)
 file_trading_lshq_stock         = 'Trading_LSHQ_Stock_%s.csv'
 file_trading_lshq_index         = 'Trading_LSHQ_Index_%s.csv'
@@ -78,17 +82,29 @@ file_fundamental_cashflow_stock   = 'Fundamental_Cashflow_Stock_%s.csv'
 file_fundamental_financesummary_stock = 'Fundamental_FinanceSummary_Stock_%s.csv'
 file_fundamental_historicalpe_stock   = 'Fundamental_HistoricalPE_Stock_%s.csv'
 
+file_indicator_hpeq_stock       = 'Indicator_HPEQ_Stock_%s.csv'
+file_indicator_qfqq_stock       = 'Indicator_QFQQ_Stock_%s.csv'
+
 # Convenient Shorts
 path_dict = {
-        'basics' : path_datacenter + folder_fundamental_basics
+        'basics' : path_datacenter + folder_fundamental_basics,
+        'hpe_q'  : path_datacenter + folder_indicator_hpeq,
+        'qfq_q'  : path_datacenter + folder_indicator_qfqq,
+        'finsum' : path_datacenter + folder_fundamental_financesummary
         }
 
 file_dict = {
-        'basics' : file_fundamental_basics
+        'basics' : file_fundamental_basics,
+        'hpe_q'  : file_indicator_hpeq_stock,
+        'qfq_q'  : file_indicator_qfqq_stock,
+        'finsum' : file_fundamental_financesummary_stock
         }
 
 fullpath_dict = {
-        'basics' : path_dict['basics'] + file_dict['basics']
+        'basics' : path_dict['basics'] + file_dict['basics'],
+        'hpe_q'  : path_dict['hpe_q']  + file_dict['hpe_q'],
+        'qfq_q'  : path_dict['qfq_q']  + file_dict['qfq_q'],
+        'finsum' : path_dict['finsum'] + file_dict['finsum']
         }
 
 # Magic Numbers
