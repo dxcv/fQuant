@@ -34,9 +34,13 @@ def ensurePath(path):
 def to_csv(df, path, file, encoding=gs.encoding):
     ensurePath(path)
     df.to_csv(path+file, encoding=encoding)
+    if gs.is_debug:
+        print('Save File: %s' % path+file)
 
 # Wrapper of DataFrame.read_csv() with Default Settings
 def read_csv(fullpath, encoding=gs.encoding):
+    if gs.is_debug:
+        print('Read File: %s' % fullpath)
     return pd.read_csv(fullpath, encoding=encoding)
 
 ###############################################################################
@@ -66,7 +70,29 @@ def quarterEndMonth(quarter):
 
 # Return the Date (YYYY-mm-dd) of a Given Quarter (1-4) of a Given Year
 def quarterDate(year, quarter):
-    return str(year)+'-'+str(quarterEndMonth(quarter)).zfill(2)+'-'+str(quarterEndDay(quarter)).zfill(2)
+    return str(dt.date(year, quarterEndMonth(quarter), quarterEndDay(quarter)))
+#    return str(year)+'-'+str(quarterEndMonth(quarter)).zfill(2)+'-'+str(quarterEndDay(quarter)).zfill(2)
+
+def today():
+    return dt.datetime.today().date()
+
+def yearOfToday():
+    return dt.datetime.today().year
+
+def monthOfToday():
+    return dt.datetime.today().month
+
+def dayOfToday():
+    return dt.datetime.today().day
+
+def hourOfToday():
+    return dt.datetime.today().hour
+
+def dayLastYear():
+    return today() + dt.timedelta(-365)
+
+def dayLastWeek(days=-7):
+    return today() + dt.timedelta(days)
 
 ###############################################################################
 
@@ -79,8 +105,9 @@ def formatDateYYYYmmddInt64(date):
     try:
         d = pd.to_datetime(date, format='%Y%m%d')
     except:
-        return c.magic_date_YYYYmmdd_str
-    return '%(year)04d-%(month)02d-%(day)02d' % {'year':d.year, 'month':d.month, 'day':d.day}
+        return c.magic_date
+    #return '%(year)04d-%(month)02d-%(day)02d' % {'year':d.year, 'month':d.month, 'day':d.day}
+    return str(dt.date(d.year, d.month, d.day))
 
 # Return Formated Date (from YYYYmmdd to YYYY-mm-dd)
 def formatDateYYYYmmddStr(date):
@@ -90,16 +117,13 @@ def formatDateYYYYmmddStr(date):
         return c.magic_date_YYYYmmdd_str
     return d.strftime('%Y-%m-%d')
 
-#
-## Load Stock Basics CSV File and Return DataFrame
-#def loadStockBasics(path_basics = cd.path_datacenter, file_basics = cd.file_stockbasics):
-#    stock_basics = None
-#    if fu.hasFile(path = path_basics, file = file_basics):
-#        stock_basics = pd.read_csv(path_basics + file_basics, encoding='utf-8')
-#        stock_basics.set_index('code', inplace=True)
-#        if cd.is_debug:
-#            print(stock_basics.head(10))
-#    return stock_basics
+# Return Date (from string YYYY-mm-dd)
+def dateFromStr(date):
+    if isValidDate(date):
+        date = pd.to_datetime(date, format='%Y-%m-%d')
+        return dt.date(date.year, date.month, date.day)
+    else:
+        return None
 
 # Extract Stock Time-to-Market from Stock Basics Data
 def timeToMarket(stock_basics, stock_id):
@@ -129,10 +153,21 @@ def timeToMarket2(sector_stocks, stock_id):
         d = dt.date(date.year, date.month, date.day)
     return d
 
+# Return Stock ID
+def stockID(stock_id):
+    return str(stock_id).zfill(6)
+
 ###############################################################################
 
+#
+# Misc Utilities
+#
 
+def isNoneOrEmpty(df):
+    return (df is None) or (len(df) == 0)
 
+def isValidDate(date):
+    return date != c.magic_date
 
 
 

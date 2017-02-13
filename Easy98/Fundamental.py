@@ -21,11 +21,11 @@ def get_stock_basics():
     函数功能：
     --------
     获取沪深上市公司基本情况。
-    
+
     输入参数：
     --------
     无
-    
+
     输出参数：
     --------
     DataFrame
@@ -57,13 +57,6 @@ def get_stock_basics():
     basics = ts.get_stock_basics()
     if gs.is_debug:
         print(basics.head(10))
-
-    # Format columns
-    number_basics = len(basics)
-    for i in range(number_basics):
-        print(type(basics['timeToMarket'][i]))
-#        basics['timeToMarket'] = basics['timeToMarket'].map(u.formatDateYYYYmmddInt64)
-#        basics['timeToMarket'][i] = u.formatDateYYYYmmddInt64(basics['timeToMarket'][i])
 
     # Return Dataframe
     return basics

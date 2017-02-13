@@ -22,11 +22,18 @@ def getStockBasics():
         print(basics.head(10))
 
     # Save to CSV File
-    u.to_csv(basics, c.path_dict['basics'], c.file_dict['basics'])
+    if not u.isNoneOrEmpty(basics):
+        u.to_csv(basics, c.path_dict['basics'], c.file_dict['basics'])
 
 def loadStockBasics():
     basics = u.read_csv(c.fullpath_dict['basics'])
     return basics
+
+def validStockBasics(force_update):
+    if force_update == True:
+        return False
+    else:
+        return u.hasFile(c.fullpath_dict['basics'])
 
 def getFinanceSummary(stock_id):
     # Download Finance Summary for Given Stock
@@ -35,9 +42,15 @@ def getFinanceSummary(stock_id):
         print(fs.head(10))
 
     # Save to CSV File
-    u.to_csv(fs, c.path_dict['finsum'], c.file_dict['finsum'] % stock_id)
+    if not u.isNoneOrEmpty(fs):
+        u.to_csv(fs, c.path_dict['finsum'], c.file_dict['finsum'] % stock_id)
 
 def loadFinanceSummary(stock_id):
     fs = u.read_csv(c.fullpath_dict['finsum'] % stock_id)
     return fs
 
+def validFinanceSummary(stock_id, force_update):
+    if force_update == True:
+        return False
+    else:
+        return u.hasFile(c.fullpath_dict['finsum'] % stock_id)

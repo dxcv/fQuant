@@ -5,7 +5,7 @@ Created on Fri Feb  3 20:35:27 2017
 @author: freefrom
 """
 # Data Center Root
-path_datacenter = '../DataCenter/'
+path_datacenter = '../../../DataCenter/'
 
 # Data Folders (Relative to Data Center Root)
 folder_trading = 'Trading/'
@@ -54,7 +54,6 @@ folder_indicator_qfqq           = folder_indicator + 'QFQQ/'
 
 # Data Files (Relative to Data Folders)
 file_trading_lshq_stock         = 'Trading_LSHQ_Stock_%s.csv'
-file_trading_lshq_index         = 'Trading_LSHQ_Index_%s.csv'
 
 file_reference_rzrq_market_sh   = 'Reference_RZRQ_Market_SH.csv'
 file_reference_rzrq_market_sz   = 'Reference_RZRQ_Market_SZ.csv'
@@ -73,6 +72,7 @@ file_classifying_terminated     = 'Classifying_Terminated.csv'
 file_classifying_suspended      = 'Classifying_Suspended.csv'
 
 file_fundamental_basics         = 'Fundamental_Basics.csv'
+file_fundamental_basics_nottm   = 'Fundamental_Basics_NoTTM.csv'
 file_fundamental_report_stock   = 'Fundamental_Report_Stock_%s.csv'
 file_fundamental_profit_stock   = 'Fundamental_Profit_Stock_%s.csv'
 file_fundamental_operation_stock  = 'Fundamental_Operation_Stock_%s.csv'
@@ -90,13 +90,16 @@ path_dict = {
         'basics' : path_datacenter + folder_fundamental_basics,
         'hpe_q'  : path_datacenter + folder_indicator_hpeq,
         'qfq_q'  : path_datacenter + folder_indicator_qfqq,
+        'lshq'   : path_datacenter + folder_trading_lshq,
         'finsum' : path_datacenter + folder_fundamental_financesummary
         }
 
 file_dict = {
         'basics' : file_fundamental_basics,
+        'basics_nottm' : file_fundamental_basics_nottm,
         'hpe_q'  : file_indicator_hpeq_stock,
         'qfq_q'  : file_indicator_qfqq_stock,
+        'lshq'   : file_trading_lshq_stock,
         'finsum' : file_fundamental_financesummary_stock
         }
 
@@ -104,11 +107,12 @@ fullpath_dict = {
         'basics' : path_dict['basics'] + file_dict['basics'],
         'hpe_q'  : path_dict['hpe_q']  + file_dict['hpe_q'],
         'qfq_q'  : path_dict['qfq_q']  + file_dict['qfq_q'],
+        'lshq'   : path_dict['lshq']   + file_dict['lshq'],
         'finsum' : path_dict['finsum'] + file_dict['finsum']
         }
 
 # Magic Numbers
-magic_date_YYYYmmdd_str = '1000-00-00'
+magic_date = '1000-00-00'
 
 
 
