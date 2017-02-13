@@ -13,6 +13,7 @@ import datetime as dt
 from GetFundamental import getStockBasics, loadStockBasics, validStockBasics
 from GetFundamental import getFinanceSummary, loadFinanceSummary, validFinanceSummary
 from GetTrading import getDailyHFQ, loadDailyHFQ, validDailyHFQ
+from CalcIndicators import calcQFQ
 import Utilities as u
 import Constants as c
 import GlobalSettings as gs
@@ -27,6 +28,8 @@ update_price = False
 update_financesummary = False
 
 force_update = False
+
+calc_qfq = True
 
 ###############################################################################
 
@@ -105,6 +108,26 @@ def updateFinanceSummary(force_update = True):
             getFinanceSummary(stock_id)
             print('Update Finance Summary:', stock_id)
 
+def calculateQFQ(period = 'M'):
+    # Check pre-requisite
+    basics = loadStockBasics()
+    if u.isNoneOrEmpty(basics):
+        print('Need to have stock basics!')
+        raise SystemExit
+
+    # Iterate over all stocks
+    basics_number = len(basics)
+    for i in range(basics_number):
+        stock_id = u.stockID(basics.loc[i,'code'])
+        time_to_market = u.dateFromStr(basics.loc[i,'timeToMarket'])
+
+        # Ignore No TTM Stocks (No Yet On the Market)
+        if time_to_market is None:
+            continue;
+
+        # Calculate QFQ Data
+        calcQFQ(stock_id = stock_id, period = period)
+
 ###############################################################################
 
 #
@@ -119,7 +142,10 @@ if update_price:
 if update_financesummary:
     updateFinanceSummary(force_update)
 
-
+if calc_qfq:
+    calculateQFQ('W')
+    calculateQFQ('M')
+    calculateQFQ('Q')
 
 
 

@@ -38,10 +38,10 @@ def to_csv(df, path, file, encoding=gs.encoding):
         print('Save File: %s' % path+file)
 
 # Wrapper of DataFrame.read_csv() with Default Settings
-def read_csv(fullpath, encoding=gs.encoding):
+def read_csv(fullpath, index_col=None, encoding=gs.encoding):
     if gs.is_debug:
         print('Read File: %s' % fullpath)
-    return pd.read_csv(fullpath, encoding=encoding)
+    return pd.read_csv(fullpath, index_col=index_col, encoding=encoding)
 
 ###############################################################################
 

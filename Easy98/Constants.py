@@ -51,6 +51,8 @@ folder_boxoffice = 'BoxOffice/'
 folder_indicator                = 'Indicator/'
 folder_indicator_hpeq           = folder_indicator + 'HPEQ/'
 folder_indicator_qfqq           = folder_indicator + 'QFQQ/'
+folder_indicator_qfqm           = folder_indicator + 'QFQM/'
+folder_indicator_qfqw           = folder_indicator + 'QFQW/'
 
 # Data Files (Relative to Data Folders)
 file_trading_lshq_stock         = 'Trading_LSHQ_Stock_%s.csv'
@@ -84,12 +86,16 @@ file_fundamental_historicalpe_stock   = 'Fundamental_HistoricalPE_Stock_%s.csv'
 
 file_indicator_hpeq_stock       = 'Indicator_HPEQ_Stock_%s.csv'
 file_indicator_qfqq_stock       = 'Indicator_QFQQ_Stock_%s.csv'
+file_indicator_qfqm_stock       = 'Indicator_QFQM_Stock_%s.csv'
+file_indicator_qfqw_stock       = 'Indicator_QFQW_Stock_%s.csv'
 
 # Convenient Shorts
 path_dict = {
         'basics' : path_datacenter + folder_fundamental_basics,
         'hpe_q'  : path_datacenter + folder_indicator_hpeq,
         'qfq_q'  : path_datacenter + folder_indicator_qfqq,
+        'qfq_m'  : path_datacenter + folder_indicator_qfqm,
+        'qfq_w'  : path_datacenter + folder_indicator_qfqw,
         'lshq'   : path_datacenter + folder_trading_lshq,
         'finsum' : path_datacenter + folder_fundamental_financesummary
         }
@@ -99,6 +105,8 @@ file_dict = {
         'basics_nottm' : file_fundamental_basics_nottm,
         'hpe_q'  : file_indicator_hpeq_stock,
         'qfq_q'  : file_indicator_qfqq_stock,
+        'qfq_m'  : file_indicator_qfqm_stock,
+        'qfq_w'  : file_indicator_qfqw_stock,
         'lshq'   : file_trading_lshq_stock,
         'finsum' : file_fundamental_financesummary_stock
         }
@@ -107,8 +115,28 @@ fullpath_dict = {
         'basics' : path_dict['basics'] + file_dict['basics'],
         'hpe_q'  : path_dict['hpe_q']  + file_dict['hpe_q'],
         'qfq_q'  : path_dict['qfq_q']  + file_dict['qfq_q'],
+        'qfq_m'  : path_dict['qfq_m']  + file_dict['qfq_m'],
+        'qfq_w'  : path_dict['qfq_w']  + file_dict['qfq_w'],
         'lshq'   : path_dict['lshq']   + file_dict['lshq'],
         'finsum' : path_dict['finsum'] + file_dict['finsum']
+        }
+
+path_map_qfq = {
+        'W' : path_dict['qfq_w'],
+        'M' : path_dict['qfq_m'],
+        'Q' : path_dict['qfq_q']
+        }
+
+file_map_qfq = {
+        'W' : file_dict['qfq_w'],
+        'M' : file_dict['qfq_m'],
+        'Q' : file_dict['qfq_q']
+        }
+
+fullpath_map_qfq = {
+        'W' : fullpath_dict['qfq_w'],
+        'M' : fullpath_dict['qfq_m'],
+        'Q' : fullpath_dict['qfq_q']
         }
 
 # Magic Numbers
