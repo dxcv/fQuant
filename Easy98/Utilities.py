@@ -68,8 +68,12 @@ def quarterStartMonth(quarter):
 def quarterEndMonth(quarter):
     return quarter*3
 
-# Return the Date (YYYY-mm-dd) of a Given Quarter (1-4) of a Given Year
+# Return the Date in type of datetime.date(YYYY-mm-dd) of a Given Quarter (1-4) of a Given Year
 def quarterDate(year, quarter):
+    return dt.date(year, quarterEndMonth(quarter), quarterEndDay(quarter))
+
+# Return the Date in type of str('YYYY-mm-dd') of a given quarter (1-4) of a given year
+def quarterDateStr(year, quarter):
     return str(dt.date(year, quarterEndMonth(quarter), quarterEndDay(quarter)))
 #    return str(year)+'-'+str(quarterEndMonth(quarter)).zfill(2)+'-'+str(quarterEndDay(quarter)).zfill(2)
 
@@ -93,6 +97,15 @@ def dayLastYear():
 
 def dayLastWeek(days=-7):
     return today() + dt.timedelta(days)
+
+# Return quarter of a given date
+def quarterOfDate(date):
+    return int((date.month-1) / 3) + 1
+
+# Return quarter end date of a given date
+def quarterEndOfDay(date):
+    quarter = quarterOfDate(date)
+    return dt.date(date.year, quarterEndMonth(quarter), quarterEndDay(quarter))
 
 ###############################################################################
 
@@ -124,6 +137,10 @@ def dateFromStr(date):
         return dt.date(date.year, date.month, date.day)
     else:
         return None
+
+# Return String (from datetime.date)
+def dateToStr(date):
+    return str(date)
 
 # Extract Stock Time-to-Market from Stock Basics Data
 def timeToMarket(stock_basics, stock_id):

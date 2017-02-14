@@ -109,10 +109,10 @@ def calc_hpe_quarterly(stock_id, year_start, year_end):
 
     # Fill the Missing EPS Data
     for year in range(year_start, year_end+1):
-        index_q1 = u.quarterDate(year, 1)
-        index_q2 = u.quarterDate(year, 2)
-        index_q3 = u.quarterDate(year, 3)
-        index_q4 = u.quarterDate(year, 4)
+        index_q1 = u.quarterDateStr(year, 1)
+        index_q2 = u.quarterDateStr(year, 2)
+        index_q3 = u.quarterDateStr(year, 3)
+        index_q4 = u.quarterDateStr(year, 4)
         eps_q1 = hpe.loc[index_q1, 'eps']
         eps_q2 = hpe.loc[index_q2, 'eps']
         eps_q3 = hpe.loc[index_q3, 'eps']
@@ -166,16 +166,17 @@ def calc_hpe_quarterly(stock_id, year_start, year_end):
     rolling_ratio = [4.0, 2.0, 1.333333333333333, 1.0]
     for year in range(year_start, year_end+1):
         for quarter in range(1, 5):
-            index = u.quarterDate(year, quarter)
+            index = u.quarterDateStr(year, quarter)
             eps_filled = hpe.loc[index, 'eps_filled']
             hpe.loc[index, 'eps_rolling'] = eps_filled * rolling_ratio[quarter-1]
 
     # Calculate Historical P/E Ratio
     price = {'pe_close':'close','pe_high':'high','pe_low':'low'}
     for i in range(hpe_index_number):
+        index = hpe.index[i] # 'YYYY-mm-dd'
         eps_rolling = hpe.iloc[i]['eps_rolling']
         for column in ['pe_close','pe_high','pe_low']:
-            hpe.iloc[i][column] = hpe.iloc[i][price[column]] / eps_rolling
+            hpe.loc[index, column] = hpe.loc[index, price[column]] / eps_rolling
 
     # Format columns
     for column in hpe_columns:
@@ -184,3 +185,232 @@ def calc_hpe_quarterly(stock_id, year_start, year_end):
 
     return hpe
 
+
+def calc_hpe(stock_id, period):
+    '''
+    函数功能：
+    --------
+    逐周期计算历史市盈率。
+    假定：逐周期前复权数据，Finance Summary数据已经下载或计算完成，并存储成为CSV文件。
+
+    输入参数：
+    --------
+    stock_id : string, 股票代码 e.g. 600036
+    period : string, 采样周期 e.g. 'W', 'M', 'Q'
+
+    输出参数：
+    --------
+    DataFrame
+        date 周期截止日期（为周期最后一天） e.g. 2005-03-31
+        high 周期最高价
+        close 周期收盘价
+        low 周期最低价
+        eps 周期末每股收益（可能有数据缺失）
+        eps_filled 根据邻近周期推算出的周期末每股收益
+        eps_rolling 根据周期末每股收益（含推算），折算的年度预期每股收益
+        pe_high 根据周期最高价，计算出的市盈率
+        pe_close 根据周期收盘价，计算出的市盈率
+        pe_low 根据周期最低价，计算出的市盈率
+
+    '''
+
+    # Check Input Parameters
+    if not isinstance(stock_id, str) or not isinstance(period, str):
+        print('Incorrect type of one or more input parameters!')
+        raise SystemExit
+
+    # Check Period
+    period_types = ['W','M','Q']
+    if not period in period_types:
+        print('Un-supported period type - should be one of:', period_types)
+        raise SystemExit
+
+    # Ensure Stock QFQ Data File is Available
+    if not u.hasFile(c.fullpath_map_qfq[period] % stock_id):
+        print('Require stock QFQ file:', (c.fullpath_map_qfq[period] % stock_id))
+        raise SystemExit
+
+    # Ensure Stock Finance Summary Data File is Available
+    if not u.hasFile(c.fullpath_dict['finsum'] % stock_id):
+        print('Require stock finance summary file:', (c.fullpath_dict['finsum'] % stock_id))
+        raise SystemExit
+
+    #
+    # Load QFQ Data
+    #
+
+    qfq = u.read_csv(c.fullpath_map_qfq[period] % stock_id)
+    qfq.set_index('date', inplace=True)
+    qfq.sort_index(ascending = True, inplace=True)
+    if gs.is_debug:
+        print(qfq.head(10))
+
+    # Check empty QFQ data
+    qfq_number = len(qfq)
+    if qfq_number == 0:
+        print('Stock QFQ data length is 0!')
+        raise SystemExit
+
+    # Handle stop-trading period (by filling with previous period data)
+    # Assume: qfq data has been sorted ascendingly by date.
+    for i in range(qfq_number):
+        if i > 0 and np.isnan(qfq.iloc[i]['close']):
+            if gs.is_debug:
+                print('close = ', qfq.iloc[i]['close'])
+            if np.isnan(qfq.iloc[i-1]['close']): # Ignore leading stop-trading periods
+                continue
+            else: # Regular internal stop-trading periods
+                for column in qfq.columns:
+                    qfq.iloc[i][column] = qfq.iloc[i-1][column]
+
+    #
+    # Load Finance Summary Data
+    #
+
+    fs = u.read_csv(c.fullpath_dict['finsum'] % stock_id)
+    fs.set_index('date', inplace=True)
+    fs.sort_index(ascending = True, inplace=True)
+    if gs.is_debug:
+        print(fs.head(10))
+
+    # Check empty Finance Summary data
+    fs_number = len(fs)
+    if fs_number == 0:
+        print('Stock finance summary data length is 0!')
+        raise SystemExit
+
+    #
+    # Generate Rolling EPS for Each Quarter
+    #
+
+    eps_index = []
+    date_start = u.dateFromStr(qfq.index[0]) # First element
+    date_end = u.dateFromStr(qfq.index[-1])  # Last element
+    year_start = date_start.year
+    year_end = date_end.year
+    for year in range(year_start, year_end+1):
+        for quarter in range(1, 5):
+            date = u.quarterDateStr(year, quarter)
+            eps_index.append(date)
+    if gs.is_debug:
+        print(eps_index)
+
+    eps_columns = ['eps','eps_filled','eps_rolling']
+    eps_columns_number = len(eps_columns)
+    eps_index_number = len(eps_index)
+
+    # Init all elements to NaN
+    data_init = np.random.randn(eps_index_number * eps_columns_number)
+    for i in range(eps_index_number * eps_columns_number):
+        data_init[i] = np.nan
+    eps = pd.DataFrame(data_init.reshape(eps_index_number, eps_columns_number),
+                       index = eps_index, columns = eps_columns)
+
+    # Inherite EPS from finance summary
+    for i in range(eps_index_number):
+        index = eps.index[i]
+        if index in fs.index: # Has EPS data
+            eps.iloc[i]['eps'] = fs.loc[index, 'eps']
+        else: # Missing EPS data
+            eps.iloc[i]['eps'] = np.nan
+
+    # Fill the Missing EPS Data
+    for year in range(year_start, year_end+1):
+        index_q1 = u.quarterDateStr(year, 1)
+        index_q2 = u.quarterDateStr(year, 2)
+        index_q3 = u.quarterDateStr(year, 3)
+        index_q4 = u.quarterDateStr(year, 4)
+        eps_q1 = eps.loc[index_q1, 'eps']
+        eps_q2 = eps.loc[index_q2, 'eps']
+        eps_q3 = eps.loc[index_q3, 'eps']
+        eps_q4 = eps.loc[index_q4, 'eps']
+        if gs.is_debug:
+            print('eps_q1 =', eps_q1, 'eps_q2 =', eps_q2, 'eps_q3 =', eps_q3, 'eps_q4 =', eps_q4)
+
+        eps_q1_filled = eps_q1
+        eps_q2_filled = eps_q2
+        eps_q3_filled = eps_q3
+        eps_q4_filled = eps_q4
+
+        if (np.isnan(eps_q1)):
+            if   (not np.isnan(eps_q2)):
+                eps_q1_filled = eps_q2 * 0.5
+            elif (not np.isnan(eps_q3)):
+                eps_q1_filled = eps_q3 * 0.3333333333333333
+            elif (not np.isnan(eps_q4)):
+                eps_q1_filled = eps_q4 * 0.25
+        if (np.isnan(eps_q2)):
+            if   (not np.isnan(eps_q1)):
+                eps_q2_filled = eps_q1 * 2.0
+            elif (not np.isnan(eps_q3)):
+                eps_q2_filled = eps_q3 * 0.6666666666666667
+            elif (not np.isnan(eps_q4)):
+                eps_q2_filled = eps_q4 * 0.5
+        if (np.isnan(eps_q3)):
+            if (not np.isnan(eps_q2)):
+                eps_q3_filled = eps_q2 * 1.5
+            elif (not np.isnan(eps_q1)):
+                eps_q3_filled = eps_q1 * 3.0
+            elif (not np.isnan(eps_q4)):
+                eps_q3_filled = eps_q4 * 0.75
+        if (np.isnan(eps_q4)):
+            if (not np.isnan(eps_q3)):
+                eps_q4_filled = eps_q3 * 1.333333333333333
+            elif (not np.isnan(eps_q2)):
+                eps_q4_filled = eps_q2 * 2.0
+            elif (not np.isnan(eps_q1)):
+                eps_q4_filled = eps_q1 * 4.0
+        if gs.is_debug:
+            print('eps_q1_filled =', eps_q1_filled, 'eps_q2_filled =', eps_q2_filled,
+                  'eps_q3_filled =', eps_q3_filled, 'eps_q4_filled =', eps_q4_filled)
+
+        eps.loc[index_q1, 'eps_filled'] = eps_q1_filled
+        eps.loc[index_q2, 'eps_filled'] = eps_q2_filled
+        eps.loc[index_q3, 'eps_filled'] = eps_q3_filled
+        eps.loc[index_q4, 'eps_filled'] = eps_q4_filled
+
+    # Calculate Rolling EPS
+    rolling_ratio = [4.0, 2.0, 1.333333333333333, 1.0]
+    for year in range(year_start, year_end+1):
+        for quarter in range(1, 5):
+            index = u.quarterDateStr(year, quarter)
+            eps_filled = eps.loc[index, 'eps_filled']
+            eps.loc[index, 'eps_rolling'] = eps_filled * rolling_ratio[quarter-1]
+
+    if gs.is_debug:
+        print(eps.head(10))
+
+    #
+    # Calculate HPE based on given period
+    #
+
+    # Drop un-used columns
+    hpe = qfq.drop(['open', 'volume', 'amount'], axis=1)
+
+    # Add columns to hpe
+    for column in ['eps','eps_filled','eps_rolling','pe_high','pe_close','pe_low']:
+        hpe[column] = np.nan
+
+    # Calculate Historical P/E Ratio
+    hpe_number = len(hpe)
+    for i in range(hpe_number):
+        index = hpe.index[i] # 'YYYY-mm-dd'
+        index_date = u.dateFromStr(index) # datetime.date(YYYY-mm-dd)
+        index_quarter = u.quarterDateStr(index_date.year, u.quarterOfDate(index_date)) # 'YYYY-mm-dd'
+        for column in ['eps', 'eps_filled', 'eps_rolling']:
+            hpe.loc[index, column] = eps.loc[index_quarter, column]
+
+    # Calculate Historical P/E Ratio
+    price = {'pe_close':'close','pe_high':'high','pe_low':'low'}
+    for i in range(hpe_number):
+        index = hpe.index[i] # 'YYYY-mm-dd'
+        eps_rolling = hpe.iloc[i]['eps_rolling']
+        for column in ['pe_close','pe_high','pe_low']:
+            hpe.loc[index, column] = hpe.loc[index, price[column]] / eps_rolling
+
+    # Format columns
+    for column in hpe.columns:
+        hpe[column] = hpe[column].map(lambda x: '%.2f' % x)
+        hpe[column] = hpe[column].astype(float)
+
+    return hpe
