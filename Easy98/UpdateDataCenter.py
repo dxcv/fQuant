@@ -18,6 +18,7 @@ from GetClassifying import getIndustrySina, getConceptSina, getArea
 from GetClassifying import getSME, getGEM, getST
 from GetClassifying import getHS300, getSZ50, getZZ500
 from GetClassifying import getTerminated, getSuspended
+from GetClassifying import extractIndustrySina, extractConceptSina, extractArea
 
 import Utilities as u
 import Constants as c
@@ -37,7 +38,8 @@ force_update = False
 calc_qfq = False
 calc_hpe = False
 
-update_classifying = True
+update_classifying = False
+extract_classifying = True
 
 ###############################################################################
 
@@ -193,7 +195,10 @@ if update_classifying:
     getTerminated()
     getSuspended()
 
-
+if extract_classifying:
+    extractIndustrySina()
+    extractConceptSina()
+    extractArea()
 
 
 

@@ -15,6 +15,9 @@ folder_reference = 'Reference/'
 folder_reference_rzrq = folder_reference + 'RZRQ/'
 
 folder_classifying = 'Classifying/'
+folder_classifying_industry_sina = folder_classifying + 'Industry_Sina/'
+folder_classifying_concept_sina = folder_classifying + 'Concept_Sina/'
+folder_classifying_area         = folder_classifying + 'Area/'
 
 folder_fundamental = 'Fundamental/'
 folder_fundamental_basics       = folder_fundamental + 'Basics/'
@@ -62,6 +65,12 @@ file_classifying_sz50           = 'Classifying_SZ50.csv'
 file_classifying_zz500          = 'Classifying_ZZ500.csv'
 file_classifying_terminated     = 'Classifying_Terminated.csv'
 file_classifying_suspended      = 'Classifying_Suspended.csv'
+file_classifying_industry_list  = 'Classifying_Industry_List.csv'
+file_classifying_industry_stock = 'Classifying_Industry_%s.csv'
+file_classifying_concept_list   = 'Classifying_Concept_List.csv'
+file_classifying_concept_stock  = 'Classifying_Concept_%s.csv'
+file_classifying_area_list      = 'Classifying_Area_List.csv'
+file_classifying_area_stock     = 'Classifying_Area_%s.csv'
 
 file_fundamental_basics         = 'Fundamental_Basics.csv'
 file_fundamental_basics_nottm   = 'Fundamental_Basics_NoTTM.csv'
@@ -91,7 +100,10 @@ path_dict = {
         'qfq_q'  : path_datacenter + folder_indicator_qfqq,
         'lshq'   : path_datacenter + folder_trading_lshq,
         'finsum' : path_datacenter + folder_fundamental_financesummary,
-        'classify' : path_datacenter + folder_classifying
+        'classify'  : path_datacenter + folder_classifying,
+        'indu_sina' : path_datacenter + folder_classifying_industry_sina,
+        'conc_sina' : path_datacenter + folder_classifying_concept_sina,
+        'area'      : path_datacenter + folder_classifying_area
         }
 
 file_dict = {
@@ -115,7 +127,13 @@ file_dict = {
         'sz50'   : file_classifying_sz50,
         'zz500'  : file_classifying_zz500,
         'terminated' : file_classifying_terminated,
-        'suspended'  : file_classifying_suspended
+        'suspended'  : file_classifying_suspended,
+        'indu_list'  : file_classifying_industry_list,
+        'indu_stock' : file_classifying_industry_stock,
+        'conc_list'  : file_classifying_concept_list,
+        'conc_stock' : file_classifying_concept_stock,
+        'area_list'  : file_classifying_area_list,
+        'area_stock' : file_classifying_area_stock
         }
 
 fullpath_dict = {
@@ -138,7 +156,13 @@ fullpath_dict = {
         'sz50'   : path_dict['classify'] + file_classifying_sz50,
         'zz500'  : path_dict['classify'] + file_classifying_zz500,
         'terminated' : path_dict['classify'] + file_classifying_terminated,
-        'suspended'  : path_dict['classify'] + file_classifying_suspended
+        'suspended'  : path_dict['classify'] + file_classifying_suspended,
+        'indu_list'  : path_dict['indu_sina'] + file_classifying_industry_list,
+        'indu_stock' : path_dict['indu_sina'] + file_classifying_industry_stock,
+        'conc_list'  : path_dict['conc_sina'] + file_classifying_concept_list,
+        'conc_stock' : path_dict['conc_sina'] + file_classifying_concept_stock,
+        'area_list'  : path_dict['area'] + file_classifying_area_list,
+        'area_stock' : path_dict['area'] + file_classifying_area_stock
         }
 
 path_map_qfq = {
