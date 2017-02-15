@@ -15,17 +15,6 @@ folder_reference = 'Reference/'
 folder_reference_rzrq = folder_reference + 'RZRQ/'
 
 folder_classifying = 'Classifying/'
-folder_classifying_industry     = folder_classifying + 'Industry/'
-folder_classifying_concept      = folder_classifying + 'Concept/'
-folder_classifying_area         = folder_classifying + 'Area/'
-folder_classifying_sme          = folder_classifying + 'SME/'
-folder_classifying_gem          = folder_classifying + 'GEM/'
-folder_classifying_st           = folder_classifying + 'ST/'
-folder_classifying_hs300        = folder_classifying + 'HS300/'
-folder_classifying_sz50         = folder_classifying + 'SZ50/'
-folder_classifying_zz500        = folder_classifying + 'ZZ500/'
-folder_classifying_terminated   = folder_classifying + 'Terminated/'
-folder_classifying_suspended    = folder_classifying + 'Suspended/'
 
 folder_fundamental = 'Fundamental/'
 folder_fundamental_basics       = folder_fundamental + 'Basics/'
@@ -62,8 +51,8 @@ file_reference_rzrq_market_sh   = 'Reference_RZRQ_Market_SH.csv'
 file_reference_rzrq_market_sz   = 'Reference_RZRQ_Market_SZ.csv'
 file_reference_rzrq_stock       = 'Reference_RZRQ_Stock_%s.csv'
 
-file_classifying_industry       = 'Classifying_Industry.csv'
-file_classifying_concept        = 'Classifying_Concept.csv'
+file_classifying_industry_sina  = 'Classifying_Industry_Sina.csv'
+file_classifying_concept_sina   = 'Classifying_Concept_Sina.csv'
 file_classifying_area           = 'Classifying_Area.csv'
 file_classifying_sme            = 'Classifying_SME.csv'
 file_classifying_gem            = 'Classifying_GEM.csv'
@@ -101,7 +90,8 @@ path_dict = {
         'qfq_m'  : path_datacenter + folder_indicator_qfqm,
         'qfq_q'  : path_datacenter + folder_indicator_qfqq,
         'lshq'   : path_datacenter + folder_trading_lshq,
-        'finsum' : path_datacenter + folder_fundamental_financesummary
+        'finsum' : path_datacenter + folder_fundamental_financesummary,
+        'classify' : path_datacenter + folder_classifying
         }
 
 file_dict = {
@@ -114,7 +104,18 @@ file_dict = {
         'qfq_m'  : file_indicator_qfqm_stock,
         'qfq_q'  : file_indicator_qfqq_stock,
         'lshq'   : file_trading_lshq_stock,
-        'finsum' : file_fundamental_financesummary_stock
+        'finsum' : file_fundamental_financesummary_stock,
+        'indu_sina' : file_classifying_industry_sina,
+        'conc_sina' : file_classifying_concept_sina,
+        'area'   : file_classifying_area,
+        'sme'    : file_classifying_sme,
+        'gem'    : file_classifying_gem,
+        'st'     : file_classifying_st,
+        'hs300'  : file_classifying_hs300,
+        'sz50'   : file_classifying_sz50,
+        'zz500'  : file_classifying_zz500,
+        'terminated' : file_classifying_terminated,
+        'suspended'  : file_classifying_suspended
         }
 
 fullpath_dict = {
@@ -126,7 +127,18 @@ fullpath_dict = {
         'qfq_m'  : path_dict['qfq_m']  + file_dict['qfq_m'],
         'qfq_q'  : path_dict['qfq_q']  + file_dict['qfq_q'],
         'lshq'   : path_dict['lshq']   + file_dict['lshq'],
-        'finsum' : path_dict['finsum'] + file_dict['finsum']
+        'finsum' : path_dict['finsum'] + file_dict['finsum'],
+        'indu_sina' : path_dict['classify'] + file_classifying_industry_sina,
+        'conc_sina' : path_dict['classify'] + file_classifying_concept_sina,
+        'area'   : path_dict['classify'] + file_classifying_area,
+        'sme'    : path_dict['classify'] + file_classifying_sme,
+        'gem'    : path_dict['classify'] + file_classifying_gem,
+        'st'     : path_dict['classify'] + file_classifying_st,
+        'hs300'  : path_dict['classify'] + file_classifying_hs300,
+        'sz50'   : path_dict['classify'] + file_classifying_sz50,
+        'zz500'  : path_dict['classify'] + file_classifying_zz500,
+        'terminated' : path_dict['classify'] + file_classifying_terminated,
+        'suspended'  : path_dict['classify'] + file_classifying_suspended
         }
 
 path_map_qfq = {

@@ -14,6 +14,11 @@ from GetFundamental import getStockBasics, loadStockBasics, validStockBasics
 from GetFundamental import getFinanceSummary, loadFinanceSummary, validFinanceSummary
 from GetTrading import getDailyHFQ, loadDailyHFQ, validDailyHFQ
 from CalcIndicators import calcQFQ, calcHPE
+from GetClassifying import getIndustrySina, getConceptSina, getArea
+from GetClassifying import getSME, getGEM, getST
+from GetClassifying import getHS300, getSZ50, getZZ500
+from GetClassifying import getTerminated, getSuspended
+
 import Utilities as u
 import Constants as c
 import GlobalSettings as gs
@@ -30,7 +35,9 @@ update_financesummary = False
 force_update = False
 
 calc_qfq = False
-calc_hpe = True
+calc_hpe = False
+
+update_classifying = True
 
 ###############################################################################
 
@@ -173,6 +180,18 @@ if calc_hpe:
     calculateHPE('M')
     calculateHPE('Q')
 
+if update_classifying:
+    getIndustrySina()
+    getConceptSina()
+    getArea()
+    getSME()
+    getGEM()
+    getST()
+    getHS300()
+    getSZ50()
+    getZZ500()
+    getTerminated()
+    getSuspended()
 
 
 
