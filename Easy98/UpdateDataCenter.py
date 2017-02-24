@@ -31,7 +31,8 @@ import GlobalSettings as gs
 date_start = dt.date(2005, 1, 1)
 date_end = u.today()
 update_basics = False
-update_price = False
+update_price_stock = False
+update_price_index = True
 update_financesummary = False
 
 force_update = False
@@ -44,7 +45,7 @@ update_classifying = False
 extract_classifying = False
 
 plot_hpe = False
-plot_hep = True
+plot_hep = False
 
 ###############################################################################
 
@@ -77,7 +78,7 @@ def cleanStockBasics():
     u.to_csv(basics, c.path_dict['basics'], c.file_dict['basics'])
     u.to_csv(basics_nottm, c.path_dict['basics'], c.file_dict['basics_nottm'])
 
-def updatePrice(force_update = True):
+def updatePriceStock(force_update = True):
     # Check pre-requisite
     basics = loadStockBasics()
     if u.isNoneOrEmpty(basics):
@@ -100,6 +101,12 @@ def updatePrice(force_update = True):
             getDailyHFQ(stock_id=stock_id, is_index=is_index, date_start=time_to_market,
                         date_end=date_end, time_to_market=time_to_market)
             print('Update Price:', stock_id)
+
+def updatePriceIndex(force_update = True):
+    for index_id in ['000001', '399001', '000300', '399005', '399006', '000016', '000905']:
+        getDailyHFQ(stock_id=index_id, is_index=True, date_start=date_start,
+                    date_end=date_end, time_to_market=None)
+        print('Update Price:', index_id)
 
 def updateFinanceSummary(force_update = True):
     # Check pre-requisite
@@ -191,8 +198,11 @@ def plotFigureHPE(period = 'M', ratio = 'PE'):
 if update_basics:
     updateStockBasics(force_update)
 
-if update_price:
-    updatePrice(force_update)
+if update_price_stock:
+    updatePriceStock(force_update)
+
+if update_price_index:
+    updatePriceIndex(force_update)
 
 if update_financesummary:
     updateFinanceSummary(force_update)
