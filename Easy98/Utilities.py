@@ -43,6 +43,13 @@ def read_csv(fullpath, index_col=None, encoding=gs.encoding):
         print('Read File: %s' % fullpath)
     return pd.read_csv(fullpath, index_col=index_col, encoding=encoding)
 
+# Wrapper of matplotlib.pyplot.savefig() Function
+def saveFigure(plt, path, file):
+    ensurePath(path)
+    plt.savefig(path+file)
+    if gs.is_debug:
+        print('Save Figure: %s' % path+file)
+
 ###############################################################################
 
 #

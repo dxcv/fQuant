@@ -19,23 +19,35 @@ def calcQFQ(stock_id, period):
 
     # Save to CSV File
     if not u.isNoneOrEmpty(df):
-        u.to_csv(df, c.path_map_qfq[period], c.file_map_qfq[period] % stock_id)
+        path = c.path_dict['qfq'] % period
+        file = c.file_dict['qfq'] % (period, stock_id)
+        u.to_csv(df, path, file)
 
 def loadQFQ(stock_id, period):
-    df = u.read_csv(c.fullpath_map_qfq[period] % stock_id)
+    path = c.path_dict['qfq'] % period
+    file = c.file_dict['qfq'] % (period, stock_id)
+
+    df = u.read_csv(path+file)
     return df
 
-def calcHPE(stock_id, period):
+def calcHPE(stock_id, period, ratio):
     # Calculate HPE DataFrame
-    df = calc_hpe(stock_id, period)
+    df = calc_hpe(stock_id, period, ratio)
     if gs.is_debug:
         print(df.head(10))
 
     # Save to CSV File
     if not u.isNoneOrEmpty(df):
-        u.to_csv(df, c.path_map_hpe[period], c.file_map_hpe[period] % stock_id)
+        key = 'hpe' if ratio == 'PE' else 'hep'
+        path = c.path_dict[key] % period
+        file = c.file_dict[key] % (period, stock_id)
+        u.to_csv(df, path, file)
 
-def loadHPE(stock_id, period):
-    df = u.read_csv(c.fullpath_map_hpe[period] % stock_id)
+def loadHPE(stock_id, period, ratio):
+    key = 'hpe' if ratio == 'PE' else 'hep'
+    path = c.path_dict[key] % period
+    file = c.file_dict[key] % (period, stock_id)
+
+    df = u.read_csv(path+file)
     return df
 

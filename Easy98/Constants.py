@@ -40,12 +40,13 @@ folder_shibor = 'Shibor/'
 folder_boxoffice = 'BoxOffice/'
 
 folder_indicator                = 'Indicator/'
-folder_indicator_hpew           = folder_indicator + 'HPEW/'
-folder_indicator_hpem           = folder_indicator + 'HPEM/'
-folder_indicator_hpeq           = folder_indicator + 'HPEQ/'
-folder_indicator_qfqw           = folder_indicator + 'QFQW/'
-folder_indicator_qfqm           = folder_indicator + 'QFQM/'
-folder_indicator_qfqq           = folder_indicator + 'QFQQ/'
+folder_indicator_hpe_period     = folder_indicator + 'HPE%s/'
+folder_indicator_hep_period     = folder_indicator + 'HEP%s/'
+folder_indicator_qfq_period     = folder_indicator + 'QFQ%s/'
+
+folder_figure                   = 'Figure/'
+folder_figure_hpe_period        = folder_figure + 'HPE%s/'
+folder_figure_hep_period        = folder_figure + 'HEP%s/'
 
 # Data Files (Relative to Data Folders)
 file_trading_lshq_stock         = 'Trading_LSHQ_Stock_%s.csv'
@@ -82,39 +83,35 @@ file_fundamental_debtpaying_stock = 'Fundamental_DebtPaying_Stock_%s.csv'
 file_fundamental_cashflow_stock   = 'Fundamental_Cashflow_Stock_%s.csv'
 file_fundamental_financesummary_stock = 'Fundamental_FinanceSummary_Stock_%s.csv'
 
-file_indicator_hpew_stock       = 'Indicator_HPEW_Stock_%s.csv'
-file_indicator_hpem_stock       = 'Indicator_HPEM_Stock_%s.csv'
-file_indicator_hpeq_stock       = 'Indicator_HPEQ_Stock_%s.csv'
-file_indicator_qfqw_stock       = 'Indicator_QFQW_Stock_%s.csv'
-file_indicator_qfqm_stock       = 'Indicator_QFQM_Stock_%s.csv'
-file_indicator_qfqq_stock       = 'Indicator_QFQQ_Stock_%s.csv'
+file_indicator_hpe_period_stock = 'Indicator_HPE%s_Stock_%s.csv'
+file_indicator_hep_period_stock = 'Indicator_HEP%s_Stock_%s.csv'
+fild_indicator_qfq_period_stock = 'Indicator_QFQ%s_Stock_%s.csv'
+
+file_figure_hpe_period_stock    = 'Figure_HPE%s_Stock_%s.jpg'
+file_figure_hep_period_stock    = 'Figure_HEP%s_Stock_%s.jpg'
 
 # Convenient Shorts
 path_dict = {
         'basics' : path_datacenter + folder_fundamental_basics,
-        'hpe_w'  : path_datacenter + folder_indicator_hpew,
-        'hpe_m'  : path_datacenter + folder_indicator_hpem,
-        'hpe_q'  : path_datacenter + folder_indicator_hpeq,
-        'qfq_w'  : path_datacenter + folder_indicator_qfqw,
-        'qfq_m'  : path_datacenter + folder_indicator_qfqm,
-        'qfq_q'  : path_datacenter + folder_indicator_qfqq,
+        'hpe'    : path_datacenter + folder_indicator_hpe_period,
+        'hep'    : path_datacenter + folder_indicator_hep_period,
+        'qfq'    : path_datacenter + folder_indicator_qfq_period,
         'lshq'   : path_datacenter + folder_trading_lshq,
         'finsum' : path_datacenter + folder_fundamental_financesummary,
         'classify'  : path_datacenter + folder_classifying,
         'indu_sina' : path_datacenter + folder_classifying_industry_sina,
         'conc_sina' : path_datacenter + folder_classifying_concept_sina,
-        'area'      : path_datacenter + folder_classifying_area
+        'area'      : path_datacenter + folder_classifying_area,
+        'fig_hpe'   : path_datacenter + folder_figure_hpe_period,
+        'fig_hep'   : path_datacenter + folder_figure_hep_period
         }
 
 file_dict = {
         'basics' : file_fundamental_basics,
         'basics_nottm' : file_fundamental_basics_nottm,
-        'hpe_w'  : file_indicator_hpew_stock,
-        'hpe_m'  : file_indicator_hpem_stock,
-        'hpe_q'  : file_indicator_hpeq_stock,
-        'qfq_w'  : file_indicator_qfqw_stock,
-        'qfq_m'  : file_indicator_qfqm_stock,
-        'qfq_q'  : file_indicator_qfqq_stock,
+        'hpe'    : file_indicator_hpe_period_stock,
+        'hep'    : file_indicator_hep_period_stock,
+        'qfq'    : fild_indicator_qfq_period_stock,
         'lshq'   : file_trading_lshq_stock,
         'finsum' : file_fundamental_financesummary_stock,
         'indu_sina' : file_classifying_industry_sina,
@@ -133,98 +130,34 @@ file_dict = {
         'conc_list'  : file_classifying_concept_list,
         'conc_stock' : file_classifying_concept_stock,
         'area_list'  : file_classifying_area_list,
-        'area_stock' : file_classifying_area_stock
+        'area_stock' : file_classifying_area_stock,
+        'fig_hpe'    : file_figure_hpe_period_stock,
+        'fig_hep'    : file_figure_hep_period_stock
         }
 
 fullpath_dict = {
         'basics' : path_dict['basics'] + file_dict['basics'],
-        'hpe_w'  : path_dict['hpe_w']  + file_dict['hpe_w'],
-        'hpe_m'  : path_dict['hpe_m']  + file_dict['hpe_m'],
-        'hpe_q'  : path_dict['hpe_q']  + file_dict['hpe_q'],
-        'qfq_w'  : path_dict['qfq_w']  + file_dict['qfq_w'],
-        'qfq_m'  : path_dict['qfq_m']  + file_dict['qfq_m'],
-        'qfq_q'  : path_dict['qfq_q']  + file_dict['qfq_q'],
         'lshq'   : path_dict['lshq']   + file_dict['lshq'],
         'finsum' : path_dict['finsum'] + file_dict['finsum'],
         'indu_sina' : path_dict['classify'] + file_classifying_industry_sina,
         'conc_sina' : path_dict['classify'] + file_classifying_concept_sina,
-        'area'   : path_dict['classify'] + file_classifying_area,
-        'sme'    : path_dict['classify'] + file_classifying_sme,
-        'gem'    : path_dict['classify'] + file_classifying_gem,
-        'st'     : path_dict['classify'] + file_classifying_st,
-        'hs300'  : path_dict['classify'] + file_classifying_hs300,
-        'sz50'   : path_dict['classify'] + file_classifying_sz50,
-        'zz500'  : path_dict['classify'] + file_classifying_zz500,
-        'terminated' : path_dict['classify'] + file_classifying_terminated,
-        'suspended'  : path_dict['classify'] + file_classifying_suspended,
-        'indu_list'  : path_dict['indu_sina'] + file_classifying_industry_list,
-        'indu_stock' : path_dict['indu_sina'] + file_classifying_industry_stock,
-        'conc_list'  : path_dict['conc_sina'] + file_classifying_concept_list,
-        'conc_stock' : path_dict['conc_sina'] + file_classifying_concept_stock,
-        'area_list'  : path_dict['area'] + file_classifying_area_list,
-        'area_stock' : path_dict['area'] + file_classifying_area_stock
-        }
-
-path_map_qfq = {
-        'W' : path_dict['qfq_w'],
-        'M' : path_dict['qfq_m'],
-        'Q' : path_dict['qfq_q']
-        }
-
-file_map_qfq = {
-        'W' : file_dict['qfq_w'],
-        'M' : file_dict['qfq_m'],
-        'Q' : file_dict['qfq_q']
-        }
-
-fullpath_map_qfq = {
-        'W' : fullpath_dict['qfq_w'],
-        'M' : fullpath_dict['qfq_m'],
-        'Q' : fullpath_dict['qfq_q']
-        }
-
-path_map_hpe = {
-        'W' : path_dict['hpe_w'],
-        'M' : path_dict['hpe_m'],
-        'Q' : path_dict['hpe_q']
-        }
-
-file_map_hpe = {
-        'W' : file_dict['hpe_w'],
-        'M' : file_dict['hpe_m'],
-        'Q' : file_dict['hpe_q']
-        }
-
-fullpath_map_hpe = {
-        'W' : fullpath_dict['hpe_w'],
-        'M' : fullpath_dict['hpe_m'],
-        'Q' : fullpath_dict['hpe_q']
+        'area'   : path_dict['classify'] + file_dict['area'],
+        'sme'    : path_dict['classify'] + file_dict['sme'],
+        'gem'    : path_dict['classify'] + file_dict['gem'],
+        'st'     : path_dict['classify'] + file_dict['st'],
+        'hs300'  : path_dict['classify'] + file_dict['hs300'],
+        'sz50'   : path_dict['classify'] + file_dict['sz50'],
+        'zz500'  : path_dict['classify'] + file_dict['zz500'],
+        'terminated' : path_dict['classify'] + file_dict['terminated'],
+        'suspended'  : path_dict['classify'] + file_dict['suspended'],
+        'indu_list'  : path_dict['indu_sina'] + file_dict['indu_list'],
+        'indu_stock' : path_dict['indu_sina'] + file_dict['indu_stock'],
+        'conc_list'  : path_dict['conc_sina'] + file_dict['conc_list'],
+        'conc_stock' : path_dict['conc_sina'] + file_dict['conc_stock'],
+        'area_list'  : path_dict['area'] + file_dict['area_list'],
+        'area_stock' : path_dict['area'] + file_dict['area_stock']
         }
 
 # Magic Numbers
 magic_date = '1000-00-00'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

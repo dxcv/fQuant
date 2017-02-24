@@ -19,6 +19,7 @@ from GetClassifying import getSME, getGEM, getST
 from GetClassifying import getHS300, getSZ50, getZZ500
 from GetClassifying import getTerminated, getSuspended
 from GetClassifying import extractIndustrySina, extractConceptSina, extractArea
+from PlotFigures import plotHPE
 
 import Utilities as u
 import Constants as c
@@ -37,9 +38,13 @@ force_update = False
 
 calc_qfq = False
 calc_hpe = False
+calc_hep = False
 
 update_classifying = False
-extract_classifying = True
+extract_classifying = False
+
+plot_hpe = False
+plot_hep = True
 
 ###############################################################################
 
@@ -138,7 +143,7 @@ def calculateQFQ(period = 'M'):
         # Calculate QFQ Data
         calcQFQ(stock_id = stock_id, period = period)
 
-def calculateHPE(period = 'M'):
+def calculateHPE(period = 'M', ratio = 'PE'):
     # Check pre-requisite
     basics = loadStockBasics()
     if u.isNoneOrEmpty(basics):
@@ -155,8 +160,28 @@ def calculateHPE(period = 'M'):
         if time_to_market is None:
             continue;
 
-        # Calculate QFQ Data
-        calcHPE(stock_id = stock_id, period = period)
+        # Calculate HPE Data
+        calcHPE(stock_id = stock_id, period = period, ratio = ratio)
+
+def plotFigureHPE(period = 'M', ratio = 'PE'):
+    # Check pre-requisite
+    basics = loadStockBasics()
+    if u.isNoneOrEmpty(basics):
+        print('Need to have stock basics!')
+        raise SystemExit
+
+    # Iterate over all stocks
+    basics_number = len(basics)
+    for i in range(basics_number):
+        stock_id = u.stockID(basics.loc[i,'code'])
+        time_to_market = u.dateFromStr(basics.loc[i,'timeToMarket'])
+
+        # Ignore No TTM Stocks (No Yet On the Market)
+        if time_to_market is None:
+            continue;
+
+        # Plot HPE Data
+        plotHPE(stock_id = stock_id, period = period, ratio = ratio)
 
 ###############################################################################
 
@@ -173,14 +198,16 @@ if update_financesummary:
     updateFinanceSummary(force_update)
 
 if calc_qfq:
-    calculateQFQ('W')
-    calculateQFQ('M')
-    calculateQFQ('Q')
+    for period in ['W','M','Q']:
+        calculateQFQ(period)
 
 if calc_hpe:
-    calculateHPE('W')
-    calculateHPE('M')
-    calculateHPE('Q')
+    for period in ['W','M','Q']:
+        calculateHPE(period=period, ratio='PE')
+
+if calc_hep:
+    for period in ['W','M','Q']:
+        calculateHPE(period=period, ratio='EP')
 
 if update_classifying:
     getIndustrySina()
@@ -200,7 +227,11 @@ if extract_classifying:
     extractConceptSina()
     extractArea()
 
+if plot_hpe:
+    plotFigureHPE(period='M', ratio='PE')
 
+if plot_hep:
+    plotFigureHPE(period='M', ratio='EP')
 
 
 

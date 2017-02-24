@@ -186,7 +186,7 @@ def calc_hpe_quarterly(stock_id, year_start, year_end):
     return hpe
 
 
-def calc_hpe(stock_id, period):
+def calc_hpe(stock_id, period, ratio):
     '''
     函数功能：
     --------
@@ -225,21 +225,31 @@ def calc_hpe(stock_id, period):
         print('Un-supported period type - should be one of:', period_types)
         raise SystemExit
 
+    # Check Ratio
+    ratio_types = ['PE','EP']
+    if not ratio in ratio_types:
+        print('Un-supported ratio type - should be one of:', ratio_types)
+        raise SystemExit
+
     # Ensure Stock QFQ Data File is Available
-    if not u.hasFile(c.fullpath_map_qfq[period] % stock_id):
-        print('Require stock QFQ file:', (c.fullpath_map_qfq[period] % stock_id))
+    qfq_path = c.path_dict['qfq'] % period
+    qfq_file = c.file_dict['qfq'] % (period, stock_id)
+    qfq_fullpath = qfq_path + qfq_file
+    if not u.hasFile(qfq_fullpath):
+        print('Require stock QFQ file:', (qfq_fullpath))
         raise SystemExit
 
     # Ensure Stock Finance Summary Data File is Available
-    if not u.hasFile(c.fullpath_dict['finsum'] % stock_id):
-        print('Require stock finance summary file:', (c.fullpath_dict['finsum'] % stock_id))
+    fs_fullpath = c.fullpath_dict['finsum'] % stock_id
+    if not u.hasFile(fs_fullpath):
+        print('Require stock finance summary file:', (fs_fullpath))
         raise SystemExit
 
     #
     # Load QFQ Data
     #
 
-    qfq = u.read_csv(c.fullpath_map_qfq[period] % stock_id)
+    qfq = u.read_csv(qfq_fullpath)
     qfq.set_index('date', inplace=True)
     qfq.sort_index(ascending = True, inplace=True)
     if gs.is_debug:
@@ -267,7 +277,7 @@ def calc_hpe(stock_id, period):
     # Load Finance Summary Data
     #
 
-    fs = u.read_csv(c.fullpath_dict['finsum'] % stock_id)
+    fs = u.read_csv(fs_fullpath)
     fs.set_index('date', inplace=True)
     fs.sort_index(ascending = True, inplace=True)
     if gs.is_debug:
@@ -388,10 +398,14 @@ def calc_hpe(stock_id, period):
     hpe = qfq.drop(['open', 'volume', 'amount'], axis=1)
 
     # Add columns to hpe
-    for column in ['eps','eps_filled','eps_rolling','pe_high','pe_close','pe_low']:
-        hpe[column] = np.nan
+    if ratio == 'PE':
+        for column in ['eps','eps_filled','eps_rolling','pe_high','pe_close','pe_low']:
+            hpe[column] = np.nan
+    else:
+        for column in ['eps','eps_filled','eps_rolling','ep_high','ep_close','ep_low']:
+            hpe[column] = np.nan
 
-    # Calculate Historical P/E Ratio
+    # Calculate Historical P/E or E/P Ratio
     hpe_number = len(hpe)
     for i in range(hpe_number):
         index = hpe.index[i] # 'YYYY-mm-dd'
@@ -400,13 +414,22 @@ def calc_hpe(stock_id, period):
         for column in ['eps', 'eps_filled', 'eps_rolling']:
             hpe.loc[index, column] = eps.loc[index_quarter, column]
 
-    # Calculate Historical P/E Ratio
-    price = {'pe_close':'close','pe_high':'high','pe_low':'low'}
-    for i in range(hpe_number):
-        index = hpe.index[i] # 'YYYY-mm-dd'
-        eps_rolling = hpe.iloc[i]['eps_rolling']
-        for column in ['pe_close','pe_high','pe_low']:
-            hpe.loc[index, column] = hpe.loc[index, price[column]] / eps_rolling
+    if ratio == 'PE':
+        # Calculate Historical P/E Ratio
+        price = {'pe_close':'close','pe_high':'high','pe_low':'low'}
+        for i in range(hpe_number):
+            index = hpe.index[i] # 'YYYY-mm-dd'
+            eps_rolling = hpe.iloc[i]['eps_rolling']
+            for column in ['pe_close','pe_high','pe_low']:
+                hpe.loc[index, column] = hpe.loc[index, price[column]] / eps_rolling
+    else:
+        # Calculate Historical E/P Ratio
+        price = {'ep_close':'close','ep_high':'high','ep_low':'low'}
+        for i in range(hpe_number):
+            index = hpe.index[i] # 'YYYY-mm-dd'
+            eps_rolling = hpe.iloc[i]['eps_rolling']
+            for column in ['ep_close','ep_high','ep_low']:
+                hpe.loc[index, column] = eps_rolling / hpe.loc[index, price[column]]
 
     # Format columns
     for column in hpe.columns:
