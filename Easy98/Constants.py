@@ -48,6 +48,8 @@ folder_figure                   = 'Figure/'
 folder_figure_hpe_period        = folder_figure + 'HPE%s/'
 folder_figure_hep_period        = folder_figure + 'HEP%s/'
 
+folder_strategy                 = 'Strategy/'
+
 # Data Files (Relative to Data Folders)
 file_trading_lshq_stock         = 'Trading_LSHQ_Stock_%s.csv'
 
@@ -90,6 +92,9 @@ fild_indicator_qfq_period_stock = 'Indicator_QFQ%s_Stock_%s.csv'
 file_figure_hpe_period_stock    = 'Figure_HPE%s_Stock_%s.jpg'
 file_figure_hep_period_stock    = 'Figure_HEP%s_Stock_%s.jpg'
 
+file_strategy_anclexu_stock         = 'Strategy_AncleXu_Stock_%s.csv'
+file_strategy_result_anclexu_stock  = 'StrategyResult_AncleXu_Stock_%s.csv'
+
 # Convenient Shorts
 path_dict = {
         'basics' : path_datacenter + folder_fundamental_basics,
@@ -103,7 +108,8 @@ path_dict = {
         'conc_sina' : path_datacenter + folder_classifying_concept_sina,
         'area'      : path_datacenter + folder_classifying_area,
         'fig_hpe'   : path_datacenter + folder_figure_hpe_period,
-        'fig_hep'   : path_datacenter + folder_figure_hep_period
+        'fig_hep'   : path_datacenter + folder_figure_hep_period,
+        'strategy'  : path_datacenter + folder_strategy
         }
 
 file_dict = {
@@ -132,7 +138,9 @@ file_dict = {
         'area_list'  : file_classifying_area_list,
         'area_stock' : file_classifying_area_stock,
         'fig_hpe'    : file_figure_hpe_period_stock,
-        'fig_hep'    : file_figure_hep_period_stock
+        'fig_hep'    : file_figure_hep_period_stock,
+        'sty_xu'     : file_strategy_anclexu_stock,
+        'styres_xu'  : file_strategy_result_anclexu_stock
         }
 
 fullpath_dict = {

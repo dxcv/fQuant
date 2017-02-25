@@ -18,6 +18,7 @@ def getDailyHFQ(stock_id, is_index, date_start, date_end, time_to_market = None)
     # Download
     df = get_daily_hfq(stock_id=stock_id, is_index=is_index, date_start=date_start, 
                        date_end=date_end, time_to_market=time_to_market)
+    df.sort_index(ascending=True,inplace=True) # date is set to index
     if gs.is_debug:
         print(df.head(10))
 
