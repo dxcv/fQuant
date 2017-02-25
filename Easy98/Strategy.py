@@ -12,7 +12,8 @@ from GetTrading import loadDailyHFQ
 import pandas as pd
 import numpy as np
 
-bar_range = 21
+bar_range_long = 21
+bar_range_short = 13
 r_range = 20
 
 def strategyAncleXu(stock_id):
@@ -43,14 +44,23 @@ def strategyAncleXu(stock_id):
     if gs.is_debug:
         print(lshq.head(10))
 
-    # Calculate Range High/Low
-    lshq['range_high'] = 0.0
-    lshq['range_low'] = 0.0
+    # Calculate Long Range High/Low
+    lshq['range_high_long'] = 0.0
+    lshq['range_low_long'] = 0.0
     for i in range(lshq_number):
-        index_beg = (i-bar_range) if (i-bar_range) > 0 else 0
+        index_beg = (i-bar_range_long) if (i-bar_range_long) > 0 else 0
         index_end = i if i > 0 else 1
-        lshq.ix[i, 'range_high'] = np.max(lshq['high'][index_beg:index_end])
-        lshq.ix[i, 'range_low']  = np.min(lshq['low'][index_beg:index_end])
+        lshq.ix[i, 'range_high_long'] = np.max(lshq['high'][index_beg:index_end])
+        lshq.ix[i, 'range_low_long']  = np.min(lshq['low'][index_beg:index_end])
+
+    # Calculate Short Range High/Low
+    lshq['range_high_short'] = 0.0
+    lshq['range_low_short'] = 0.0
+    for i in range(lshq_number):
+        index_beg = (i-bar_range_short) if (i-bar_range_short) > 0 else 0
+        index_end = i if i > 0 else 1
+        lshq.ix[i, 'range_high_short'] = np.max(lshq['high'][index_beg:index_end])
+        lshq.ix[i, 'range_low_short']  = np.min(lshq['low'][index_beg:index_end])
 
     # Calculate R and Avg(R)
     lshq['R'] = 0.0
@@ -68,31 +78,42 @@ def strategyAncleXu(stock_id):
     u.to_csv(lshq, c.path_dict['strategy'], c.file_dict['sty_xu'] % stock_id)
 
     # Run Strategy
-    lshq['long_open'] = np.nan
-    lshq['long_close'] = np.nan
-    lshq['short_open'] = np.nan
-    lshq['short_close'] = np.nan
+    lshq['long_open'] = False
+    lshq['long_close'] = False
+    lshq['short_open'] = False
+    lshq['short_close'] = False
     has_long_open = False
     has_short_open = False
     event_index = []
     for i in range(lshq_number):
         close = lshq.ix[i, 'close']
-        range_high = lshq.ix[i, 'range_high']
-        range_low = lshq.ix[i, 'range_low']
-        if close > range_high and has_long_open == False: # Long Open
-            lshq.ix[i, 'long_open'] = True
-            has_long_open = True
-            event_index.append(i)
-            if has_short_open == True:
-                lshq.ix[i, 'short_close'] = True
-                has_short_open = False
-        if close < range_low and has_short_open == False: # Short Open
-            lshq.ix[i, 'short_open'] = True
-            has_short_open = True
-            event_index.append(i)
-            if has_long_open == True:
+        range_high_long = lshq.ix[i, 'range_high_long']
+        range_low_long = lshq.ix[i, 'range_low_long']
+        range_high_short = lshq.ix[i, 'range_high_short']
+        range_low_short = lshq.ix[i, 'range_low_short']
+        has_event = False
+        if has_long_open == False:
+            if close > range_high_long: # Long Open
+                lshq.ix[i, 'long_open'] = True
+                has_long_open = True
+                has_event = True
+        else:
+            if close < range_low_short:
                 lshq.ix[i, 'long_close'] = True
                 has_long_open = False
+                has_event = True
+        if has_short_open == False:
+            if close < range_low_long: # Short Open
+                lshq.ix[i, 'short_open'] = True
+                has_short_open = True
+                has_event = True
+        else:
+            if close > range_high_short:
+                lshq.ix[i, 'short_close'] = True
+                has_short_open = False
+                has_event = True
+        if has_event:
+            event_index.append(i)
 
     # Strategy Statistics
     stats = lshq.ix[event_index, ['date','close','long_open','long_close','short_open','short_close']]
@@ -111,6 +132,7 @@ def strategyAncleXu(stock_id):
     short_close_price = []
     for i in range(stats_number):
         index = stats.index[i]
+        print('Type is:', type(stats.ix[index, 'long_open']))
         if stats.ix[index, 'long_open'] == True: # Long Open
             long_open_date.append(stats.ix[index, 'date'])
             long_open_price.append(stats.ix[index, 'close'])
