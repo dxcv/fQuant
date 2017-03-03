@@ -29,6 +29,8 @@ folder_fundamental_debtpaying   = folder_fundamental + 'DebtPaying/'
 folder_fundamental_cashflow     = folder_fundamental + 'Cashflow/'
 folder_fundamental_financesummary = folder_fundamental + 'FinanceSummary/'
 
+folder_commodity = 'Commodity/'
+
 folder_macro = 'Macro/'
 
 folder_newsevent = 'NewsEvent/'
@@ -85,6 +87,9 @@ file_fundamental_debtpaying_stock = 'Fundamental_DebtPaying_Stock_%s.csv'
 file_fundamental_cashflow_stock   = 'Fundamental_Cashflow_Stock_%s.csv'
 file_fundamental_financesummary_stock = 'Fundamental_FinanceSummary_Stock_%s.csv'
 
+file_commodity                  = 'Commodity_%s.csv'
+file_commodity_market           = 'Commodity_%s_%s.csv'
+
 file_indicator_hpe_period_stock = 'Indicator_HPE%s_Stock_%s.csv'
 file_indicator_hep_period_stock = 'Indicator_HEP%s_Stock_%s.csv'
 fild_indicator_qfq_period_stock = 'Indicator_QFQ%s_Stock_%s.csv'
@@ -109,7 +114,8 @@ path_dict = {
         'area'      : path_datacenter + folder_classifying_area,
         'fig_hpe'   : path_datacenter + folder_figure_hpe_period,
         'fig_hep'   : path_datacenter + folder_figure_hep_period,
-        'strategy'  : path_datacenter + folder_strategy
+        'strategy'  : path_datacenter + folder_strategy,
+        'commodity' : path_datacenter + folder_commodity
         }
 
 file_dict = {
@@ -140,7 +146,9 @@ file_dict = {
         'fig_hpe'    : file_figure_hpe_period_stock,
         'fig_hep'    : file_figure_hep_period_stock,
         'sty_xu'     : file_strategy_anclexu_stock,
-        'styres_xu'  : file_strategy_result_anclexu_stock
+        'styres_xu'  : file_strategy_result_anclexu_stock,
+        'commodity'  : file_commodity,
+        'commodity_m': file_commodity_market
         }
 
 fullpath_dict = {
@@ -163,7 +171,8 @@ fullpath_dict = {
         'conc_list'  : path_dict['conc_sina'] + file_dict['conc_list'],
         'conc_stock' : path_dict['conc_sina'] + file_dict['conc_stock'],
         'area_list'  : path_dict['area'] + file_dict['area_list'],
-        'area_stock' : path_dict['area'] + file_dict['area_stock']
+        'area_stock' : path_dict['area'] + file_dict['area_stock'],
+        'commodity'  : path_dict['commodity'] + file_dict['commodity']
         }
 
 # Magic Numbers

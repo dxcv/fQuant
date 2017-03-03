@@ -13,6 +13,7 @@ import datetime as dt
 from GetFundamental import getStockBasics, loadStockBasics, validStockBasics
 from GetFundamental import getFinanceSummary, loadFinanceSummary, validFinanceSummary
 from GetTrading import getDailyHFQ, loadDailyHFQ, validDailyHFQ
+from GetCommodity import getCommodityPrice, extractCommodityPrice
 from CalcIndicators import calcQFQ, calcHPE
 from GetClassifying import getIndustrySina, getConceptSina, getArea
 from GetClassifying import getSME, getGEM, getST
@@ -32,8 +33,9 @@ date_start = dt.date(2005, 1, 1)
 date_end = u.today()
 update_basics = False
 update_price_stock = False
-update_price_index = True
+update_price_index = False
 update_financesummary = False
+update_commodity = True
 
 force_update = False
 
@@ -46,6 +48,8 @@ extract_classifying = False
 
 plot_hpe = False
 plot_hep = False
+
+run_strategy = False
 
 ###############################################################################
 
@@ -130,6 +134,11 @@ def updateFinanceSummary(force_update = True):
             getFinanceSummary(stock_id)
             print('Update Finance Summary:', stock_id)
 
+def updateCommodity(force_update = True):
+    for commodity in ['Au','Ag','Cu','Al','Pb','Zn','Sn','Ni','Co','Ti']:
+        getCommodityPrice(commodity)
+        extractCommodityPrice(commodity,'报价机构')
+
 def calculateQFQ(period = 'M'):
     # Check pre-requisite
     basics = loadStockBasics()
@@ -190,6 +199,9 @@ def plotFigureHPE(period = 'M', ratio = 'PE'):
         # Plot HPE Data
         plotHPE(stock_id = stock_id, period = period, ratio = ratio)
 
+def runStrategy():
+    print('Run Strategy')
+
 ###############################################################################
 
 #
@@ -206,6 +218,9 @@ if update_price_index:
 
 if update_financesummary:
     updateFinanceSummary(force_update)
+
+if update_commodity:
+    updateCommodity(force_update)
 
 if calc_qfq:
     for period in ['W','M','Q']:
@@ -243,10 +258,8 @@ if plot_hpe:
 if plot_hep:
     plotFigureHPE(period='M', ratio='EP')
 
-
-
-
-
+if run_strategy:
+    runStrategy()
 
 
 

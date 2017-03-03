@@ -9,4 +9,4 @@ Created on Fri Feb 10 17:08:59 2017
 is_debug = True
 
 # Encoding Method
-encoding = 'utf-8'
+encoding = 'utf_8_sig'
