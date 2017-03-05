@@ -87,7 +87,7 @@ def get_commodity_price(commodity, retry_count=3, pause=0.01):
 
     # Download Commodity Data
     df_all = _get_commodity_price(commodity, pageNo, pd.DataFrame(), retry_count, pause)
-    df_all.drop_duplicates(subset=[u'报价机构',u'发布时间'], inplace=True)
+    df_all.drop_duplicates(inplace=True)
     df_all.set_index(u'发布时间', inplace=True)
     return df_all
 
