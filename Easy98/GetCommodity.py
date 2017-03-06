@@ -14,29 +14,39 @@ import GlobalSettings as gs
 import Constants as c
 import Utilities as u
 
-def getCommodityPrice(commodity):
+def getCommodityPrice(code):
     # Download Commodity Data
-    data = get_commodity_price(commodity)
+    data = get_commodity_price(code)
     if gs.is_debug:
         print(data.head(10))
 
     # Save to CSV File
     if not u.isNoneOrEmpty(data):
-        u.to_csv(data, c.path_dict['commodity'], c.file_dict['commodity'] % commodity)
+        u.to_csv(data, c.path_dict['commodity'], c.file_dict['commodity'] % code)
 
-def loadCommodityPrice(commodity):
-    data = u.read_csv(c.fullpath_dict['commodity'] % commodity)
+def loadCommodityPrice(code):
+    data = u.read_csv(c.fullpath_dict['commodity'] % code)
     return data
 
-def validStockBasics(commodity, force_update):
+def validCommodityPrice(code, force_update):
     if force_update == True:
         return False
     else:
-        return u.hasFile(c.fullpath_dict['commodity'] % commodity)
+        return u.hasFile(c.fullpath_dict['commodity'] % code)
 
-def extractCommodityPrice(commodity, column):
+def loadCommodityList():
+    data = u.read_csv(c.path_dict['commodity'] + c.file_dict['commodity_l'])
+    return data
+
+def extractCommodityPrice(code, column):
+    # Check Pre-requisite
+    fullpath = c.fullpath_dict['commodity'] % code
+    if not u.hasFile(fullpath):
+        print('Require File Exists:', fullpath)
+        return
+
     # Load Commodity Data
-    data = loadCommodityPrice(commodity)
+    data = loadCommodityPrice(code)
     data.set_index(u'发布时间', inplace=True)
     print(data.head(10))
 
@@ -52,7 +62,7 @@ def extractCommodityPrice(commodity, column):
         m_name = 'Market_%s' % (i+1)
         m_data = data[data[column].isin([m])]
         if not u.isNoneOrEmpty(m_data):
-            u.to_csv(m_data, c.path_dict['commodity'], c.file_dict['commodity_m'] % (commodity, m_name))
+            u.to_csv(m_data, c.path_dict['commodity'], c.file_dict['commodity_m'] % (code, m_name))
         i = i + 1
 
     '''

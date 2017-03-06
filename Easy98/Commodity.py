@@ -19,6 +19,7 @@ try:
 except ImportError:
     from urllib2 import urlopen, Request, quote
 import GlobalSettings as gs
+import Utilities as u
 
 #
 # Constants and Parameters
@@ -26,21 +27,7 @@ import GlobalSettings as gs
 DATA_GETTING_TIPS = '[Getting data:]'
 DATA_GETTING_FLAG = '#'
 NETWORK_URL_ERROR_MSG = '获取失败，请检查网络和URL'
-#COMMODITY_URL = 'http://www.100ppi.com/price/?f=search&c=product&terms=%s&p=%s'
 COMMODITY_URL = 'http://www.100ppi.com/price/plist-%s-%s.html'
-
-commodity_dict = {
-                    'Au':59, # '金'
-                    'Ag':60, # '银'
-                    'Cu':61, # '铜'
-                    'Al':62, # '铝'
-                    'Pb':63, # '铅'
-                    'Zn':64, # '锌'
-                    'Sn':65, # '锡'
-                    'Ni':66, # '镍'
-                    'Co':67, # '钴'
-                    'Ti':1657 # '钛'
-                 }
 
 #
 # Functions and Utilities
@@ -63,37 +50,35 @@ def check_network(url):
         return 0
     return 1
 
-def get_commodity_price(commodity, retry_count=3, pause=0.01):
+def get_commodity_price(code, retry_count=3, pause=0.01):
     """
         获取生意社（100PPI）商品价格
     Parameters
     --------
-    commodity:string    商品名称 e.g. 'Co'
+    code:string    商品代码 e.g. 67(钴的代码)
 
     Return
     --------
     DataFrame
+        发布时间
         报价机构
         报价类型
         报价
         规格
         产地
-        发布时间
     """
 
-#    commodity = quote(commodity)
-    commodity = commodity_dict[commodity]
-    pageNo = 1
-
     # Download Commodity Data
-    df_all = _get_commodity_price(commodity, pageNo, pd.DataFrame(), retry_count, pause)
-    df_all.drop_duplicates(inplace=True)
-    df_all.set_index(u'发布时间', inplace=True)
+    pageNo = 1
+    df_all = _get_commodity_price(code, pageNo, pd.DataFrame(), retry_count, pause)
+    if not u.isNoneOrEmpty(df_all):
+        df_all.drop_duplicates(inplace=True)
+        df_all.set_index(u'发布时间', inplace=True)
     return df_all
 
-def _get_commodity_price(commodity, pageNo, df_all, retry_count, pause):
+def _get_commodity_price(code, pageNo, df_all, retry_count, pause):
     # Compose URL based on Given Commodity
-    url = COMMODITY_URL%(commodity, pageNo)
+    url = COMMODITY_URL%(code, pageNo)
     print('Getting URL:', url)
 
     for _ in range(retry_count):
@@ -172,7 +157,7 @@ def _get_commodity_price(commodity, pageNo, df_all, retry_count, pause):
                 print(nextPage)
                 if not nextPage.isdigit(): # 有“下一页”
                     pageNo = pageNo + 1
-                    return _get_commodity_price(commodity, pageNo, df_all, retry_count, pause)
+                    return _get_commodity_price(code, pageNo, df_all, retry_count, pause)
                 else: # 没有“下一页”
                     return df_all
             else:
@@ -182,6 +167,6 @@ def _get_commodity_price(commodity, pageNo, df_all, retry_count, pause):
             pass
 #    raise IOError(NETWORK_URL_ERROR_MSG)
     print('Getting URL Imcomplete:', url)
-    return _get_commodity_price(commodity, pageNo, df_all, retry_count, pause)
+    return _get_commodity_price(code, pageNo, df_all, retry_count, pause)
 
 

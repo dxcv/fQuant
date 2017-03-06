@@ -89,6 +89,7 @@ file_fundamental_financesummary_stock = 'Fundamental_FinanceSummary_Stock_%s.csv
 
 file_commodity                  = 'Commodity_%s.csv'
 file_commodity_market           = 'Commodity_%s_%s.csv'
+file_commodity_list             = 'Commodity_List.csv'
 
 file_indicator_hpe_period_stock = 'Indicator_HPE%s_Stock_%s.csv'
 file_indicator_hep_period_stock = 'Indicator_HEP%s_Stock_%s.csv'
@@ -148,7 +149,8 @@ file_dict = {
         'sty_xu'     : file_strategy_anclexu_stock,
         'styres_xu'  : file_strategy_result_anclexu_stock,
         'commodity'  : file_commodity,
-        'commodity_m': file_commodity_market
+        'commodity_m': file_commodity_market,
+        'commodity_l': file_commodity_list
         }
 
 fullpath_dict = {

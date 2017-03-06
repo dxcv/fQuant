@@ -13,7 +13,7 @@ import datetime as dt
 from GetFundamental import getStockBasics, loadStockBasics, validStockBasics
 from GetFundamental import getFinanceSummary, loadFinanceSummary, validFinanceSummary
 from GetTrading import getDailyHFQ, loadDailyHFQ, validDailyHFQ
-from GetCommodity import getCommodityPrice, extractCommodityPrice
+from GetCommodity import getCommodityPrice, extractCommodityPrice, loadCommodityList
 from CalcIndicators import calcQFQ, calcHPE
 from GetClassifying import getIndustrySina, getConceptSina, getArea
 from GetClassifying import getSME, getGEM, getST
@@ -135,9 +135,12 @@ def updateFinanceSummary(force_update = True):
             print('Update Finance Summary:', stock_id)
 
 def updateCommodity(force_update = True):
-    for commodity in ['Au','Ag','Cu','Al','Pb','Zn','Sn','Ni','Co','Ti']:
-        getCommodityPrice(commodity)
-        extractCommodityPrice(commodity,'报价机构')
+    com_list = loadCommodityList()
+    com_number = len(com_list)
+    for i in range(com_number):
+        code = com_list.iloc[i,1]
+        getCommodityPrice(code)
+        extractCommodityPrice(code,'报价机构')
 
 def calculateQFQ(period = 'M'):
     # Check pre-requisite
