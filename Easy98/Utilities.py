@@ -193,7 +193,9 @@ def isNoneOrEmpty(df):
 def isValidDate(date):
     return date != c.magic_date
 
-
+def stockFileName(stock_id, is_index):
+    index = 'Index_' if is_index==True else 'Stock_'
+    return index+stock_id
 
 
 

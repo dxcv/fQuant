@@ -53,7 +53,7 @@ folder_figure_hep_period        = folder_figure + 'HEP%s/'
 folder_strategy                 = 'Strategy/'
 
 # Data Files (Relative to Data Folders)
-file_trading_lshq_stock         = 'Trading_LSHQ_Stock_%s.csv'
+file_trading_lshq               = 'Trading_LSHQ_%s.csv'
 
 file_reference_rzrq_market_sh   = 'Reference_RZRQ_Market_SH.csv'
 file_reference_rzrq_market_sz   = 'Reference_RZRQ_Market_SZ.csv'
@@ -125,7 +125,7 @@ file_dict = {
         'hpe'    : file_indicator_hpe_period_stock,
         'hep'    : file_indicator_hep_period_stock,
         'qfq'    : fild_indicator_qfq_period_stock,
-        'lshq'   : file_trading_lshq_stock,
+        'lshq'   : file_trading_lshq,
         'finsum' : file_fundamental_financesummary_stock,
         'indu_sina' : file_classifying_industry_sina,
         'conc_sina' : file_classifying_concept_sina,

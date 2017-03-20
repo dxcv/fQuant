@@ -33,9 +33,9 @@ date_start = dt.date(2005, 1, 1)
 date_end = u.today()
 update_basics = False
 update_price_stock = False
-update_price_index = False
+update_price_index = True
 update_financesummary = False
-update_commodity = True
+update_commodity = False
 
 force_update = False
 
@@ -93,7 +93,6 @@ def updatePriceStock(force_update = True):
     basics_number = len(basics)
     for i in range(basics_number):
         stock_id = u.stockID(basics.loc[i,'code'])
-        is_index = False
         time_to_market = u.dateFromStr(basics.loc[i,'timeToMarket'])
 
         # Ignore No TTM Stocks (No Yet On the Market)
@@ -102,7 +101,7 @@ def updatePriceStock(force_update = True):
 
         # Check if valid data file already exists
         if not validDailyHFQ(stock_id, force_update):
-            getDailyHFQ(stock_id=stock_id, is_index=is_index, date_start=time_to_market,
+            getDailyHFQ(stock_id=stock_id, is_index=False, date_start=time_to_market,
                         date_end=date_end, time_to_market=time_to_market)
             print('Update Price:', stock_id)
 

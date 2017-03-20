@@ -24,15 +24,23 @@ def getDailyHFQ(stock_id, is_index, date_start, date_end, time_to_market = None)
 
     # Save to CSV File
     if not u.isNoneOrEmpty(df):
-        u.to_csv(df, c.path_dict['lshq'], c.file_dict['lshq'] % stock_id)
+        u.to_csv(df, c.path_dict['lshq'], c.file_dict['lshq'] % u.stockFileName(stock_id, is_index))
 
-def loadDailyHFQ(stock_id):
-    df = u.read_csv(c.fullpath_dict['lshq'] % stock_id)
+def loadDailyHFQ(stock_id, is_index):
+    fullpath = c.fullpath_dict['lshq'] % u.stockFileName(stock_id, is_index)
+
+    # Ensure data file is available
+    if not u.hasFile(fullpath):
+        print('Require LSHQ of %s!' % u.stockFileName(stock_id, is_index))
+        return None
+
+    # Read data file
+    df = u.read_csv(fullpath)
     return df
 
-def validDailyHFQ(stock_id, force_update):
+def validDailyHFQ(stock_id, is_index, force_update):
     if force_update == True:
         return False
 
     else:
-        return u.hasFile(c.fullpath_dict['lshq'] % stock_id)
+        return u.hasFile(c.fullpath_dict['lshq'] % u.stockFileName(stock_id, is_index))
