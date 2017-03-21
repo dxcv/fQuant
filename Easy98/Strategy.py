@@ -8,7 +8,7 @@ Created on Fri Feb 24 14:28:37 2017
 import GlobalSettings as gs
 import Constants as c
 import Utilities as u
-from GetTrading import loadDailyHFQ
+from GetTrading import loadDailyQFQ
 import pandas as pd
 import numpy as np
 
@@ -16,37 +16,138 @@ bar_range_long = 21
 bar_range_short = 13
 r_range = 20
 
-def strategyAncleXu(stock_id):
-    # Ensure Stock LSHQ Data File is Available
-    fullpath = c.fullpath_dict['lshq'] % stock_id
-    if not u.hasFile(fullpath):
-        print('Require LSHQ of Stock %s!' % stock_id)
+def strategyPriceFollow(stock_id, is_index, trend_threshold):
+    # Load Stock Daily QFQ Data
+    lshq = loadDailyQFQ(stock_id, is_index)
+    if u.isNoneOrEmpty(lshq):
         raise SystemExit
 
-    # Load HFQ(LSHQ) Data
-    lshq = loadDailyHFQ(stock_id)
+    # Calculate Trend, Trend High, Trend Low, Trend Ref
+    lshq['trend'] = 'Up'
+    for column in ['trend_high','trend_low','trend_ref']:
+        lshq[column] = 0.0
     lshq_number = len(lshq)
-    if lshq_number == 0:
-        print('No LSHQ Data Available!')
-        raise SystemExit
-
-    # Convert to QFQ Data
-    fq_factor = lshq['factor'][lshq_number-1]
+    trends = []
+    trend_turning_points = []
+    trend_index_highs = []
+    trend_index_lows = []
+    index_high = 0
+    index_low = 0
     for i in range(lshq_number):
-        for column in ['open','high','close','low']:
-            lshq.ix[i, column] = lshq.ix[i, column] / fq_factor
+        if i == 0: # Initialization
+            lshq.ix[i,'trend'] = 'Up'
+            for column in ['trend_high','trend_low','trend_ref']:
+                lshq.ix[i,column] = lshq.ix[i,'close']
+        else:
+            trend = lshq.ix[i-1,'trend']
+            trend_high = lshq.ix[i-1,'trend_high']
+            trend_low = lshq.ix[i-1,'trend_low']
+            trend_ref = lshq.ix[i-1,'trend_ref']
+            trend_cur = lshq.ix[i,'close']
+            up_to_down = False
+            down_to_up = False
+            if trend == 'Up':
+                if trend_high/trend_cur > 1.0+trend_threshold:
+                    lshq.ix[i,'trend'] = 'Down'
+                    up_to_down = True
+                    trends.append('Up')
+                    trend_turning_points.append(i)
+                    trend_index_highs.append(index_high)
+                else:
+                    lshq.ix[i,'trend'] = 'Up'
+                    up_to_down = False
+            else:
+                if trend_cur/trend_low > 1.0+trend_threshold:
+                    lshq.ix[i,'trend'] = 'Up'
+                    down_to_up = True
+                    trends.append('Down')
+                    trend_turning_points.append(i)
+                    trend_index_lows.append(index_low)
+                else:
+                    lshq.ix[i,'trend'] = 'Down'
+                    down_to_up = False
+            if trend == 'Up':
+                if up_to_down == False: # Up trend continues
+                    if trend_cur > trend_high:
+                        lshq.ix[i,'trend_high'] = trend_cur
+                        index_high = i
+                    else:
+                        lshq.ix[i,'trend_high'] = trend_high
+                    lshq.ix[i,'trend_ref'] = trend_ref
+                else: # Up trend reverses
+                    lshq.ix[i,'trend_ref'] = trend_high
+                    lshq.ix[i,'trend_low'] = trend_cur
+                    index_low = i
+            else:
+                if down_to_up == False: # Down trend continues
+                    if trend_cur < trend_low:
+                        lshq.ix[i,'trend_low'] = trend_cur
+                        index_low = i
+                    else:
+                        lshq.ix[i,'trend_low'] = trend_low
+                    lshq.ix[i,'trend_ref'] = trend_ref
+                else: # Down trend reverses
+                    lshq.ix[i,'trend_ref'] = trend_low
+                    lshq.ix[i,'trend_high'] = trend_cur
+                    index_high = i
+            # Handle Last Trend
+            if i == lshq_number-1:
+                trends.append(trend)
+                trend_turning_points.append(i)
+                if trend == 'Up':
+                    trend_index_highs.append(i)
+                else:
+                    trend_index_lows.append(i)
 
-    # Drop Factor
-    lshq.drop('factor', axis=1, inplace=True)
+    # Calculate Trend Price
+    lshq['trend_price'] = 0.0
+    trend_number = len(trends)
+    print('Trend # =', trend_number)
+    index_ref = 0
+    index_tar = 0
+    price_ref = 0.0
+    price_tar = 0.0
+    idx_high = 0
+    idx_low = 0
+    for i in range(trend_number):
+        trend = trends[i]
+        index_tar = trend_index_highs[idx_high] if trend == 'Up' else trend_index_lows[idx_low]
+        price_ref = lshq.ix[index_ref, 'close']
+        price_tar = lshq.ix[index_tar, 'close']
+        for index in range(index_ref, index_tar):
+            ratio = float(index-index_ref) / float(index_tar-index_ref)
+            lshq.ix[index,'trend_price'] = price_ref*(1.0-ratio) + price_tar*ratio
+        if trend == 'Up':
+            index_ref = trend_index_highs[idx_high]
+            idx_high = idx_high + 1
+        else:
+            index_ref = trend_index_lows[idx_low]
+            idx_low = idx_low + 1
+        # Handle Last Trend
+        if i == trend_number-1:
+            lshq.ix[index_tar,'trend_price'] = price_tar
 
-    # Sort Index
-    lshq.sort_values('date', inplace=True)
-    if gs.is_debug:
-        print(lshq.head(10))
+    # Format Data Frame
+    for column in ['trend_high','trend_low','trend_ref','trend_price']:
+        lshq[column] = lshq[column].map(lambda x: '%.3f' % x)
+        lshq[column] = lshq[column].astype(float)
+    lshq.set_index('date', inplace=True)
+    lshq.sort_index(ascending = True, inplace=True)
+
+    # Save to CSV File
+    file_postfix = 'PriceFollow_%s_%s' % (u.stockFileName(stock_id, is_index), trend_threshold)
+    u.to_csv(lshq, c.path_dict['strategy'], c.file_dict['strategy'] % file_postfix)
+
+def strategyAncleXu(stock_id, is_index):
+    # Load Stock Daily QFQ Data
+    lshq = loadDailyQFQ(stock_id, is_index)
+    if u.isNoneOrEmpty(lshq):
+        raise SystemExit
 
     # Calculate Long Range High/Low
     lshq['range_high_long'] = 0.0
     lshq['range_low_long'] = 0.0
+    lshq_number = len(lshq)
     for i in range(lshq_number):
         index_beg = (i-bar_range_long) if (i-bar_range_long) > 0 else 0
         index_end = i if i > 0 else 1
@@ -75,7 +176,8 @@ def strategyAncleXu(stock_id):
         lshq.ix[i, 'Avg_R'] = np.mean(lshq['R'][index_beg:index_end])
 
     # Save to CSV File
-    u.to_csv(lshq, c.path_dict['strategy'], c.file_dict['sty_xu'] % stock_id)
+    file_postfix = 'AncleXu_%s' % u.stockFileName(stock_id, is_index)
+    u.to_csv(lshq, c.path_dict['strategy'], c.file_dict['strategy'] % file_postfix)
 
     # Run Strategy
     lshq['long_open'] = False
@@ -199,4 +301,4 @@ def strategyAncleXu(stock_id):
         trading.ix[i+long_number,'profit'] = short_profit[i]
 
     # Save to CSV File
-    u.to_csv(trading, c.path_dict['strategy'], c.file_dict['styres_xu'] % stock_id)
+    u.to_csv(trading, c.path_dict['strategy'], c.file_dict['strategy_r'] % file_postfix)

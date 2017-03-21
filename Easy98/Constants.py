@@ -98,8 +98,8 @@ fild_indicator_qfq_period_stock = 'Indicator_QFQ%s_Stock_%s.csv'
 file_figure_hpe_period_stock    = 'Figure_HPE%s_Stock_%s.jpg'
 file_figure_hep_period_stock    = 'Figure_HEP%s_Stock_%s.jpg'
 
-file_strategy_anclexu_stock         = 'Strategy_AncleXu_Stock_%s.csv'
-file_strategy_result_anclexu_stock  = 'StrategyResult_AncleXu_Stock_%s.csv'
+file_strategy                   = 'Strategy_%s.csv'
+file_strategy_result            = 'StrategyResult_%s.csv'
 
 # Convenient Shorts
 path_dict = {
@@ -146,8 +146,8 @@ file_dict = {
         'area_stock' : file_classifying_area_stock,
         'fig_hpe'    : file_figure_hpe_period_stock,
         'fig_hep'    : file_figure_hep_period_stock,
-        'sty_xu'     : file_strategy_anclexu_stock,
-        'styres_xu'  : file_strategy_result_anclexu_stock,
+        'strategy'   : file_strategy,
+        'strategy_r' : file_strategy_result,
         'commodity'  : file_commodity,
         'commodity_m': file_commodity_market,
         'commodity_l': file_commodity_list
@@ -176,6 +176,9 @@ fullpath_dict = {
         'area_stock' : path_dict['area'] + file_dict['area_stock'],
         'commodity'  : path_dict['commodity'] + file_dict['commodity']
         }
+
+# Index List
+index_list = ['000001', '399001', '000300', '399005', '399006', '000016', '000905']
 
 # Magic Numbers
 magic_date = '1000-00-00'

@@ -44,3 +44,48 @@ def validDailyHFQ(stock_id, is_index, force_update):
 
     else:
         return u.hasFile(c.fullpath_dict['lshq'] % u.stockFileName(stock_id, is_index))
+
+def loadDailyQFQ(stock_id, is_index):
+    """
+        加载股票日线数据，并进行前复权
+    Parameters
+    --------
+    stock_id:string    股票代码 e.g. 600036
+    is_index:bool      是否指数 e.g. True/False
+
+    Return
+    --------
+    DataFrame
+        date 日期 e.g. 2005-03-31
+        open 开盘价
+        high 最高价
+        close 收盘价
+        low 最低价
+        volume 成交量
+        amount 成交额
+
+    如果数据文件不存在或者没有数据，返回None。
+    如果数据存在，根据复权因子进行前复权，同时根据date进行升序排序。
+    """
+    # Load HFQ(LSHQ) Data
+    lshq = loadDailyHFQ(stock_id, is_index)
+    if u.isNoneOrEmpty(lshq):
+        print('No LSHQ Data Available!')
+        return None
+
+    # Convert to QFQ Data
+    lshq_number = len(lshq)
+    fq_factor = lshq['factor'][lshq_number-1]
+    for i in range(lshq_number):
+        for column in ['open','high','close','low']:
+            lshq.ix[i, column] = lshq.ix[i, column] / fq_factor
+
+    # Drop Factor
+    lshq.drop('factor', axis=1, inplace=True)
+
+    # Sort Index
+    lshq.sort_values('date', inplace=True)
+    if gs.is_debug:
+        print(lshq.head(10))
+
+    return lshq

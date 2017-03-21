@@ -106,7 +106,7 @@ def updatePriceStock(force_update = True):
             print('Update Price:', stock_id)
 
 def updatePriceIndex(force_update = True):
-    for index_id in ['000001', '399001', '000300', '399005', '399006', '000016', '000905']:
+    for index_id in c.index_list:
         getDailyHFQ(stock_id=index_id, is_index=True, date_start=date_start,
                     date_end=date_end, time_to_market=None)
         print('Update Price:', index_id)
