@@ -18,7 +18,7 @@ from CalcIndicators import calcQFQ, calcHPE
 from GetClassifying import getIndustrySina, getConceptSina, getArea
 from GetClassifying import getSME, getGEM, getST
 from GetClassifying import getHS300, getSZ50, getZZ500
-from GetClassifying import getTerminated, getSuspended
+from GetClassifying import getTerminated, getSuspended, getCXG
 from GetClassifying import extractIndustrySina, extractConceptSina, extractArea
 from PlotFigures import plotHPE
 
@@ -33,7 +33,7 @@ date_start = dt.date(2005, 1, 1)
 date_end = u.today()
 update_basics = False
 update_price_stock = False
-update_price_index = True
+update_price_index = False
 update_financesummary = False
 update_commodity = False
 
@@ -43,8 +43,8 @@ calc_qfq = False
 calc_hpe = False
 calc_hep = False
 
-update_classifying = False
-extract_classifying = False
+update_classifying = True
+extract_classifying = True
 
 plot_hpe = False
 plot_hep = False
@@ -248,6 +248,7 @@ if update_classifying:
     getZZ500()
     getTerminated()
     getSuspended()
+    getCXG('2016-01-01')
 
 if extract_classifying:
     extractIndustrySina()

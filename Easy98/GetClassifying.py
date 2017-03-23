@@ -13,6 +13,7 @@ from Classifying import get_industry_sina, get_concept_sina, get_area
 from Classifying import get_sme, get_gem, get_st
 from Classifying import get_hs300, get_sz50, get_zz500
 from Classifying import get_terminated, get_suspended
+from Classifying import get_cxg
 import GlobalSettings as gs
 import Constants as c
 import Utilities as u
@@ -255,7 +256,6 @@ def loadZZ500():
 
 ###############################################################################
 
-
 def getTerminated():
     # Download Terminated Stock Data
     terminated = get_terminated()
@@ -285,3 +285,17 @@ def getSuspended():
 def loadSuspended():
     suspended = u.read_csv(c.fullpath_dict['suspended'])
     return suspended
+
+###############################################################################
+
+def getCXG(date):
+    # Get CXG Stock Data
+    cxg = get_cxg(date)
+    cxg['code'] = cxg['code'].map(lambda x:str(x).zfill(6))
+    cxg.set_index('code', inplace=True)
+    if gs.is_debug:
+        print(cxg.head(10))
+
+    # Save to CSV File
+    if not u.isNoneOrEmpty(cxg):
+        u.to_csv(cxg, c.path_dict['classify'], c.file_dict['cxg'])

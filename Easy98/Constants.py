@@ -70,6 +70,7 @@ file_classifying_sz50           = 'Classifying_SZ50.csv'
 file_classifying_zz500          = 'Classifying_ZZ500.csv'
 file_classifying_terminated     = 'Classifying_Terminated.csv'
 file_classifying_suspended      = 'Classifying_Suspended.csv'
+file_classifying_cxg            = 'Classifying_CXG.csv'
 file_classifying_industry_list  = 'Classifying_Industry_List.csv'
 file_classifying_industry_stock = 'Classifying_Industry_%s.csv'
 file_classifying_concept_list   = 'Classifying_Concept_List.csv'
@@ -138,6 +139,7 @@ file_dict = {
         'zz500'  : file_classifying_zz500,
         'terminated' : file_classifying_terminated,
         'suspended'  : file_classifying_suspended,
+        'cxg'        : file_classifying_cxg,
         'indu_list'  : file_classifying_industry_list,
         'indu_stock' : file_classifying_industry_stock,
         'conc_list'  : file_classifying_concept_list,
@@ -168,6 +170,7 @@ fullpath_dict = {
         'zz500'  : path_dict['classify'] + file_dict['zz500'],
         'terminated' : path_dict['classify'] + file_dict['terminated'],
         'suspended'  : path_dict['classify'] + file_dict['suspended'],
+        'cxg'        : path_dict['classify'] + file_dict['cxg'],
         'indu_list'  : path_dict['indu_sina'] + file_dict['indu_list'],
         'indu_stock' : path_dict['indu_sina'] + file_dict['indu_stock'],
         'conc_list'  : path_dict['conc_sina'] + file_dict['conc_list'],

@@ -261,3 +261,38 @@ def get_suspended():
 
     # Return Dataframe
     return suspended
+
+def get_cxg(date):
+    '''
+    函数功能：
+    --------
+    获取所有次新股的股票列表，根据给定的上市时间。
+
+    输入参数：
+    --------
+    date,上市时间  e.g. '2016-01-01'
+
+    输出参数：
+    --------
+    DataFrame
+        code,代码
+        name,名称
+        industry,所属行业
+        area,地区
+        timeToMarket,上市日期
+    '''
+    from GetFundamental import loadStockBasics
+    import Utilities as u
+    # Check pre-requisite
+    basics = loadStockBasics()
+    if u.isNoneOrEmpty(basics):
+        print('Need to have stock basics!')
+        raise SystemExit
+
+    # Extract CXG Data
+    cxg = basics[basics.timeToMarket >= date]
+    cxg = cxg[['code','name','industry','area','timeToMarket']]
+    cxg.sort_values(by=['timeToMarket'], axis=0, ascending=True, inplace=True)
+
+    # Return Dataframe
+    return cxg
