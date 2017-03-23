@@ -121,6 +121,7 @@ def updatePriceCXG(force_update = True):
 
     # Iterate over all CXG stocks
     cxg_number = len(cxg)
+    print('Number of CXG:',cxg_number)
     for i in range(cxg_number):
         stock_id = u.stockID(cxg.ix[i,'code'])
         time_to_market = u.dateFromStr(cxg.loc[i,'timeToMarket'])
@@ -280,7 +281,7 @@ if extract_classifying:
     extractArea()
 
 if update_price_cxg:
-    updatePriceCXG(force_update)
+    updatePriceCXG(True)
 
 if plot_hpe:
     plotFigureHPE(period='M', ratio='PE')

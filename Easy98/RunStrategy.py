@@ -5,7 +5,7 @@ Created on Sat Feb 25 10:36:03 2017
 @author: freefrom
 """
 
-from Strategy import strategyAncleXu, strategyPriceFollow
+from Strategy import strategyAncleXu, strategyPriceFollow, strategyCXG
 import Constants as c
 import Utilities as u
 
@@ -54,11 +54,24 @@ def mergePriceFollow(stock_list, is_index, threshold_list):
 
 ###############################################################################
 
-# Run Strategy
-threshold_list = [0.01, 0.02, 0.03, 0.05, 0.08, 0.13, 0.21, 0.33]
-#for stock_id in c.index_list:
-#    for threshold in threshold_list:
-#        strategyPriceFollow(stock_id, True, threshold)
+# Run Strategy Price Follow for All Indexes, with Given Threshold List
+def runStrategyPriceFollow():
+    threshold_list = [0.01, 0.02, 0.03, 0.05, 0.08, 0.13, 0.21, 0.33]
+    for stock_id in c.index_list:
+        for threshold in threshold_list:
+            strategyPriceFollow(stock_id, True, threshold)
 
-# Merge Results
-mergePriceFollow(c.index_list, True, threshold_list)
+    # Merge Results
+    mergePriceFollow(c.index_list, True, threshold_list)
+
+# Run Strategy CXG
+def runStrategyCXG():
+    strategyCXG()
+
+###############################################################################
+
+runStrategyCXG()
+
+
+
+

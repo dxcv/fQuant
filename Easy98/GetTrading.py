@@ -84,7 +84,7 @@ def loadDailyQFQ(stock_id, is_index):
     lshq.drop('factor', axis=1, inplace=True)
 
     # Sort Index
-    lshq.sort_values('date', inplace=True)
+    lshq.sort_values('date', ascending=True, inplace=True)
     if gs.is_debug:
         print(lshq.head(10))
 

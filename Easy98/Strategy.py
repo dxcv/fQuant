@@ -9,6 +9,7 @@ import GlobalSettings as gs
 import Constants as c
 import Utilities as u
 from GetTrading import loadDailyQFQ
+from GetClassifying import loadCXG
 import pandas as pd
 import numpy as np
 
@@ -302,3 +303,81 @@ def strategyAncleXu(stock_id, is_index):
 
     # Save to CSV File
     u.to_csv(trading, c.path_dict['strategy'], c.file_dict['strategy_r'] % file_postfix)
+
+def strategyCXG():
+    '''
+    函数功能：
+    --------
+    运行次新股策略：选出打开涨停板后仍旧创新高的个股。
+
+    输入参数：
+    --------
+    无
+
+    输出参数：
+    --------
+    DataFrame
+        code,代码
+        name,名称
+        industry,所属行业
+        area,地区
+        timeToMarket,上市日期
+        ss_price, 上市价
+        kb_price, 开板价
+        zx_price, 最新价
+        ss_ratio, 上市以来涨幅
+        kb_ratio, 开板以来涨幅
+        new_high, 是否创开板后新高
+
+    假定：CXG数据文件和对应的日后复权数据文件都已经更新。
+    '''
+    # Load CXG Data
+    cxg = loadCXG()
+    cxg_number = len(cxg)
+
+    # Init New Columns
+    for column in ['ss_price','kb_price','zx_price','ss_ratio','kb_ratio']:
+        cxg[column] = 0
+    for column in ['high_than_kb','new_high']:
+        cxg[column] = False
+
+    # Iterative Over Each CXG Stock Data
+    for i in range(cxg_number):
+        stock_id = u.stockID(cxg.ix[i,'code'])
+        # Load Stock Daily QFQ Data
+        lshq = loadDailyQFQ(stock_id, False)
+        if u.isNoneOrEmpty(lshq):
+            continue
+        else:
+            lshq.set_index('date', inplace=True)
+            lshq.sort_index(ascending = True, inplace=True)
+            cxg.ix[i,'ss_price'] = lshq.ix[0,'open']
+            cxg.ix[i,'zx_price'] = lshq.ix[-1,'close']
+            cxg.ix[i,'ss_ratio'] = cxg.ix[i,'zx_price']/cxg.ix[i,'ss_price'] - 1
+            # 是否创开板后新高
+            lshq_number = len(lshq)
+            kb_price = lshq.ix[0,'close']
+            kb_index = 0
+            # Find KaiBan Price and Index
+            for j in range(1,lshq_number):
+                if lshq.ix[j,'close'] > lshq.ix[j,'low']:
+                    kb_price = lshq.ix[j,'close']
+                    kb_index = j
+                    break
+            ls_high = kb_price
+            for j in range(kb_index,lshq_number):
+                ls_high = lshq.ix[j,'close'] if lshq.ix[j,'close'] > ls_high else ls_high
+            cxg.ix[i,'kb_price'] = kb_price
+            cxg.ix[i,'kb_ratio'] = cxg.ix[i,'zx_price']/cxg.ix[i,'kb_price'] - 1
+            cxg.ix[i,'high_than_kb'] = 'Yes' if cxg.ix[i,'zx_price'] > kb_price else 'No'
+            cxg.ix[i,'new_high'] = 'Yes' if cxg.ix[i,'zx_price'] == ls_high else 'No'
+
+    # Format Data Frame
+    for column in ['ss_price','kb_price','zx_price','ss_ratio','kb_ratio']:
+        cxg[column] = cxg[column].map(lambda x: '%.3f' % x)
+        cxg[column] = cxg[column].astype(float)
+    cxg.set_index('code', inplace=True)
+
+    # Save to CSV File
+    file_postfix = 'CXG'
+    u.to_csv(cxg, c.path_dict['strategy'], c.file_dict['strategy_r'] % file_postfix)
