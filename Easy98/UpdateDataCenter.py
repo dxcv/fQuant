@@ -18,7 +18,7 @@ from CalcIndicators import calcQFQ, calcHPE
 from GetClassifying import getIndustrySina, getConceptSina, getArea
 from GetClassifying import getSME, getGEM, getST
 from GetClassifying import getHS300, getSZ50, getZZ500
-from GetClassifying import getTerminated, getSuspended, getCXG
+from GetClassifying import getTerminated, getSuspended, getCXG, loadCXG
 from GetClassifying import extractIndustrySina, extractConceptSina, extractArea
 from PlotFigures import plotHPE
 
@@ -34,6 +34,7 @@ date_end = u.today()
 update_basics = False
 update_price_stock = False
 update_price_index = False
+update_price_cxg = True
 update_financesummary = False
 update_commodity = False
 
@@ -43,8 +44,8 @@ calc_qfq = False
 calc_hpe = False
 calc_hep = False
 
-update_classifying = True
-extract_classifying = True
+update_classifying = False
+extract_classifying = False
 
 plot_hpe = False
 plot_hep = False
@@ -100,7 +101,7 @@ def updatePriceStock(force_update = True):
             continue;
 
         # Check if valid data file already exists
-        if not validDailyHFQ(stock_id, force_update):
+        if not validDailyHFQ(stock_id, False, force_update):
             getDailyHFQ(stock_id=stock_id, is_index=False, date_start=time_to_market,
                         date_end=date_end, time_to_market=time_to_market)
             print('Update Price:', stock_id)
@@ -110,6 +111,29 @@ def updatePriceIndex(force_update = True):
         getDailyHFQ(stock_id=index_id, is_index=True, date_start=date_start,
                     date_end=date_end, time_to_market=None)
         print('Update Price:', index_id)
+
+def updatePriceCXG(force_update = True):
+    # Check pre-requisite
+    cxg = loadCXG()
+    if u.isNoneOrEmpty(cxg):
+        print('Need to have CXG data!')
+        raise SystemExit
+
+    # Iterate over all CXG stocks
+    cxg_number = len(cxg)
+    for i in range(cxg_number):
+        stock_id = u.stockID(cxg.ix[i,'code'])
+        time_to_market = u.dateFromStr(cxg.loc[i,'timeToMarket'])
+
+        # Ignore No TTM Stocks (No Yet On the Market)
+        if time_to_market is None:
+            continue;
+
+        # Check if valid data file already exists
+        if not validDailyHFQ(stock_id, False, force_update):
+            getDailyHFQ(stock_id=stock_id, is_index=False, date_start=time_to_market,
+                        date_end=date_end, time_to_market=time_to_market)
+            print('Update Price:', stock_id)
 
 def updateFinanceSummary(force_update = True):
     # Check pre-requisite
@@ -254,6 +278,9 @@ if extract_classifying:
     extractIndustrySina()
     extractConceptSina()
     extractArea()
+
+if update_price_cxg:
+    updatePriceCXG(force_update)
 
 if plot_hpe:
     plotFigureHPE(period='M', ratio='PE')

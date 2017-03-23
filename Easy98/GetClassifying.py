@@ -299,3 +299,7 @@ def getCXG(date):
     # Save to CSV File
     if not u.isNoneOrEmpty(cxg):
         u.to_csv(cxg, c.path_dict['classify'], c.file_dict['cxg'])
+
+def loadCXG():
+    cxg = u.read_csv(c.fullpath_dict['cxg'])
+    return cxg
