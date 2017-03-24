@@ -11,8 +11,8 @@ Created on Fri Feb 10 18:10:01 2017
 
 import datetime as dt
 from GetFundamental import getStockBasics, loadStockBasics, validStockBasics
-from GetFundamental import getFinanceSummary, loadFinanceSummary, validFinanceSummary
-from GetTrading import getDailyHFQ, loadDailyHFQ, validDailyHFQ
+from GetFundamental import getFinanceSummary, validFinanceSummary
+from GetTrading import getDailyHFQ, validDailyHFQ
 from GetCommodity import getCommodityPrice, extractCommodityPrice, loadCommodityList
 from CalcIndicators import calcQFQ, calcHPE
 from GetClassifying import getIndustrySina, getConceptSina, getArea
@@ -31,6 +31,8 @@ import GlobalSettings as gs
 #
 date_start = dt.date(2005, 1, 1)
 date_end = u.today()
+date_cxg = '2016-01-01'
+
 update_basics = False
 update_price_stock = False
 update_price_index = False
@@ -78,6 +80,7 @@ def cleanStockBasics():
 
     # Filter out invalid timeToMarket stocks
     basics_nottm = basics[basics.timeToMarket == c.magic_date]
+    basics = basics[basics.timeToMarket != c.magic_date]
 
     # Save to CSV File
     u.to_csv(basics, c.path_dict['basics'], c.file_dict['basics'])
@@ -95,10 +98,6 @@ def updatePriceStock(force_update = True):
     for i in range(basics_number):
         stock_id = u.stockID(basics.loc[i,'code'])
         time_to_market = u.dateFromStr(basics.loc[i,'timeToMarket'])
-
-        # Ignore No TTM Stocks (No Yet On the Market)
-        if time_to_market is None:
-            continue;
 
         # Check if valid data file already exists
         if not validDailyHFQ(stock_id, False, force_update):
@@ -126,10 +125,6 @@ def updatePriceCXG(force_update = True):
         stock_id = u.stockID(cxg.ix[i,'code'])
         time_to_market = u.dateFromStr(cxg.loc[i,'timeToMarket'])
 
-        # Ignore No TTM Stocks (No Yet On the Market)
-        if time_to_market is None:
-            continue;
-
         # Check if valid data file already exists
         if not validDailyHFQ(stock_id, False, force_update):
             getDailyHFQ(stock_id=stock_id, is_index=False, date_start=time_to_market,
@@ -147,12 +142,6 @@ def updateFinanceSummary(force_update = True):
     basics_number = len(basics)
     for i in range(basics_number):
         stock_id = u.stockID(basics.loc[i,'code'])
-        time_to_market = u.dateFromStr(basics.loc[i,'timeToMarket'])
-
-        # Ignore No TTM Stocks (No Yet On the Market)
-        if time_to_market is None:
-            continue;
-
         # Check if valid data file already exists
         if not validFinanceSummary(stock_id, force_update):
             getFinanceSummary(stock_id)
@@ -177,12 +166,6 @@ def calculateQFQ(period = 'M'):
     basics_number = len(basics)
     for i in range(basics_number):
         stock_id = u.stockID(basics.loc[i,'code'])
-        time_to_market = u.dateFromStr(basics.loc[i,'timeToMarket'])
-
-        # Ignore No TTM Stocks (No Yet On the Market)
-        if time_to_market is None:
-            continue;
-
         # Calculate QFQ Data
         calcQFQ(stock_id = stock_id, period = period)
 
@@ -197,12 +180,6 @@ def calculateHPE(period = 'M', ratio = 'PE'):
     basics_number = len(basics)
     for i in range(basics_number):
         stock_id = u.stockID(basics.loc[i,'code'])
-        time_to_market = u.dateFromStr(basics.loc[i,'timeToMarket'])
-
-        # Ignore No TTM Stocks (No Yet On the Market)
-        if time_to_market is None:
-            continue;
-
         # Calculate HPE Data
         calcHPE(stock_id = stock_id, period = period, ratio = ratio)
 
@@ -217,17 +194,23 @@ def plotFigureHPE(period = 'M', ratio = 'PE'):
     basics_number = len(basics)
     for i in range(basics_number):
         stock_id = u.stockID(basics.loc[i,'code'])
-        time_to_market = u.dateFromStr(basics.loc[i,'timeToMarket'])
-
-        # Ignore No TTM Stocks (No Yet On the Market)
-        if time_to_market is None:
-            continue;
-
         # Plot HPE Data
         plotHPE(stock_id = stock_id, period = period, ratio = ratio)
 
 def runStrategy():
     print('Run Strategy')
+
+###############################################################################
+
+#
+# Update Data Center Entries
+#
+def updateWeekly():
+    updateStockBasics()
+    updatePriceStock()
+    updatePriceIndex()
+    updateFinanceSummary()
+    updateCommodity()
 
 ###############################################################################
 
@@ -273,7 +256,7 @@ if update_classifying:
     getZZ500()
     getTerminated()
     getSuspended()
-    getCXG('2016-01-01')
+    getCXG(date_cxg)
 
 if extract_classifying:
     extractIndustrySina()
