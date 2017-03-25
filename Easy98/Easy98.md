@@ -32,6 +32,8 @@
   * PlotFigures.py
   * RunStrategy.py
     * Strategy.py
+  * RunTool.py
+    * Wenhua.py
 
 * Easy98.md
 
