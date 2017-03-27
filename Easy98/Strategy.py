@@ -336,12 +336,33 @@ def strategyCXG():
     cxg_number = len(cxg)
 
     # Init New Columns
-    for column in ['ss_price','kb_price','zx_price','ss_ratio','kb_ratio']:
+    for column in ['ss_price','kb_price','zx_price','ss_ratio','kb_ratio','kb_index']:
         cxg[column] = 0
-    for column in ['high_than_kb','new_high']:
+    for column in ['kb','high_than_kb','new_high']:
         cxg[column] = False
 
-    # Iterative Over Each CXG Stock Data
+    # Setup Back Test Parameters
+    bt_segments = 6
+    hc_columns = []
+    hc_ratios = []
+    for j in range(bt_segments):
+        if j < bt_segments-1:
+            hc_columns.append('hc_%d_price' % (10*(j+1)))
+            hc_columns.append('hc_%d_ratio' % (10*(j+1)))
+            hc_ratios.append(0.1*(j+1))
+        else:
+            hc_columns.append('hc_all_price')
+            hc_columns.append('hc_all_ratio')
+            hc_ratios.append(1000000.0)
+        cxg[hc_columns[j*2+0]] = 0
+        cxg[hc_columns[j*2+1]] = 0
+    print(hc_columns)
+    print(hc_ratios)
+
+    #
+    # Iterate Over Each CXG Stock Data - Find KaiBai and Back Test
+    #
+    kb_type = 'close'
     for i in range(cxg_number):
         stock_id = u.stockID(cxg.ix[i,'code'])
         # Load Stock Daily QFQ Data
@@ -354,26 +375,53 @@ def strategyCXG():
             cxg.ix[i,'ss_price'] = lshq.ix[0,'open']
             cxg.ix[i,'zx_price'] = lshq.ix[-1,'close']
             cxg.ix[i,'ss_ratio'] = cxg.ix[i,'zx_price']/cxg.ix[i,'ss_price'] - 1
-            # 是否创开板后新高
+
+            # Whether Reach New High After KaiBan
             lshq_number = len(lshq)
-            kb_price = lshq.ix[0,'close']
+            kb_price = lshq.ix[0,kb_type]
             kb_index = 0
             # Find KaiBan Price and Index
             for j in range(1,lshq_number):
-                if lshq.ix[j,'close'] > lshq.ix[j,'low']:
-                    kb_price = lshq.ix[j,'close']
+                if lshq.ix[j,'high'] > lshq.ix[j,'low']:
+                    kb_price = lshq.ix[j,kb_type]
                     kb_index = j
                     break
-            ls_high = kb_price
-            for j in range(kb_index,lshq_number):
-                ls_high = lshq.ix[j,'close'] if lshq.ix[j,'close'] > ls_high else ls_high
-            cxg.ix[i,'kb_price'] = kb_price
-            cxg.ix[i,'kb_ratio'] = cxg.ix[i,'zx_price']/cxg.ix[i,'kb_price'] - 1
-            cxg.ix[i,'high_than_kb'] = 'Yes' if cxg.ix[i,'zx_price'] > kb_price else 'No'
-            cxg.ix[i,'new_high'] = 'Yes' if cxg.ix[i,'zx_price'] == ls_high else 'No'
+            if kb_index == 0:
+                cxg.ix[i,'kb'] = False
+                cxg.ix[i,'high_than_kb'] = 'No'
+                cxg.ix[i,'new_high'] = 'No'
+            else:
+                cxg.ix[i,'kb'] = True
+                ls_high = kb_price
+                for j in range(kb_index,lshq_number):
+                    ls_high = lshq.ix[j,'close'] if lshq.ix[j,'close'] > ls_high else ls_high
+                cxg.ix[i,'kb_price'] = kb_price
+                cxg.ix[i,'kb_index'] = kb_index
+                cxg.ix[i,'kb_ratio'] = cxg.ix[i,'zx_price']/cxg.ix[i,'kb_price'] - 1
+                cxg.ix[i,'high_than_kb'] = 'Yes' if cxg.ix[i,'zx_price'] >= kb_price else 'No'
+                cxg.ix[i,'new_high'] = 'Yes' if cxg.ix[i,'zx_price'] == ls_high else 'No'
+
+            # Back Test
+            high_since_kb = kb_price
+            low_since_kb = kb_price
+            for j in range(kb_index+1, lshq_number):
+                close = lshq.ix[j,'close']
+                high_since_kb = close if close > high_since_kb else high_since_kb
+                low_since_kb = close if close < low_since_kb else low_since_kb
+                high_ratio = high_since_kb/kb_price - 1
+                low_ratio = 1 - low_since_kb/kb_price
+                # Update high_since_kb for each bucket
+                for k in range(bt_segments):
+                    hc_ratio = hc_ratios[k]
+                    if j == kb_index+1 or low_ratio <= hc_ratio: # First bar after KaiBan may exceed threshold
+                        cxg.ix[i,hc_columns[2*k+0]] = high_since_kb # 'hc_%d_price'
+                        cxg.ix[i,hc_columns[2*k+1]] = high_ratio # 'hc_%d_ratio'
 
     # Format Data Frame
     for column in ['ss_price','kb_price','zx_price','ss_ratio','kb_ratio']:
+        cxg[column] = cxg[column].map(lambda x: '%.3f' % x)
+        cxg[column] = cxg[column].astype(float)
+    for column in hc_columns:
         cxg[column] = cxg[column].map(lambda x: '%.3f' % x)
         cxg[column] = cxg[column].astype(float)
     cxg.set_index('code', inplace=True)
