@@ -65,12 +65,12 @@ def runStrategyPriceFollow():
     mergePriceFollow(c.index_list, True, threshold_list)
 
 # Run Strategy CXG
-def runStrategyCXG():
-    strategyCXG()
+def runStrategyCXG(hc_segments = 5, yk_segments = 10):
+    strategyCXG(hc_segments, yk_segments)
 
 ###############################################################################
 
-runStrategyCXG()
+runStrategyCXG(hc_segments=5, yk_segments=100)
 
 
 
