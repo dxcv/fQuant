@@ -8,13 +8,13 @@ Created on Fri Feb 10 17:21:46 2017
 import tushare as ts
 import numpy as np
 
-def get_rzrq_sh(start_date, end_date):
+def get_rzrq_sh(date_start, date_end):
     """
         获取沪市融资融券汇总数据
     Parameters
     --------
-    start_date          开始日期，e.g. '2010-03-31'
-    end_date            截止日期，e.g. '2017-03-28'
+    date_start          开始日期，e.g. '2010-03-31'
+    date_end            截止日期，e.g. '2017-03-28'
 
     Return
     --------
@@ -27,7 +27,7 @@ def get_rzrq_sh(start_date, end_date):
         rqmcl_sh        融券卖出量上海
         rzrqye_sh       融资融券余额上海(元)
     """
-    rzrq = ts.sh_margins(start=start_date, end=end_date)
+    rzrq = ts.sh_margins(start=date_start, end=date_end)
     # Rename Columns
     columns_map = {'opDate':'date', 'rzye':'rzye_sh', 'rzmre':'rzmre_sh',
                    'rqyl':'rqyl_sh', 'rqylje':'rqylje_sh', 'rqmcl':'rqmcl_sh',
@@ -35,13 +35,13 @@ def get_rzrq_sh(start_date, end_date):
     rzrq.rename(columns=columns_map, inplace = True)
     return rzrq
 
-def get_rzrq_sz(start_date, end_date):
+def get_rzrq_sz(date_start, date_end):
     """
         获取深市融资融券汇总数据
     Parameters
     --------
-    start_date          开始日期，e.g. '2010-03-31'
-    end_date            截止日期，e.g. '2017-03-28'
+    date_start          开始日期，e.g. '2010-03-31'
+    date_end            截止日期，e.g. '2017-03-28'
 
     Return
     --------
@@ -54,7 +54,7 @@ def get_rzrq_sz(start_date, end_date):
         rqmcl_sz        融券卖出量深圳
         rzrqye_sz       融资融券余额深圳(元)
     """
-    rzrq = ts.sz_margins(start=start_date, end=end_date)
+    rzrq = ts.sz_margins(start=date_start, end=date_end)
     # Rename Columns
     columns_map = {'opDate':'date', 'rzmre':'rzmre_sz', 'rzye':'rzye_sz',
                    'rqmcl':'rqmcl_sz', 'rqyl':'rqyl_sz', 'rqye':'rqylje_sz',
@@ -68,13 +68,13 @@ def get_rzrq_sz(start_date, end_date):
     rzrq.insert(5, 'rqmcl_sz', rqmcl_sz)
     return rzrq
 
-def get_rzrq_sh_details(start_date, end_date):
+def get_rzrq_sh_details(date_start, date_end):
     """
         获取沪市融资融券明细数据
     Parameters
     --------
-    start_date          开始日期，e.g. '2010-03-31'
-    end_date            截止日期，e.g. '2017-03-28'
+    date_start          开始日期，e.g. '2010-03-31'
+    date_end            截止日期，e.g. '2017-03-28'
 
     Return
     --------
@@ -91,7 +91,7 @@ def get_rzrq_sh_details(start_date, end_date):
         rqylje          融券余量金额(元)
         rzrqye          融资融券余额(元)
     """
-    rzrq = ts.sh_margin_details(start=start_date, end=end_date)
+    rzrq = ts.sh_margin_details(start=date_start, end=date_end)
     # Rename Columns
     columns_map = {'opDate':'date', 'stockCode':'code', 'securityAbbr':'name'}
     rzrq.rename(columns=columns_map, inplace = True)
