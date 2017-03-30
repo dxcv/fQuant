@@ -1,6 +1,14 @@
 # fQuant
 Quant Tools and Utilities
 
-Folder Structure
-+ Python - Python scripts for quant analysis.
-+ DataCenter - CSV files containing stock daily data.
+## Folder Structure
++ AssetMgmt
+  + DataCenter - CSV files containing financial data.
+  + Python - Python scripts for quant analysis.
+    + fQuant
+      + Common
+      + Data
+      + Indicator
+      + Plot
+      + Strategy
+      + Tool
