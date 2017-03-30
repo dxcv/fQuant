@@ -55,8 +55,7 @@ folder_strategy                 = 'Strategy/'
 # Data Files (Relative to Data Folders)
 file_trading_lshq               = 'Trading_LSHQ_%s.csv'
 
-file_reference_rzrq_market_sh   = 'Reference_RZRQ_Market_SH.csv'
-file_reference_rzrq_market_sz   = 'Reference_RZRQ_Market_SZ.csv'
+file_reference_rzrq             = 'Reference_RZRQ_%s.csv'
 file_reference_rzrq_stock       = 'Reference_RZRQ_Stock_%s.csv'
 
 file_classifying_industry_sina  = 'Classifying_Industry_Sina.csv'
@@ -117,7 +116,8 @@ path_dict = {
         'fig_hpe'   : path_datacenter + folder_figure_hpe_period,
         'fig_hep'   : path_datacenter + folder_figure_hep_period,
         'strategy'  : path_datacenter + folder_strategy,
-        'commodity' : path_datacenter + folder_commodity
+        'commodity' : path_datacenter + folder_commodity,
+        'rzrq'      : path_datacenter + folder_reference_rzrq
         }
 
 file_dict = {
@@ -152,7 +152,8 @@ file_dict = {
         'strategy_r' : file_strategy_result,
         'commodity'  : file_commodity,
         'commodity_m': file_commodity_market,
-        'commodity_l': file_commodity_list
+        'commodity_l': file_commodity_list,
+        'rzrq'       : file_reference_rzrq
         }
 
 fullpath_dict = {
@@ -177,7 +178,8 @@ fullpath_dict = {
         'conc_stock' : path_dict['conc_sina'] + file_dict['conc_stock'],
         'area_list'  : path_dict['area'] + file_dict['area_list'],
         'area_stock' : path_dict['area'] + file_dict['area_stock'],
-        'commodity'  : path_dict['commodity'] + file_dict['commodity']
+        'commodity'  : path_dict['commodity'] + file_dict['commodity'],
+        'rzrq'       : path_dict['rzrq'] + file_dict['rzrq']
         }
 
 # Index List

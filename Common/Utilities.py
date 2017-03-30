@@ -8,8 +8,8 @@ Created on Fri Feb 10 17:12:25 2017
 import os
 import datetime as dt
 import pandas as pd
-import GlobalSettings as gs
-import Constants as c
+import Common.GlobalSettings as gs
+import Common.Constants as c
 
 ###############################################################################
 
@@ -113,6 +113,21 @@ def quarterOfDate(date):
 def quarterEndOfDay(date):
     quarter = quarterOfDate(date)
     return dt.date(date.year, quarterEndMonth(quarter), quarterEndDay(quarter))
+
+# Break start date and end date on a yearly basis
+def breakByYear(start_date, end_date):
+    start_year = start_date[0:4]
+    end_year = end_date[0:4]
+    first_day = '-01-01'
+    last_day = '-12-31'
+    dates = [start_date, start_year+last_day]
+    for year in range(int(start_year)+1,int(end_year)):
+        dates.append(str(year)+first_day)
+        dates.append(str(year)+last_day)
+    if end_year > start_year:
+        dates.append(end_year+first_day)
+        dates.append(end_date)
+    return dates
 
 ###############################################################################
 
