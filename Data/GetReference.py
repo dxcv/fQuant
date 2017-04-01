@@ -41,7 +41,7 @@ def getRZRQMarketSZ(date_start, date_end):
     for i in range(dates_number):
         rzrq = get_rzrq_sz(dates[i*2], dates[i*2+1])
         if i == 0:
-            rzrq_sz = rzrq
+            rzrq_sz = pd.DataFrame.copy(rzrq)
         else:
             rzrq_sz = pd.concat([rzrq_sz, rzrq])
 
@@ -60,7 +60,7 @@ def mergeRZRQMarketSZ(files_number):
     for index in range(files_number):
         rzrq = u.read_csv(c.fullpath_dict['rzrq'] % ('Market_SZ_%s'%index))
         if index == 0:
-            rzrq_sz = rzrq
+            rzrq_sz = pd.DataFrame.copy(rzrq)
         else:
             rzrq_sz = pd.concat([rzrq_sz, rzrq])
     rzrq_sz.set_index('date',inplace=True)
@@ -147,6 +147,31 @@ def getRZRQDetailsSZ():
 
 ###############################################################################
 
+def extractRZRQDetails(market = 'SH'):
+    rzrq_details = u.read_csv(c.fullpath_dict['rzrq'] % ('Details_%s' % market))
+    stocks = pd.DataFrame({'code':rzrq_details['code']})
+    stocks.drop_duplicates(inplace=True)
+    stocks.set_index('code',inplace=True)
+    stocks_number = len(stocks)
+    print('RZRQ Stock Number:', stocks_number)
+    for i in range(stocks_number):
+        stock_id = stocks.index[i]
+        rzrq = rzrq_details[rzrq_details['code'] == stock_id]
+        if not u.isNoneOrEmpty(rzrq):
+            rzrq.set_index('date',inplace=True)
+            rzrq.sort_index(ascending=True,inplace=True)
+            rzrq['code'] = rzrq['code'].map(lambda x:str(x).zfill(6))
+            # Handle Missing Columns
+            if market == 'SH':
+#                rzrq['rqylje'] = 
+                rzrq['rzrqye'] = rzrq['rzye'] + rzrq['rqylje']
+#            elif market == 'SZ':
+#                rzrq['rzche'] = 
+#                rzrq['rqchl'] = 
+            u.to_csv(rzrq, c.path_dict['rzrq'], c.file_dict['rzrq'] % ('Details_%s_%06d' % (market, stock_id)))
+
+###############################################################################
+
 def getRZRQMarket(date_start, date_end):
     getRZRQMarketSH(date_start,date_end)
     getRZRQMarketSZ(date_start,date_end)
@@ -155,12 +180,5 @@ def getRZRQMarket(date_start, date_end):
 def getRZRQDetails(date_start, date_end):
     getRZRQDetailsSH()
     getRZRQDetailsSZ()
-#    extractRZRQDetailsSH()
-#    extractRZRQDetailsSZ()
-
-###############################################################################
-
-date_start = '2010-03-31'
-date_end = '2017-03-28'
-getRZRQMarket(date_start, date_end)
-getRZRQDetails(date_start, date_end)
+    extractRZRQDetails('SH')
+    extractRZRQDetails('SZ')

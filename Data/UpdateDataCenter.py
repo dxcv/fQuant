@@ -10,16 +10,16 @@ Created on Fri Feb 10 18:10:01 2017
 #
 
 import datetime as dt
-from GetFundamental import getStockBasics, loadStockBasics, validStockBasics
+from GetFundamental import getStockBasics, loadStockBasics
 from GetFundamental import getFinanceSummary, validFinanceSummary
-from GetTrading import getDailyHFQ, validDailyHFQ
+from GetTrading import getDailyHFQ
 from GetCommodity import getCommodityPrice, extractCommodityPrice, loadCommodityList
 from GetClassifying import getIndustrySina, getConceptSina, getArea
 from GetClassifying import getSME, getGEM, getST
 from GetClassifying import getHS300, getSZ50, getZZ500
 from GetClassifying import getTerminated, getSuspended, getCXG, loadCXG
 from GetClassifying import extractIndustrySina, extractConceptSina, extractArea
-from GetClassifying import getStockList, loadStockList
+from GetReference import getRZRQMarket, getRZRQDetails
 
 import sys
 sys.path.append('..')
@@ -138,6 +138,10 @@ def updateClassifying():
     extractConceptSina()
     extractArea()
 
+def updateRZRQ(date_start = '2010-03-31', date_end = str(u.today())):
+    getRZRQMarket(date_start, date_end)
+    getRZRQDetails(date_start, date_end)
+
 def updateCommodity(force_update = True):
     com_list = loadCommodityList()
     com_number = len(com_list)
@@ -159,6 +163,7 @@ def updateWeekly():
     updatePriceIndex()
     updateFinanceSummary()
     updateClassifying()
+    updateRZRQ()
     updateCommodity()
 
 # Incremental Daily Update
