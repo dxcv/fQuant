@@ -6,6 +6,8 @@ Created on Fri Feb 10 17:22:37 2017
 """
 
 import tushare as ts
+from GetFundamental import loadStockBasics
+import Common.Utilities as u
 
 def get_industry_sina():
     '''
@@ -281,8 +283,6 @@ def get_cxg(date):
         area,地区
         timeToMarket,上市日期
     '''
-    from GetFundamental import loadStockBasics
-    import Utilities as u
     # Check pre-requisite
     basics = loadStockBasics()
     if u.isNoneOrEmpty(basics):
@@ -296,3 +296,36 @@ def get_cxg(date):
 
     # Return Dataframe
     return cxg
+
+def get_stock_list(cutoff_date):
+    '''
+    函数功能：
+    --------
+    获取所有指定日期之前（含）已经上市的股票列表。
+
+    输入参数：
+    --------
+    date,截止时间  e.g. '2016-12-31'
+
+    输出参数：
+    --------
+    DataFrame
+        code,代码
+        name,名称
+        industry,所属行业
+        area,地区
+        timeToMarket,上市日期
+    '''
+    # Check pre-requisite
+    basics = loadStockBasics()
+    if u.isNoneOrEmpty(basics):
+        print('Need to have stock basics!')
+        raise SystemExit
+
+    # Extract Stock List
+    stocks = basics[basics.timeToMarket <= cutoff_date]
+    stocks = stocks[['code','name','industry','area','timeToMarket']]
+    stocks.sort_values(by=['timeToMarket'], axis=0, ascending=True, inplace=True)
+
+    # Return Dataframe
+    return stocks

@@ -13,10 +13,10 @@ from Classifying import get_industry_sina, get_concept_sina, get_area
 from Classifying import get_sme, get_gem, get_st
 from Classifying import get_hs300, get_sz50, get_zz500
 from Classifying import get_terminated, get_suspended
-from Classifying import get_cxg
-import GlobalSettings as gs
-import Constants as c
-import Utilities as u
+from Classifying import get_cxg, get_stock_list
+import Common.GlobalSettings as gs
+import Common.Constants as c
+import Common.Utilities as u
 
 
 def getIndustrySina():
@@ -303,3 +303,18 @@ def getCXG(date):
 def loadCXG():
     cxg = u.read_csv(c.fullpath_dict['cxg'])
     return cxg
+
+def getStockList(cutoff_date):
+    stocks = get_stock_list(cutoff_date)
+    stocks['code'] = stocks['code'].map(lambda x:str(x).zfill(6))
+    stocks.set_index('code', inplace=True)
+    if gs.is_debug:
+        print(stocks.head(10))
+
+    # Save to CSV File
+    if not u.isNoneOrEmpty(stocks):
+        u.to_csv(stocks, c.path_dict['classify'], c.file_dict['stock_list'] % cutoff_date)
+
+def loadStockList(cutoff_date):
+    stocks = u.read_csv(c.fullpath_dict['stock_list'] % cutoff_date)
+    return stocks
