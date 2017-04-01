@@ -10,17 +10,40 @@ Created on Sat Feb 11 11:55:29 2017
 #
 
 from Trading import get_daily_hfq
-import GlobalSettings as gs
-import Constants as c
-import Utilities as u
+import Common.GlobalSettings as gs
+import Common.Constants as c
+import Common.Utilities as u
 
-def getDailyHFQ(stock_id, is_index, date_start, date_end, time_to_market = None):
+def getDailyHFQ(stock_id, is_index, date_start, date_end, time_to_market, incremental):
+    hfq = None
+    # For incremental update, use the next day of last update as the date start.
+    if incremental:
+        hfq = loadDailyHFQ(stock_id, is_index)
+        if not u.isNoneOrEmpty(hfq):
+            hfq.set_index('date',inplace=True)
+            hfq.sort_index(ascending=True,inplace=True)
+            last_day = hfq.index[len(hfq)-1]
+            date_start = u.nextDayFromStr(last_day)
+
     # Download
+    if gs.is_debug:
+        print('Download Daily HFQ: %s, start=%s, end=%s' % (stock_id, u.dateToStr(date_start), u.dateToStr(date_end)))
     df = get_daily_hfq(stock_id=stock_id, is_index=is_index, date_start=date_start, 
                        date_end=date_end, time_to_market=time_to_market)
-    df.sort_index(ascending=True,inplace=True) # date is set to index
-    if gs.is_debug:
-        print(df.head(10))
+    if not u.isNoneOrEmpty(df):
+        # Default df has 'date' set as index with type pandas.tslib.Timestamp,
+        # so merged results will contain 00:00:00 along with date.
+        # With below series of operation, index of df will be converted to type
+        # str, thus avoid above issue.
+        df.reset_index(inplace=True)
+        df['date'] = df['date'].map(lambda x:str(x.date()))
+        df.set_index('date',inplace=True)
+        df.sort_index(ascending=True,inplace=True)
+
+    # For incremental update, merge data
+    if incremental:
+        if (not u.isNoneOrEmpty(df)) and (not u.isNoneOrEmpty(hfq)):
+            df = hfq.append(df)
 
     # Save to CSV File
     if not u.isNoneOrEmpty(df):

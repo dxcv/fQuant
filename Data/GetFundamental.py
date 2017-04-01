@@ -9,11 +9,13 @@ Created on Fri Feb 10 18:00:21 2017
 # Import Libraries and Methods
 #
 
+import sys
+sys.path.append('..')
 from Fundamental import get_stock_basics
 from FinanceSummary import get_finance_summary
-import GlobalSettings as gs
-import Constants as c
-import Utilities as u
+import Common.GlobalSettings as gs
+import Common.Constants as c
+import Common.Utilities as u
 
 def getStockBasics():
     # Download Stock Basics

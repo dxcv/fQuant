@@ -18,8 +18,8 @@ try:
     from urllib.request import urlopen, Request, quote
 except ImportError:
     from urllib2 import urlopen, Request, quote
-import GlobalSettings as gs
-import Utilities as u
+import Common.GlobalSettings as gs
+import Common.Utilities as u
 
 #
 # Constants and Parameters

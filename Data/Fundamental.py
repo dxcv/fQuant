@@ -9,8 +9,7 @@ Created on Fri Feb 10 17:23:11 2017
 # Import Libraries and Methods
 #
 import tushare as ts
-import GlobalSettings as gs
-import Utilities as u
+import Common.GlobalSettings as gs
 
 #
 # Get Stock Basics

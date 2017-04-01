@@ -19,10 +19,13 @@ from GetClassifying import getSME, getGEM, getST
 from GetClassifying import getHS300, getSZ50, getZZ500
 from GetClassifying import getTerminated, getSuspended, getCXG, loadCXG
 from GetClassifying import extractIndustrySina, extractConceptSina, extractArea
+from GetClassifying import getStockList, loadStockList
 
-import Utilities as u
-import Constants as c
-import GlobalSettings as gs
+import sys
+sys.path.append('..')
+import Common.Utilities as u
+import Common.Constants as c
+import Common.GlobalSettings as gs
 
 #
 # Update Data Center Parameters
@@ -36,17 +39,16 @@ date_cxg = '2016-01-01'
 #
 # Update Data Center Functions
 #
-def updateStockBasics(force_update = True):
-    # Chec if valid date file already exists
-    if not validStockBasics(force_update):
-        getStockBasics()
-        cleanStockBasics()
+def updateStockBasics():
+    getStockBasics()
+    cleanStockBasics()
 
 def cleanStockBasics():
     basics = loadStockBasics()
     print(basics.head(10))
 
     # Format columns
+    basics['code'] = basics['code'].map(lambda x:str(x).zfill(6))
     basics['timeToMarket'] = basics['timeToMarket'].map(u.formatDateYYYYmmddInt64)
     if gs.is_debug:
         basics_number = len(basics)
@@ -63,7 +65,7 @@ def cleanStockBasics():
     u.to_csv(basics, c.path_dict['basics'], c.file_dict['basics'])
     u.to_csv(basics_nottm, c.path_dict['basics'], c.file_dict['basics_nottm'])
 
-def updatePriceStock(force_update = True):
+def updatePriceStock(incremental = False):
     # Check pre-requisite
     basics = loadStockBasics()
     if u.isNoneOrEmpty(basics):
@@ -75,20 +77,17 @@ def updatePriceStock(force_update = True):
     for i in range(basics_number):
         stock_id = u.stockID(basics.loc[i,'code'])
         time_to_market = u.dateFromStr(basics.loc[i,'timeToMarket'])
+        getDailyHFQ(stock_id=stock_id, is_index=False, date_start=time_to_market,
+                    date_end=date_end, time_to_market=time_to_market, incremental=incremental)
+        print('Update Price:', stock_id)
 
-        # Check if valid data file already exists
-        if not validDailyHFQ(stock_id, False, force_update):
-            getDailyHFQ(stock_id=stock_id, is_index=False, date_start=time_to_market,
-                        date_end=date_end, time_to_market=time_to_market)
-            print('Update Price:', stock_id)
-
-def updatePriceIndex(force_update = True):
+def updatePriceIndex(incremental = False):
     for index_id in c.index_list:
         getDailyHFQ(stock_id=index_id, is_index=True, date_start=date_start,
-                    date_end=date_end, time_to_market=None)
+                    date_end=date_end, time_to_market=None, incremental=incremental)
         print('Update Price:', index_id)
 
-def updatePriceCXG(force_update = True):
+def updatePriceCXG(incremental = False):
     # Check pre-requisite
     cxg = loadCXG()
     if u.isNoneOrEmpty(cxg):
@@ -101,12 +100,9 @@ def updatePriceCXG(force_update = True):
     for i in range(cxg_number):
         stock_id = u.stockID(cxg.ix[i,'code'])
         time_to_market = u.dateFromStr(cxg.loc[i,'timeToMarket'])
-
-        # Check if valid data file already exists
-        if not validDailyHFQ(stock_id, False, force_update):
-            getDailyHFQ(stock_id=stock_id, is_index=False, date_start=time_to_market,
-                        date_end=date_end, time_to_market=time_to_market)
-            print('Update Price:', stock_id)
+        getDailyHFQ(stock_id=stock_id, is_index=False, date_start=time_to_market,
+                    date_end=date_end, time_to_market=time_to_market, incremental=incremental)
+        print('Update Price:', stock_id)
 
 def updateFinanceSummary(force_update = True):
     # Check pre-requisite
@@ -155,6 +151,8 @@ def updateCommodity(force_update = True):
 #
 # Update Data Center Entries
 #
+
+# Full Weekly Update
 def updateWeekly():
     updateStockBasics()
     updatePriceStock()
@@ -163,10 +161,16 @@ def updateWeekly():
     updateClassifying()
     updateCommodity()
 
+# Incremental Daily Update
+def updateDaily():
+    updateStockBasics()
+    updatePriceStock(True)
+
+# Incremental Update for CXG
 def updateCXG():
     updateStockBasics()
     getCXG(date_cxg)
-    updatePriceCXG()
+    updatePriceCXG(True)
 
 def updateStock(stock_id, date_start, date_end):
     getDailyHFQ(stock_id=stock_id, is_index=False, date_start=date_start,
@@ -175,5 +179,6 @@ def updateStock(stock_id, date_start, date_end):
 
 ###############################################################################
 
-updateCXG()
+#updateCXG()
 #updateStock('002340', date_start, date_end)
+updateDaily()

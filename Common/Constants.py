@@ -76,6 +76,7 @@ file_classifying_concept_list   = 'Classifying_Concept_List.csv'
 file_classifying_concept_stock  = 'Classifying_Concept_%s.csv'
 file_classifying_area_list      = 'Classifying_Area_List.csv'
 file_classifying_area_stock     = 'Classifying_Area_%s.csv'
+file_classifying_stock_list     = 'Classifying_StockList_%s.csv'
 
 file_fundamental_basics         = 'Fundamental_Basics.csv'
 file_fundamental_basics_nottm   = 'Fundamental_Basics_NoTTM.csv'
@@ -146,6 +147,7 @@ file_dict = {
         'conc_stock' : file_classifying_concept_stock,
         'area_list'  : file_classifying_area_list,
         'area_stock' : file_classifying_area_stock,
+        'stock_list' : file_classifying_stock_list,
         'fig_hpe'    : file_figure_hpe_period_stock,
         'fig_hep'    : file_figure_hep_period_stock,
         'strategy'   : file_strategy,
@@ -172,6 +174,7 @@ fullpath_dict = {
         'terminated' : path_dict['classify'] + file_dict['terminated'],
         'suspended'  : path_dict['classify'] + file_dict['suspended'],
         'cxg'        : path_dict['classify'] + file_dict['cxg'],
+        'stock_list' : path_dict['classify'] + file_dict['stock_list'],
         'indu_list'  : path_dict['indu_sina'] + file_dict['indu_list'],
         'indu_stock' : path_dict['indu_sina'] + file_dict['indu_stock'],
         'conc_list'  : path_dict['conc_sina'] + file_dict['conc_list'],

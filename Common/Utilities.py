@@ -87,6 +87,14 @@ def quarterDateStr(year, quarter):
 def today():
     return dt.datetime.today().date()
 
+def tomorrow():
+    date = dt.datetime.now() + dt.timedelta(days = 1)
+    return date.date()
+
+def yesterday():
+    date = dt.datetime.now() + dt.timedelta(days = -1)
+    return date.date()
+
 def yearOfToday():
     return dt.datetime.today().year
 
@@ -157,6 +165,24 @@ def dateFromStr(date):
     if isValidDate(date):
         date = pd.to_datetime(date, format='%Y-%m-%d')
         return dt.date(date.year, date.month, date.day)
+    else:
+        return None
+
+# Return Next Day (from string YYYY-mm-dd)
+def nextDayFromStr(date):
+    if isValidDate(date):
+        date = pd.to_datetime(date, format='%Y-%m-%d')
+        next_day = date + dt.timedelta(days = 1)
+        return dt.date(next_day.year, next_day.month, next_day.day)
+    else:
+        return None
+
+# Return Previous Day (from string YYYY-mm-dd)
+def prevDayFromStr(date):
+    if isValidDate(date):
+        date = pd.to_datetime(date, format='%Y-%m-%d')
+        prev_day = date + dt.timedelta(days = -1)
+        return dt.date(prev_day.year, prev_day.month, prev_day.day)
     else:
         return None
 

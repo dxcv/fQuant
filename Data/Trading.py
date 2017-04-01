@@ -10,9 +10,6 @@ Created on Fri Feb 10 17:22:35 2017
 #
 import tushare as ts
 import datetime as dt
-import pandas as pd
-import GlobalSettings as gs
-import Utilities as u
 
 def get_daily_hfq(stock_id, is_index, date_start, date_end, time_to_market = None):
     '''

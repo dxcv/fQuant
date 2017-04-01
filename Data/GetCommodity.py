@@ -10,9 +10,9 @@ Created on Thu Mar  2 17:11:13 2017
 #
 
 from Commodity import get_commodity_price
-import GlobalSettings as gs
-import Constants as c
-import Utilities as u
+import Common.GlobalSettings as gs
+import Common.Constants as c
+import Common.Utilities as u
 
 def getCommodityPrice(code):
     # Download Commodity Data
