@@ -5,11 +5,11 @@ Created on Fri Feb 24 14:28:37 2017
 @author: freefrom
 """
 
-import GlobalSettings as gs
-import Constants as c
-import Utilities as u
-from GetTrading import loadDailyQFQ
-from GetClassifying import loadCXG
+import Common.GlobalSettings as gs
+import Common.Constants as c
+import Common.Utilities as u
+from Data.GetTrading import loadDailyQFQ
+from Data.GetClassifying import loadCXG
 import pandas as pd
 import numpy as np
 
@@ -27,6 +27,8 @@ def strategyPriceFollow(stock_id, is_index, trend_threshold):
     lshq['trend'] = 'Up'
     for column in ['trend_high','trend_low','trend_ref']:
         lshq[column] = 0.0
+    for column in ['predict','confirm']:
+        lshq[column] = np.nan
     lshq_number = len(lshq)
     trends = []
     trend_turning_points = []
@@ -48,7 +50,7 @@ def strategyPriceFollow(stock_id, is_index, trend_threshold):
             up_to_down = False
             down_to_up = False
             if trend == 'Up':
-                if trend_high/trend_cur > 1.0+trend_threshold:
+                if (1.0-trend_cur/trend_high) > trend_threshold:
                     lshq.ix[i,'trend'] = 'Down'
                     up_to_down = True
                     trends.append('Up')
@@ -58,7 +60,7 @@ def strategyPriceFollow(stock_id, is_index, trend_threshold):
                     lshq.ix[i,'trend'] = 'Up'
                     up_to_down = False
             else:
-                if trend_cur/trend_low > 1.0+trend_threshold:
+                if (trend_cur/trend_low-1.0) > trend_threshold:
                     lshq.ix[i,'trend'] = 'Up'
                     down_to_up = True
                     trends.append('Down')
@@ -70,24 +72,40 @@ def strategyPriceFollow(stock_id, is_index, trend_threshold):
             if trend == 'Up':
                 if up_to_down == False: # Up trend continues
                     if trend_cur > trend_high:
+                        lshq.ix[i,'predict'] = 1.0
+                        for j in range(index_high+1,i+1): # New high confirms all trades since last high to be up-trend
+                            lshq.ix[j,'confirm'] = 1.0
                         lshq.ix[i,'trend_high'] = trend_cur
                         index_high = i
                     else:
+                        ratio = (1.0-trend_cur/trend_high)/trend_threshold
+                        lshq.ix[i,'predict'] = 1.0*(1.0-ratio) + (-1.0)*ratio # Map to [1.0, -1.0]
                         lshq.ix[i,'trend_high'] = trend_high
                     lshq.ix[i,'trend_ref'] = trend_ref
                 else: # Up trend reverses
+                    lshq.ix[i,'predict'] = -1.0
+                    for j in range(index_high+1,i+1): # Turning point confirms all trades since last high to be down-trend
+                        lshq.ix[j,'confirm'] = -1.0
                     lshq.ix[i,'trend_ref'] = trend_high
                     lshq.ix[i,'trend_low'] = trend_cur
                     index_low = i
             else:
                 if down_to_up == False: # Down trend continues
                     if trend_cur < trend_low:
+                        lshq.ix[i,'predict'] = -1.0
+                        for j in range(index_low+1,i+1): # New low confirms all trades since last low to be down-trend
+                            lshq.ix[j,'confirm'] = -1.0
                         lshq.ix[i,'trend_low'] = trend_cur
                         index_low = i
                     else:
+                        ratio = (trend_cur/trend_low-1.0)/trend_threshold
+                        lshq.ix[i,'predict'] = (-1.0)*(1.0-ratio) + (1.0)*ratio # Map to [1.0, -1.0]
                         lshq.ix[i,'trend_low'] = trend_low
                     lshq.ix[i,'trend_ref'] = trend_ref
                 else: # Down trend reverses
+                    lshq.ix[i,'predict'] = 1.0
+                    for j in range(index_low+1,i+1): # Turning point confirms all trades since last low to be up-trend
+                        lshq.ix[j,'confirm'] = 1.0
                     lshq.ix[i,'trend_ref'] = trend_low
                     lshq.ix[i,'trend_high'] = trend_cur
                     index_high = i
