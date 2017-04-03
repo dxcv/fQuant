@@ -9,7 +9,10 @@ Created on Sat Feb 11 11:55:29 2017
 # Import Libraries and Methods
 #
 
-from Trading import get_daily_hfq
+import sys
+sys.path.append('..')
+
+from Data.Trading import get_daily_hfq
 import Common.GlobalSettings as gs
 import Common.Constants as c
 import Common.Utilities as u

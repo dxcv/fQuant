@@ -9,11 +9,13 @@ Created on Thu Mar 30 14:30:03 2017
 # Import Libraries and Methods
 #
 
-from Reference import get_rzrq_sh, get_rzrq_sz
-from Reference import get_rzrq_sh_details, get_rzrq_sz_details
 import pandas as pd
+
 import sys
 sys.path.append('..')
+
+from Data.Reference import get_rzrq_sh, get_rzrq_sz
+from Data.Reference import get_rzrq_sh_details, get_rzrq_sz_details
 import Common.GlobalSettings as gs
 import Common.Constants as c
 import Common.Utilities as u

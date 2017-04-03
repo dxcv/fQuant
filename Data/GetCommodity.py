@@ -9,7 +9,10 @@ Created on Thu Mar  2 17:11:13 2017
 # Import Libraries and Methods
 #
 
-from Commodity import get_commodity_price
+import sys
+sys.path.append('..')
+
+from Data.Commodity import get_commodity_price
 import Common.GlobalSettings as gs
 import Common.Constants as c
 import Common.Utilities as u

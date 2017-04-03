@@ -10,19 +10,20 @@ Created on Fri Feb 10 18:10:01 2017
 #
 
 import datetime as dt
-from GetFundamental import getStockBasics, loadStockBasics
-from GetFundamental import getFinanceSummary, validFinanceSummary
-from GetTrading import getDailyHFQ
-from GetCommodity import getCommodityPrice, extractCommodityPrice, loadCommodityList
-from GetClassifying import getIndustrySina, getConceptSina, getArea
-from GetClassifying import getSME, getGEM, getST
-from GetClassifying import getHS300, getSZ50, getZZ500
-from GetClassifying import getTerminated, getSuspended, getCXG, loadCXG
-from GetClassifying import extractIndustrySina, extractConceptSina, extractArea
-from GetReference import getRZRQMarket, getRZRQDetails
-
 import sys
 sys.path.append('..')
+
+from Data.GetFundamental import getStockBasics, loadStockBasics
+from Data.GetFundamental import getFinanceSummary, validFinanceSummary
+from Data.GetTrading import getDailyHFQ
+from Data.GetCommodity import getCommodityPrice, extractCommodityPrice, loadCommodityList
+from Data.GetClassifying import getIndustrySina, getConceptSina, getArea
+from Data.GetClassifying import getSME, getGEM, getST
+from Data.GetClassifying import getHS300, getSZ50, getZZ500
+from Data.GetClassifying import getTerminated, getSuspended, getCXG, loadCXG
+from Data.GetClassifying import extractIndustrySina, extractConceptSina, extractArea
+from Data.GetReference import getRZRQMarket, getRZRQDetails
+
 import Common.Utilities as u
 import Common.Constants as c
 import Common.GlobalSettings as gs
@@ -186,4 +187,4 @@ def updateStock(stock_id, date_start, date_end):
 
 #updateCXG()
 #updateStock('002340', date_start, date_end)
-updateDaily()
+updatePriceIndex()

@@ -9,11 +9,14 @@ Created on Wed Feb 15 12:48:46 2017
 # Import Libraries and Methods
 #
 
-from Classifying import get_industry_sina, get_concept_sina, get_area
-from Classifying import get_sme, get_gem, get_st
-from Classifying import get_hs300, get_sz50, get_zz500
-from Classifying import get_terminated, get_suspended
-from Classifying import get_cxg, get_stock_list
+import sys
+sys.path.append('..')
+
+from Data.Classifying import get_industry_sina, get_concept_sina, get_area
+from Data.Classifying import get_sme, get_gem, get_st
+from Data.Classifying import get_hs300, get_sz50, get_zz500
+from Data.Classifying import get_terminated, get_suspended
+from Data.Classifying import get_cxg, get_stock_list
 import Common.GlobalSettings as gs
 import Common.Constants as c
 import Common.Utilities as u

@@ -11,8 +11,9 @@ Created on Fri Feb 10 18:00:21 2017
 
 import sys
 sys.path.append('..')
-from Fundamental import get_stock_basics
-from FinanceSummary import get_finance_summary
+
+from Data.Fundamental import get_stock_basics
+from Data.FinanceSummary import get_finance_summary
 import Common.GlobalSettings as gs
 import Common.Constants as c
 import Common.Utilities as u

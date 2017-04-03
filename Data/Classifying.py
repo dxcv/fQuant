@@ -6,7 +6,7 @@ Created on Fri Feb 10 17:22:37 2017
 """
 
 import tushare as ts
-from GetFundamental import loadStockBasics
+from Data.GetFundamental import loadStockBasics
 import Common.Utilities as u
 
 def get_industry_sina():
