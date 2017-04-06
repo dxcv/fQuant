@@ -178,13 +178,13 @@ def updateCXG():
     getCXG(date_cxg)
     updatePriceCXG(True)
 
-def updateStock(stock_id, date_start, date_end):
+def updateStock(stock_id, date_start, date_end, incremental):
     getDailyHFQ(stock_id=stock_id, is_index=False, date_start=date_start,
-                date_end=date_end)
+                date_end=date_end, time_to_market=None, incremental=incremental)
     print('Update Price:', stock_id)
 
 ###############################################################################
 
 #updateCXG()
-#updateStock('002340', date_start, date_end)
-updatePriceIndex()
+updateStock('300276', date_start, date_end, True)
+#updatePriceIndex()

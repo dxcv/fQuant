@@ -48,6 +48,10 @@ def getDailyHFQ(stock_id, is_index, date_start, date_end, time_to_market, increm
         if (not u.isNoneOrEmpty(df)) and (not u.isNoneOrEmpty(hfq)):
             df = hfq.append(df)
 
+    # Format Columns
+    for column in ['open', 'high', 'close', 'low', 'volume', 'amount', 'factor']:
+        df[column] = df[column].map(lambda x:'%.3f' % x)
+
     # Save to CSV File
     if not u.isNoneOrEmpty(df):
         u.to_csv(df, c.path_dict['lshq'], c.file_dict['lshq'] % u.stockFileName(stock_id, is_index))

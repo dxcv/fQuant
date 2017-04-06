@@ -12,8 +12,8 @@ import Common.Constants as c
 
 from GetFundamental import loadStockBasics
 
-src_path = ''
-tar_path = ''
+src_path = 'D:/AssetMgmt/DataCenter/Trading/LSHQ_2017_04_01/'
+tar_path = 'D:/AssetMgmt/DataCenter/Trading/LSHQ/'
 
 def lshqCompare():
     # Check pre-requisite
@@ -24,10 +24,15 @@ def lshqCompare():
 
     # Iterate over all stocks
     stocks_number = len(basics)
+    unmatched = []
     for i in range(stocks_number):
-        stock_id = basics.loc[i,'code']
+        stock_id = u.stockID(basics.loc[i,'code'])
         file = c.file_trading_lshq % u.stockFileName(stock_id, False)
-        fileCompare(src_path + file, tar_path + file)
+        if not fileCompare(src_path + file, tar_path + file):
+            unmatched.append(stock_id)
+
+    # Output Unmatched
+    print(unmatched)
 
 def fileCompare(src_fullpath, tar_fullpath):
     # Check File Existence
@@ -60,6 +65,9 @@ def fileCompare(src_fullpath, tar_fullpath):
                     matched = False
                     print('Element(%s,%s) Un-matched' % (i,j))
     print('File Compare End: %s' % ('Matched' if matched else 'Un-Matched'))
+
+    # Return Result
+    return matched
 
 ###############################################################################
 
