@@ -171,6 +171,7 @@ def updateWeekly():
 def updateDaily():
     updateStockBasics()
     updatePriceStock(True)
+    updatePriceIndex(True)
 
 # Incremental Update for CXG
 def updateCXG():
@@ -186,5 +187,5 @@ def updateStock(stock_id, date_start, date_end, incremental):
 ###############################################################################
 
 #updateCXG()
-updateStock('300276', date_start, date_end, True)
-#updatePriceIndex()
+#updateStock('300276', date_start, date_end, True)
+updatePriceIndex(True)

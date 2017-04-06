@@ -326,4 +326,4 @@ def runOptimizationPriceFollow(stock_list=c.index_list, is_index = True, thresho
 
 ###############################################################################
 
-runStrategyPriceFollow(stock_list=['000300'])
+runStrategyPriceFollow()

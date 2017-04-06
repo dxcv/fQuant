@@ -49,6 +49,7 @@ folder_indicator_qfq_period     = folder_indicator + 'QFQ%s/'
 folder_figure                   = 'Figure/'
 folder_figure_hpe_period        = folder_figure + 'HPE%s/'
 folder_figure_hep_period        = folder_figure + 'HEP%s/'
+folder_figure_timing            = folder_figure + 'Timing/'
 
 folder_strategy                 = 'Strategy/'
 
@@ -98,6 +99,7 @@ fild_indicator_qfq_period_stock = 'Indicator_QFQ%s_Stock_%s.csv'
 
 file_figure_hpe_period_stock    = 'Figure_HPE%s_Stock_%s.jpg'
 file_figure_hep_period_stock    = 'Figure_HEP%s_Stock_%s.jpg'
+file_figure_timing              = 'Figure_Timing_%s.jpg'
 
 file_strategy                   = 'Strategy_%s.csv'
 file_strategy_result            = 'StrategyResult_%s.csv'
@@ -116,6 +118,7 @@ path_dict = {
         'area'      : path_datacenter + folder_classifying_area,
         'fig_hpe'   : path_datacenter + folder_figure_hpe_period,
         'fig_hep'   : path_datacenter + folder_figure_hep_period,
+        'fig_timing': path_datacenter + folder_figure_timing,
         'strategy'  : path_datacenter + folder_strategy,
         'commodity' : path_datacenter + folder_commodity,
         'rzrq'      : path_datacenter + folder_reference_rzrq
@@ -150,6 +153,7 @@ file_dict = {
         'stock_list' : file_classifying_stock_list,
         'fig_hpe'    : file_figure_hpe_period_stock,
         'fig_hep'    : file_figure_hep_period_stock,
+        'fig_timing' : file_figure_timing,
         'strategy'   : file_strategy,
         'strategy_r' : file_strategy_result,
         'commodity'  : file_commodity,
