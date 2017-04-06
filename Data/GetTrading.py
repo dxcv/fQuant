@@ -50,7 +50,7 @@ def getDailyHFQ(stock_id, is_index, date_start, date_end, time_to_market, increm
 
     # Format Columns
     for column in ['open', 'high', 'close', 'low', 'volume', 'amount', 'factor']:
-        df[column] = df[column].map(lambda x:'%.3f' % x)
+        df[column] = df[column].map(lambda x:'%.3f' % float(x))
 
     # Save to CSV File
     if not u.isNoneOrEmpty(df):
