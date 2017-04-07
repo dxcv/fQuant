@@ -10,9 +10,9 @@ Created on Sun Feb  5 23:00:24 2017
 #
 import pandas as pd
 import numpy as np
-import Utilities as u
-import Constants as c
-import GlobalSettings as gs
+import Common.Utilities as u
+import Common.Constants as c
+import Common.GlobalSettings as gs
 
 def calc_hpe_quarterly(stock_id, year_start, year_end):
     '''

@@ -12,9 +12,9 @@ import tushare as ts
 import pandas as pd
 import numpy as np
 import datetime as dt
-import GlobalSettings as gs
-import Utilities as u
-import Constants as c
+import Common.GlobalSettings as gs
+import Common.Utilities as u
+import Common.Constants as c
 
 def get_quarterly_qfq(stock_id, is_index, year_start, year_end, time_to_market = None):
     '''

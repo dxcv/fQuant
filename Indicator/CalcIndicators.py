@@ -5,11 +5,11 @@ Created on Mon Feb 13 16:35:52 2017
 @author: freefrom
 """
 
-from HistoricalPrice import calc_qfq
-from HistoricalPE import calc_hpe
-import GlobalSettings as gs
-import Utilities as u
-import Constants as c
+from Indicator.HistoricalPrice import calc_qfq
+from Indicator.HistoricalPE import calc_hpe
+import Common.GlobalSettings as gs
+import Common.Utilities as u
+import Common.Constants as c
 
 def calcQFQ(stock_id, period):
     # Calculate QFQ DataFrame
