@@ -31,6 +31,8 @@ folder_fundamental_financesummary = folder_fundamental + 'FinanceSummary/'
 
 folder_commodity = 'Commodity/'
 
+folder_index = 'Index/'
+
 folder_macro = 'Macro/'
 
 folder_newsevent = 'NewsEvent/'
@@ -93,6 +95,9 @@ file_commodity                  = 'Commodity_%s.csv'
 file_commodity_market           = 'Commodity_%s_%s.csv'
 file_commodity_list             = 'Commodity_List.csv'
 
+file_index_component            = 'Index_Component_%s.csv'
+file_index_result               = 'Index_Result_%s.csv'
+
 file_indicator_hpe_period_stock = 'Indicator_HPE%s_Stock_%s.csv'
 file_indicator_hep_period_stock = 'Indicator_HEP%s_Stock_%s.csv'
 fild_indicator_qfq_period_stock = 'Indicator_QFQ%s_Stock_%s.csv'
@@ -121,6 +126,7 @@ path_dict = {
         'fig_timing': path_datacenter + folder_figure_timing,
         'strategy'  : path_datacenter + folder_strategy,
         'commodity' : path_datacenter + folder_commodity,
+        'index'     : path_datacenter + folder_index,
         'rzrq'      : path_datacenter + folder_reference_rzrq
         }
 
@@ -159,6 +165,8 @@ file_dict = {
         'commodity'  : file_commodity,
         'commodity_m': file_commodity_market,
         'commodity_l': file_commodity_list,
+        'index_c'    : file_index_component,
+        'index_r'    : file_index_result,
         'rzrq'       : file_reference_rzrq
         }
 
