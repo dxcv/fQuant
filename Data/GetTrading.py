@@ -49,8 +49,9 @@ def getDailyHFQ(stock_id, is_index, date_start, date_end, time_to_market, increm
             df = hfq.append(df)
 
     # Format Columns
-    for column in ['open', 'high', 'close', 'low', 'volume', 'amount', 'factor']:
-        df[column] = df[column].map(lambda x:'%.3f' % float(x))
+    if not u.isNoneOrEmpty(df):
+        for column in ['open', 'high', 'close', 'low', 'volume', 'amount', 'factor']:
+            df[column] = df[column].map(lambda x:'%.3f' % float(x))
 
     # Save to CSV File
     if not u.isNoneOrEmpty(df):
@@ -103,6 +104,10 @@ def loadDailyQFQ(stock_id, is_index):
         print('No LSHQ Data Available!')
         return None
 
+    # Sort Index
+    lshq.sort_values('date', ascending=True, inplace=True)
+    lshq.reset_index(drop=True, inplace=True)
+
     # Convert to QFQ Data
     lshq_number = len(lshq)
     fq_factor = lshq['factor'][lshq_number-1]
@@ -112,9 +117,6 @@ def loadDailyQFQ(stock_id, is_index):
 
     # Drop Factor
     lshq.drop('factor', axis=1, inplace=True)
-
-    # Sort Index
-    lshq.sort_values('date', ascending=True, inplace=True)
     if gs.is_debug:
         print(lshq.head(10))
 
