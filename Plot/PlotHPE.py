@@ -11,7 +11,7 @@ import Common.Utilities as u
 
 from Indicator.CalcIndicators import loadHPE
 
-def plotHPE(stock_id, period, ratio):
+def plot_HPE(stock_id, period, ratio):
     # Check Input Parameters
     if not isinstance(stock_id, str) or not isinstance(period, str):
         print('Incorrect type of one or more input parameters!')

@@ -13,7 +13,7 @@ sys.path.append('..')
 import Common.Constants as c
 import Common.Utilities as u
 
-def plotTiming(stock_id, is_index):
+def plot_timing(stock_id, is_index):
     # Load Timing Data File
     stock_filename = u.stockFileName(stock_id, is_index)
     file_postfix = 'PriceFollow_%s_All' % stock_filename
