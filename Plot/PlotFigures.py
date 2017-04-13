@@ -13,7 +13,7 @@ import Common.Utilities as u
 
 from Data.GetFundamental import loadStockBasics
 from PlotTiming import plot_timing
-from PlotIndex import plot_index
+from PlotIndex import plot_index, plot_index_series
 from PlotHPE import plot_HPE
 
 ###############################################################################
@@ -37,7 +37,10 @@ def plotTiming(stock_list=c.index_list, is_index=True):
         plot_timing(stock_id, is_index)
 
 def plotIndex():
-    plot_index('FeiYan_NewEnergyVehicle', 'HS300')
+    index_names = ['FeiYan_NewEnergyVehicle', 'FeiYan_NewMaterial', 'FeiYan_BatteryMaterial', 'FeiYan_RareMaterial', 'FeiYan_AI']
+    for index_name in index_names:
+        plot_index(index_name, 'HS300')
+    plot_index_series(index_names, 'FeiYan_Series', 'HS300')
 
 ###############################################################################
 
