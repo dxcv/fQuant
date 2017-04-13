@@ -8,6 +8,7 @@ Created on Fri Feb 10 17:12:25 2017
 import os
 import datetime as dt
 import pandas as pd
+import numpy as np
 import Common.GlobalSettings as gs
 import Common.Constants as c
 
@@ -224,6 +225,24 @@ def stockID(stock_id):
 
 ###############################################################################
 
+#
+# DataFrame Utilities
+#
+
+def createDataFrame(row_number, columns):
+    column_number = len(columns)
+
+    # Init all elements to NaN
+    data_init = np.random.randn(row_number * column_number)
+    for i in range(row_number * column_number):
+        data_init[i] = np.nan
+
+    # Create DataFrame
+    df = pd.DataFrame(data_init.reshape(row_number, column_number),
+                       index = None, columns = columns)
+    return df
+
+###############################################################################
 #
 # Misc Utilities
 #
