@@ -16,10 +16,16 @@ import pandas as pd
 import numpy as np
 
 def load_component(index_name):
-    comp_path = c.path_dict['index']
-    comp_file = c.file_dict['index_c'] % index_name
-    component = u.read_csv(comp_path+comp_file)
-    return component
+    fullpath = c.path_dict['index'] + c.file_dict['index_c'] % index_name
+
+    # Ensure data file is available
+    if not u.hasFile(fullpath):
+        print('Require Index Component of %s!' % index_name)
+        return None
+
+    # Read data file
+    df = u.read_csv(fullpath)
+    return df
 
 def find_stock_close(stock, date):
     """
@@ -145,3 +151,15 @@ def generate_index(index_name, base_date, base_point, weight_method, benchmark_i
     # Save to CSV File
     if not u.isNoneOrEmpty(index):
         u.to_csv(index, c.path_dict['index'], c.file_dict['index_r'] % index_name)
+
+def load_index_result(index_name):
+    fullpath = c.path_dict['index'] + c.file_dict['index_r'] % index_name
+
+    # Ensure data file is available
+    if not u.hasFile(fullpath):
+        print('Require Index Result of %s!' % index_name)
+        return None
+
+    # Read data file
+    df = u.read_csv(fullpath)
+    return df

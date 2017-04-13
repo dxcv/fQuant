@@ -98,6 +98,7 @@ file_commodity_list             = 'Commodity_List.csv'
 
 file_index_component            = 'Index_Component_%s.csv'
 file_index_result               = 'Index_Result_%s.csv'
+file_index_statistics           = 'Index_Statistics_%s.csv'
 
 file_indicator_hpe_period_stock = 'Indicator_HPE%s_Stock_%s.csv'
 file_indicator_hep_period_stock = 'Indicator_HEP%s_Stock_%s.csv'
@@ -171,6 +172,7 @@ file_dict = {
         'commodity_l': file_commodity_list,
         'index_c'    : file_index_component,
         'index_r'    : file_index_result,
+        'index_s'    : file_index_statistics,
         'rzrq'       : file_reference_rzrq
         }
 
