@@ -25,13 +25,16 @@ import Common.Utilities as u
 def getIndustrySina():
     # Download Sina Industry Data
     industry = get_industry_sina()
-    industry.set_index('code', inplace=True)
-    if gs.is_debug:
-        print(industry.head(10))
 
-    # Save to CSV File
     if not u.isNoneOrEmpty(industry):
+        industry.set_index('code', inplace=True)
+        if gs.is_debug:
+            print(industry.head(10))
+        # Save to CSV File
         u.to_csv(industry, c.path_dict['classify'], c.file_dict['indu_sina'])
+    else:
+        print('getIndustrySina() Failed!')
+        raise SystemExit
 
 def loadIndustrySina():
     industry = u.read_csv(c.fullpath_dict['indu_sina'])
@@ -72,13 +75,16 @@ def extractIndustrySina():
 def getConceptSina():
     # Download Sina Concept Data
     concept = get_concept_sina()
-    concept.set_index('code', inplace=True)
-    if gs.is_debug:
-        print(concept.head(10))
 
-    # Save to CSV File
     if not u.isNoneOrEmpty(concept):
+        concept.set_index('code', inplace=True)
+        if gs.is_debug:
+            print(concept.head(10))
+        # Save to CSV File
         u.to_csv(concept, c.path_dict['classify'], c.file_dict['conc_sina'])
+    else:
+        print('getConceptSina() Failed!')
+        raise SystemExit
 
 def loadConceptSina():
     concept = u.read_csv(c.fullpath_dict['conc_sina'])
@@ -119,13 +125,16 @@ def extractConceptSina():
 def getArea():
     # Download Area Data
     area = get_area()
-    area.set_index('code', inplace=True)
-    if gs.is_debug:
-        print(area.head(10))
 
-    # Save to CSV File
     if not u.isNoneOrEmpty(area):
+        area.set_index('code', inplace=True)
+        if gs.is_debug:
+            print(area.head(10))
+        # Save to CSV File
         u.to_csv(area, c.path_dict['classify'], c.file_dict['area'])
+    else:
+        print('getArea() Failed!')
+        raise SystemExit
 
 def loadArea():
     area = u.read_csv(c.fullpath_dict['area'])
@@ -168,13 +177,16 @@ def extractArea():
 def getSME():
     # Download SME Data
     sme = get_sme()
-    sme.set_index('code', inplace=True)
-    if gs.is_debug:
-        print(sme.head(10))
 
-    # Save to CSV File
     if not u.isNoneOrEmpty(sme):
+        sme.set_index('code', inplace=True)
+        if gs.is_debug:
+            print(sme.head(10))
+        # Save to CSV File
         u.to_csv(sme, c.path_dict['classify'], c.file_dict['sme'])
+    else:
+        print('getSME() Failed!')
+        raise SystemExit
 
 def loadSME():
     sme = u.read_csv(c.fullpath_dict['sme'])
@@ -183,13 +195,16 @@ def loadSME():
 def getGEM():
     # Download GEM Data
     gem = get_gem()
-    gem.set_index('code', inplace=True)
-    if gs.is_debug:
-        print(gem.head(10))
 
-    # Save to CSV File
     if not u.isNoneOrEmpty(gem):
+        gem.set_index('code', inplace=True)
+        if gs.is_debug:
+            print(gem.head(10))
+        # Save to CSV File
         u.to_csv(gem, c.path_dict['classify'], c.file_dict['gem'])
+    else:
+        print('getGEM() Failed!')
+        raise SystemExit
 
 def loadGEM():
     gem = u.read_csv(c.fullpath_dict['gem'])
@@ -198,13 +213,16 @@ def loadGEM():
 def getST():
     # Download ST Data
     st = get_st()
-    st.set_index('code', inplace=True)
-    if gs.is_debug:
-        print(st.head(10))
 
-    # Save to CSV File
     if not u.isNoneOrEmpty(st):
+        st.set_index('code', inplace=True)
+        if gs.is_debug:
+            print(st.head(10))
+        # Save to CSV File
         u.to_csv(st, c.path_dict['classify'], c.file_dict['st'])
+    else:
+        print('getST() Failed!')
+        raise SystemExit
 
 def loadST():
     st = u.read_csv(c.fullpath_dict['st'])
@@ -215,13 +233,16 @@ def loadST():
 def getHS300():
     # Download HS300 Data
     hs300 = get_hs300()
-    hs300.set_index('code', inplace=True)
-    if gs.is_debug:
-        print(hs300.head(10))
 
-    # Save to CSV File
     if not u.isNoneOrEmpty(hs300):
+        hs300.set_index('code', inplace=True)
+        if gs.is_debug:
+            print(hs300.head(10))
+        # Save to CSV File
         u.to_csv(hs300, c.path_dict['classify'], c.file_dict['hs300'])
+    else:
+        print('getHS300() Failed!')
+        raise SystemExit
 
 def loadHS300():
     hs300 = u.read_csv(c.fullpath_dict['hs300'])
@@ -230,13 +251,16 @@ def loadHS300():
 def getSZ50():
     # Download SZ50 Data
     sz50 = get_sz50()
-    sz50.set_index('code', inplace=True)
-    if gs.is_debug:
-        print(sz50.head(10))
 
-    # Save to CSV File
     if not u.isNoneOrEmpty(sz50):
+        sz50.set_index('code', inplace=True)
+        if gs.is_debug:
+            print(sz50.head(10))
+        # Save to CSV File
         u.to_csv(sz50, c.path_dict['classify'], c.file_dict['sz50'])
+    else:
+        print('getSZ50() Failed!')
+        raise SystemExit
 
 def loadSZ50():
     sz50 = u.read_csv(c.fullpath_dict['sz50'])
@@ -245,13 +269,16 @@ def loadSZ50():
 def getZZ500():
     # Download ZZ500 Data
     zz500 = get_zz500()
-    zz500.set_index('code', inplace=True)
-    if gs.is_debug:
-        print(zz500.head(10))
 
-    # Save to CSV File
     if not u.isNoneOrEmpty(zz500):
+        zz500.set_index('code', inplace=True)
+        if gs.is_debug:
+            print(zz500.head(10))
+        # Save to CSV File
         u.to_csv(zz500, c.path_dict['classify'], c.file_dict['zz500'])
+    else:
+        print('getZZ500() Failed!')
+        raise SystemExit
 
 def loadZZ500():
     zz500 = u.read_csv(c.fullpath_dict['zz500'])
@@ -262,13 +289,16 @@ def loadZZ500():
 def getTerminated():
     # Download Terminated Stock Data
     terminated = get_terminated()
-    terminated.set_index('code', inplace=True)
-    if gs.is_debug:
-        print(terminated.head(10))
 
-    # Save to CSV File
     if not u.isNoneOrEmpty(terminated):
+        terminated.set_index('code', inplace=True)
+        if gs.is_debug:
+            print(terminated.head(10))
+        # Save to CSV File
         u.to_csv(terminated, c.path_dict['classify'], c.file_dict['terminated'])
+    else:
+        print('getTerminated() Failed!')
+        raise SystemExit
 
 def loadTerminated():
     terminated = u.read_csv(c.fullpath_dict['terminated'])
@@ -277,13 +307,16 @@ def loadTerminated():
 def getSuspended():
     # Download Suspended Data
     suspended = get_suspended()
-    suspended.set_index('code', inplace=True)
-    if gs.is_debug:
-        print(suspended.head(10))
 
-    # Save to CSV File
     if not u.isNoneOrEmpty(suspended):
+        suspended.set_index('code', inplace=True)
+        if gs.is_debug:
+            print(suspended.head(10))
+        # Save to CSV File
         u.to_csv(suspended, c.path_dict['classify'], c.file_dict['suspended'])
+    else:
+        print('getSuspended() Failed!')
+        raise SystemExit
 
 def loadSuspended():
     suspended = u.read_csv(c.fullpath_dict['suspended'])
@@ -294,14 +327,17 @@ def loadSuspended():
 def getCXG(date):
     # Get CXG Stock Data
     cxg = get_cxg(date)
-    cxg['code'] = cxg['code'].map(lambda x:str(x).zfill(6))
-    cxg.set_index('code', inplace=True)
-    if gs.is_debug:
-        print(cxg.head(10))
 
-    # Save to CSV File
     if not u.isNoneOrEmpty(cxg):
+        cxg['code'] = cxg['code'].map(lambda x:str(x).zfill(6))
+        cxg.set_index('code', inplace=True)
+        if gs.is_debug:
+            print(cxg.head(10))
+        # Save to CSV File
         u.to_csv(cxg, c.path_dict['classify'], c.file_dict['cxg'])
+    else:
+        print('getCXG() Failed!')
+        raise SystemExit
 
 def loadCXG():
     cxg = u.read_csv(c.fullpath_dict['cxg'])
@@ -309,14 +345,17 @@ def loadCXG():
 
 def getStockList(cutoff_date):
     stocks = get_stock_list(cutoff_date)
-    stocks['code'] = stocks['code'].map(lambda x:str(x).zfill(6))
-    stocks.set_index('code', inplace=True)
-    if gs.is_debug:
-        print(stocks.head(10))
 
-    # Save to CSV File
     if not u.isNoneOrEmpty(stocks):
+        stocks['code'] = stocks['code'].map(lambda x:str(x).zfill(6))
+        stocks.set_index('code', inplace=True)
+        if gs.is_debug:
+            print(stocks.head(10))
+        # Save to CSV File
         u.to_csv(stocks, c.path_dict['classify'], c.file_dict['stock_list'] % cutoff_date)
+    else:
+        print('getStockList() Failed!')
+        raise SystemExit
 
 def loadStockList(cutoff_date):
     stocks = u.read_csv(c.fullpath_dict['stock_list'] % cutoff_date)
