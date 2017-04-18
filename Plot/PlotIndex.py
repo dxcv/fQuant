@@ -12,7 +12,6 @@ sys.path.append('..')
 
 import Common.Constants as c
 import Common.Utilities as u
-from Data.GetTrading import loadDailyQFQ
 
 def plot_index(index_name, benchmark_name):
     # Load Index Data File
@@ -90,7 +89,7 @@ def plot_index_series(index_names, series_name, benchmark_name):
     plt.title(title, fontdict=font)
     axes.set_xlabel('', fontdict=font)
     axes.set_ylabel('Ratio', fontdict=font)
-    lines = df.plot(x='date', y='ratio_benchmark', ax=axes, color='grey', lw=2.0, ls='--')
+    df.plot(x='date', y='ratio_benchmark', ax=axes, color='grey', lw=2.0, ls='--')
     index_number = len(index_names)
     for i in range(index_number):
         index_name = index_names[i]
