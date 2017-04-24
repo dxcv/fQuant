@@ -27,6 +27,9 @@ def getDailyHFQ(stock_id, is_index, date_start, date_end, time_to_market, increm
             hfq.sort_index(ascending=True,inplace=True)
             last_day = hfq.index[len(hfq)-1]
             date_start = u.nextDayFromStr(last_day)
+            # Check if existing data file is already up-to-date
+            if date_end < date_start:
+                return
 
     # Download
     if gs.is_debug:
