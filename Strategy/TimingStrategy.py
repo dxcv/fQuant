@@ -166,7 +166,15 @@ def mergePriceFollow(stock_list, is_index, threshold_list):
         print('Threshold Number:', threshold_number)
         raise SystemExit
 
-    for stock_id in stock_list:
+    # Init Price Follow Statistics for All Indexes
+    stats_columns = ['date', 'index']
+    for i in range(1, threshold_number-1):
+        stats_columns.append('wpredict_%s' % threshold_list[i])
+        stats_columns.append('wtrend_%s' % threshold_list[i])
+    stats = u.createDataFrame(stock_number, stats_columns)
+
+    for s in range(stock_number):
+        stock_id = stock_list[s]
         # Load Results from Different Threshold
         dfs = []
         for i in range(threshold_number):
@@ -213,11 +221,26 @@ def mergePriceFollow(stock_list, is_index, threshold_list):
                 df.ix[j,'wpredict'+column_postfix] = wpredict
                 df.ix[j,'wtrend'+column_postfix] = 'Up' if wpredict >= cutoff else 'Down'
 
+        # Fill One Row of Statistics
+        last_index = len(df)-1
+        stats.ix[s, 'date'] = df.ix[last_index, 'date']
+        stats.ix[s, 'index'] = stock_id
+        for i in range(1,threshold_number-1):
+            column_postfix = '_%s' % threshold_list[i]
+            stats.ix[s, 'wpredict'+column_postfix] = df.ix[last_index, 'wpredict'+column_postfix]
+            stats.ix[s, 'wtrend'+column_postfix] = df.ix[last_index, 'wtrend'+column_postfix]
+
         # Format Columns
         df.set_index('date',inplace=True)
         # Save to CSV File
         file_postfix = 'PriceFollow_%s_All' % u.stockFileName(stock_id, is_index)
         u.to_csv(df, c.path_dict['strategy'], c.file_dict['strategy'] % file_postfix)
+
+    # Format Columns
+    stats.set_index('date',inplace=True)
+    # Save to CSV File
+    file_postfix = 'PriceFollow_Statistics'
+    u.to_csv(stats, c.path_dict['strategy'], c.file_dict['strategy'] % file_postfix)
 
 def optimizePriceFollow(stock_list, is_index, threshold_list, method):
     stock_number = len(stock_list)
@@ -325,5 +348,3 @@ def runOptimizationPriceFollow(stock_list=c.index_list, is_index = True, thresho
         optimizePriceFollow(stock_list, is_index, threshold_list, method)
 
 ###############################################################################
-
-runStrategyPriceFollow()

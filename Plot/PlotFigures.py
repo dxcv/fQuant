@@ -12,9 +12,9 @@ import Common.Constants as c
 import Common.Utilities as u
 
 from Data.GetFundamental import loadStockBasics
-from PlotTiming import plot_timing
-from PlotIndex import plot_index, plot_index_series
-from PlotHPE import plot_HPE
+from Plot.PlotTiming import plot_timing
+from Plot.PlotIndex import plot_index, plot_index_series
+from Plot.PlotHPE import plot_HPE
 
 ###############################################################################
 
@@ -43,7 +43,3 @@ def plotIndex():
     plot_index_series(index_names, 'FeiYan_Series', 'HS300')
 
 ###############################################################################
-
-#plotHPE()
-#plotTiming()
-plotIndex()

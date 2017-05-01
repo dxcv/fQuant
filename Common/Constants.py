@@ -5,7 +5,7 @@ Created on Fri Feb  3 20:35:27 2017
 @author: freefrom
 """
 # Data Center Root
-path_datacenter = '../../../DataCenter/'
+path_datacenter = '../../DataCenter/'
 
 # Data Folders (Relative to Data Center Root)
 folder_trading = 'Trading/'
@@ -204,7 +204,13 @@ fullpath_dict = {
         }
 
 # Index List
-index_list = ['000001', '399001', '000300', '399005', '399006', '000016', '000905']
+index_list = ['000001', '399001', '000300', '399005', '399006', '000016', '000905', '000852']
+# 沪深规模指数：上证综指，深证成指，沪深300，中小板指，创业板指，上证50，中证500，中证1000
+list_index_scale = index_list
+# 沪深300行业指数：能源、材料、工业、可选、消费、医药、金融、信息、电信、公用10类
+list_index_industry_hs300 = ['000908', '000909', '000910', '000911', '000912', '000913', '000914', '000915', '000916', '000917']
+# 沪深300风格指数：成长、价值、相对成长、相对价值4类
+list_index_style_hs300 = ['000918', '000919', '000920', '000921']
 
 # Magic Numbers
 magic_date = '1000-00-00'
