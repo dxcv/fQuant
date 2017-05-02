@@ -12,7 +12,7 @@ import Common.Constants as c
 import Common.Utilities as u
 import Common.GlobalSettings as gs
 from Data.GetTrading import getDailyHFQ, loadDailyQFQ
-from Index import load_component, generate_index, load_index_result
+from Index.Index import load_component, generate_index, load_index_result
 
 def generateIndex(index_name, base_date, base_point, weight_method, benchmark_id):
     # Load Index Component Stocks
@@ -145,7 +145,7 @@ def generateIndexStatistics(index_names, series_name):
         u.to_csv(stat, c.path_dict['index'], c.file_dict['index_s'] % series_name)
 
 def generateIndexFeiYan():
-    index_names = ['FeiYan_NewEnergyVehicle', 'FeiYan_NewMaterial', 'FeiYan_BatteryMaterial', 'FeiYan_RareMaterial', 'FeiYan_AI']
+    index_names = ['FeiYan_NewEnergyVehicle', 'FeiYan_BatteryMaterial']
 
     # Generate Index
     for index_name in index_names:
@@ -158,5 +158,3 @@ def generateIndexFeiYan():
     generateIndexStatistics(index_names, 'FeiYan_Series')
 
 ###############################################################################
-
-generateIndexFeiYan()
