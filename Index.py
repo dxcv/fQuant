@@ -12,8 +12,11 @@ from Plot.PlotFigures import plotIndex
 # All-in-one entry for daily report of FeiYan Index Series
 #
 
-generateIndexFeiYan()
-plotIndex()
+#index_names = ['FeiYan_NewEnergyVehicle', 'FeiYan_NewMaterial', 'FeiYan_BatteryMaterial', 'FeiYan_RareMaterial', 'FeiYan_AI']
+
+index_names = ['FeiYan_NewEnergyVehicle', 'FeiYan_BatteryMaterial']
+generateIndexFeiYan(index_names)
+plotIndex(index_names)
 
 #
 # Test for single functionality

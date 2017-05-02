@@ -36,8 +36,7 @@ def plotTiming(stock_list=c.index_list, is_index=True):
     for stock_id in stock_list:
         plot_timing(stock_id, is_index)
 
-def plotIndex():
-    index_names = ['FeiYan_NewEnergyVehicle', 'FeiYan_NewMaterial', 'FeiYan_BatteryMaterial', 'FeiYan_RareMaterial', 'FeiYan_AI']
+def plotIndex(index_names):
     for index_name in index_names:
         plot_index(index_name, 'HS300')
     plot_index_series(index_names, 'FeiYan_Series', 'HS300')

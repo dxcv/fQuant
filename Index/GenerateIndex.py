@@ -144,9 +144,7 @@ def generateIndexStatistics(index_names, series_name):
         print(stat)
         u.to_csv(stat, c.path_dict['index'], c.file_dict['index_s'] % series_name)
 
-def generateIndexFeiYan():
-    index_names = ['FeiYan_NewEnergyVehicle', 'FeiYan_BatteryMaterial']
-
+def generateIndexFeiYan(index_names):
     # Generate Index
     for index_name in index_names:
         generateIndex(index_name, '2016-12-30', 1000, 'EqualWeight', '000300')
