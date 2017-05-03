@@ -159,19 +159,16 @@ def updateCommodity(force_update = True):
 
 # Full Weekly Update
 def updateWeekly():
-    updateStockBasics()
-    updatePriceStock()
-    updatePriceIndex()
     updateFinanceSummary()
     updateClassifying()
-    updateRZRQ()
-    updateCommodity()
 
 # Incremental Daily Update
 def updateDaily():
     updateStockBasics()
     updatePriceStock(True)
     updatePriceIndex(True)
+    updateRZRQ()
+    updateCommodity()
 
 # Incremental Update for CXG
 def updateCXG():
