@@ -78,7 +78,7 @@ def handleResults(root, paras):
     u.to_csv(df_all, root, 'all.csv')
 
     # Process Merged Results
-    df_all.sort_values('时间',ascending=True,inplace=True)
+    df_all = df_all.sort_values('时间',ascending=True)
     df_all = df_all.reset_index(drop=True)
     df_all_number = len(df_all)
     date = df_all.ix[0,'时间']

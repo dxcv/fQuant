@@ -29,7 +29,13 @@ def getStockBasics():
         u.to_csv(basics, c.path_dict['basics'], c.file_dict['basics'])
 
 def loadStockBasics():
-    basics = u.read_csv(c.fullpath_dict['basics'])
+    # Ensure data file is available
+    fullpath = c.fullpath_dict['basics']
+    if not u.hasFile(fullpath):
+        print('Require Stock Basics: %s!' % fullpath)
+        return None
+
+    basics = u.read_csv(fullpath)
     return basics
 
 def validStockBasics(force_update):
@@ -49,7 +55,13 @@ def getFinanceSummary(stock_id):
         u.to_csv(fs, c.path_dict['finsum'], c.file_dict['finsum'] % stock_id)
 
 def loadFinanceSummary(stock_id):
-    fs = u.read_csv(c.fullpath_dict['finsum'] % stock_id)
+    # Ensure data file is available
+    fullpath = c.fullpath_dict['finsum'] % stock_id
+    if not u.hasFile(fullpath):
+        print('Require Finance Summary of %s!' % fullpath)
+        return None
+
+    fs = u.read_csv(fullpath)
     return fs
 
 def validFinanceSummary(stock_id, force_update):

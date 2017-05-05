@@ -108,7 +108,7 @@ def loadDailyQFQ(stock_id, is_index):
         return None
 
     # Sort Index
-    lshq.sort_values('date', ascending=True, inplace=True)
+    lshq = lshq.sort_values('date', ascending=True)
     lshq.reset_index(drop=True, inplace=True)
 
     # Convert to QFQ Data

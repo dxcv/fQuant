@@ -42,7 +42,10 @@ def to_csv(df, path, file, encoding=gs.encoding):
 def read_csv(fullpath, index_col=None, encoding=gs.encoding):
     if gs.is_debug:
         print('Read File: %s' % fullpath)
-    return pd.read_csv(fullpath, index_col=index_col, encoding=encoding)
+    if not hasFile(fullpath):
+        return None
+    else:
+        return pd.read_csv(fullpath, index_col=index_col, encoding=encoding)
 
 # Wrapper of matplotlib.pyplot.savefig() Function
 def saveFigure(plt, path, file):

@@ -292,7 +292,7 @@ def get_cxg(date):
     # Extract CXG Data
     cxg = basics[basics.timeToMarket >= date]
     cxg = cxg[['code','name','industry','area','timeToMarket']]
-    cxg.sort_values(by=['timeToMarket'], axis=0, ascending=True, inplace=True)
+    cxg = cxg.sort_values('timeToMarket', axis=0, ascending=True)
 
     # Return Dataframe
     return cxg
@@ -325,7 +325,7 @@ def get_stock_list(cutoff_date):
     # Extract Stock List
     stocks = basics[basics.timeToMarket <= cutoff_date]
     stocks = stocks[['code','name','industry','area','timeToMarket']]
-    stocks.sort_values(by=['timeToMarket'], axis=0, ascending=True, inplace=True)
+    stocks = stocks.sort_values('timeToMarket', axis=0, ascending=True)
 
     # Return Dataframe
     return stocks

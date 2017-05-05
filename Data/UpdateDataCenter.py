@@ -61,6 +61,8 @@ def cleanStockBasics():
     # Filter out invalid timeToMarket stocks
     basics_nottm = basics[basics.timeToMarket == c.magic_date]
     basics = basics[basics.timeToMarket != c.magic_date]
+    basics_nottm.set_index('code',inplace=True)
+    basics.set_index('code',inplace=True)
 
     # Save to CSV File
     u.to_csv(basics, c.path_dict['basics'], c.file_dict['basics'])
