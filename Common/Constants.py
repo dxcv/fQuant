@@ -53,6 +53,7 @@ folder_figure_hpe_period        = folder_figure + 'HPE%s/'
 folder_figure_hep_period        = folder_figure + 'HEP%s/'
 folder_figure_timing            = folder_figure + 'Timing/'
 folder_figure_index             = folder_figure + 'Index/'
+folder_figure_coefficient       = folder_figure + 'Coefficient/'
 
 folder_strategy                 = 'Strategy/'
 
@@ -108,6 +109,7 @@ file_figure_hpe_period_stock    = 'Figure_HPE%s_Stock_%s.jpg'
 file_figure_hep_period_stock    = 'Figure_HEP%s_Stock_%s.jpg'
 file_figure_timing              = 'Figure_Timing_%s.jpg'
 file_figure_index               = 'Figure_index_%s.jpg'
+file_figure_coefficient         = 'Figure_Coefficient_%s.jpg'
 
 file_strategy                   = 'Strategy_%s.csv'
 file_strategy_result            = 'StrategyResult_%s.csv'
@@ -128,6 +130,7 @@ path_dict = {
         'fig_hep'   : path_datacenter + folder_figure_hep_period,
         'fig_timing': path_datacenter + folder_figure_timing,
         'fig_index' : path_datacenter + folder_figure_index,
+        'fig_coef'  : path_datacenter + folder_figure_coefficient,
         'strategy'  : path_datacenter + folder_strategy,
         'commodity' : path_datacenter + folder_commodity,
         'index'     : path_datacenter + folder_index,
@@ -164,7 +167,8 @@ file_dict = {
         'fig_hpe'    : file_figure_hpe_period_stock,
         'fig_hep'    : file_figure_hep_period_stock,
         'fig_timing' : file_figure_timing,
-        'fig_index' : file_figure_index,
+        'fig_index'  : file_figure_index,
+        'fig_coef'   : file_figure_coefficient,
         'strategy'   : file_strategy,
         'strategy_r' : file_strategy_result,
         'commodity'  : file_commodity,

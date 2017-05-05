@@ -15,6 +15,7 @@ from Data.GetFundamental import loadStockBasics
 from Plot.PlotTiming import plot_timing
 from Plot.PlotIndex import plot_index, plot_index_series
 from Plot.PlotHPE import plot_HPE
+from Plot.PlotCoefficient import plot_coefficient_price
 
 ###############################################################################
 
@@ -40,5 +41,8 @@ def plotIndex(index_names):
     for index_name in index_names:
         plot_index(index_name, 'HS300')
     plot_index_series(index_names, 'FeiYan_Series', 'HS300')
+
+def plotCoefficient(stock_ids, allprice, series_name, benchmark_name):
+    plot_coefficient_price(stock_ids, allprice, series_name, benchmark_name)
 
 ###############################################################################
