@@ -232,13 +232,13 @@ def stockID(stock_id):
 # DataFrame Utilities
 #
 
-def createDataFrame(row_number, columns):
+def createDataFrame(row_number, columns, init_value = np.nan):
     column_number = len(columns)
 
     # Init all elements to NaN
     data_init = np.random.randn(row_number * column_number)
     for i in range(row_number * column_number):
-        data_init[i] = np.nan
+        data_init[i] = init_value
 
     # Create DataFrame
     df = pd.DataFrame(data_init.reshape(row_number, column_number),

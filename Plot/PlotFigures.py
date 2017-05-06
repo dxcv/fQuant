@@ -42,7 +42,7 @@ def plotIndex(index_names):
         plot_index(index_name, 'HS300')
     plot_index_series(index_names, 'FeiYan_Series', 'HS300')
 
-def plotCoefficient(stock_ids, allprice, series_name, benchmark_name):
-    plot_coefficient_price(stock_ids, allprice, series_name, benchmark_name)
+def plotCoefficient(stock_ids, allprice, postfix, series_name, benchmark_name):
+    plot_coefficient_price(stock_ids, allprice, postfix, series_name, benchmark_name)
 
 ###############################################################################

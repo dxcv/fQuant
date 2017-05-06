@@ -31,7 +31,7 @@ def normalize_price(price):
     price = price.map(lambda x: (x-price_min + 1.0))
     return price
 
-def plot_coefficient_price(stock_ids, allprice, series_name, benchmark_name):
+def plot_coefficient_price(stock_ids, allprice, postfix, series_name, benchmark_name):
     # If want to debug benchmark only (without stocks), set below flag to True.
     debug_benchmark_only = False
 
@@ -115,6 +115,6 @@ def plot_coefficient_price(stock_ids, allprice, series_name, benchmark_name):
     # Save Figure
     fig_key = 'fig_coef'
     fig_path = c.path_dict[fig_key]
-    fig_name = series_name + '_vs_' + benchmark_name
-    fig_file = c.file_dict[fig_key] % (fig_name + '_' + u.dateToStr(u.today()))
+    fig_name = '_'.join([postfix, series_name, 'vs', benchmark_name, u.dateToStr(u.today())])
+    fig_file = c.file_dict[fig_key] % fig_name
     u.saveFigure(fig, fig_path, fig_file)

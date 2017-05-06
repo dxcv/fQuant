@@ -18,8 +18,7 @@ import Common.GlobalSettings as gs
 from Data.GetTrading import loadDailyQFQ
 from Data.GetFundamental import loadStockBasics
 
-def strategyCoefficient(benchmark_id = '000300', date_start = '2015-01-01', date_end = '2016-12-31', period = 'M', 
-                        completeness_threshold = '80.00%', top_number = 20):
+def strategyCoefficient(benchmark_id = '000300', date_start = '2015-01-01', date_end = '2016-12-31', period = 'M'):
     '''
     函数功能：
     --------
@@ -35,21 +34,18 @@ def strategyCoefficient(benchmark_id = '000300', date_start = '2015-01-01', date
 
     输出参数：
     --------
-    DataFrame
-        code : 股票代码
-        alpha : alpha系数
-        beta : beta系数
-        correlation : 相关系数
+    True/False : boolean, 策略运行是否完成
 
     数据文件
-        Strategy_Coefficient_AllPrice_Benchmark_DateStart_Date_End_Period.csv : 与业绩基准时间对其的所有股票价格
-        Strategy_Coefficient_AllCoef_Benchmark_DateStart_Date_End_Period.csv  : 与业绩基准相参照的所有股票系数
+        Strategy_Coefficient_AllStock_Benchmark_DateStart_DateEnd_Period.csv : 参与系数计算的所有股票列表
+        Strategy_Coefficient_AllPrice_Benchmark_DateStart_DateEnd_Period.csv : 与业绩基准时间对齐的所有股票价格
+        Strategy_Coefficient_AllCoef_Benchmark_DateStart_DateEnd_Period.csv  : 与业绩基准相参照的所有股票系数
     '''
     # Check Period
     period_types = ['W','M','Q']
     if not period in period_types:
         print('Un-supported period type - should be one of:', period_types)
-        return None
+        return False
 
     # Common Postfix
     common_postfix = '_'.join([benchmark_id, date_start, date_end, period])
@@ -57,20 +53,23 @@ def strategyCoefficient(benchmark_id = '000300', date_start = '2015-01-01', date
     # Load All Stocks
     allstock = loadAllStocks(common_postfix)
     if u.isNoneOrEmpty(allstock):
-        return None
+        return False
 
     # Sample Prices
     allprice = samplePrice(benchmark_id, allstock, date_start, date_end, period)
     if u.isNoneOrEmpty(allprice):
-        return None
+        return False
 
     # Calculate Coefficients: Alpha, Beta, Correlation
-    allcoef = calculateCoefficient(common_postfix)
+    # For newly-IPO stocks, we need to ignore first 3-month trading.
+    # And if the time-to-market date is less than one year, we will skip it when calculating coefficient.
+    ignore_dict = {'M':3,'W':3*4,'D':3*4*5}
+    min_period_dict = {'M':12,'W':12*4,'D':12*4*5}
+    allcoef = calculateCoefficient(common_postfix, ignore_dict[period], min_period_dict[period]-ignore_dict[period])
     if u.isNoneOrEmpty(allcoef):
-        return None
+        return False
 
-    # Analyze Filtered Coefficients
-    analyzeCoefficient(common_postfix, completeness_threshold, top_number)
+    return True
 
 def loadAllStocks(postfix):
     # Load Local Cache of Stock Basics
@@ -148,7 +147,7 @@ def samplePrice(benchmark_id, stock_ids, date_start, date_end, period):
 
     return allprice
 
-def calculateCoefficient(postfix):
+def calculateCoefficient(postfix, ignore_number, min_period_number):
     # Check if AllPrice File Already Exists
     file_postfix = '_'.join(['Coefficient', 'AllCoef', postfix])
     fullpath = c.path_dict['strategy'] + c.file_dict['strategy'] % file_postfix
@@ -172,9 +171,12 @@ def calculateCoefficient(postfix):
     allcoef = u.createDataFrame(stocks_number, columns=['code','completeness','alpha','beta','correlation'])
     for i in range(stocks_number):
         column = allprice.columns[i+2]
+        stock = allprice[column].copy()
+        # Manually ignore a given number of valid data since IPO
+        stock = ignoreData(stock, ignore_number)
         # Compute correlation with other Series, excluding missing values.
-        # Set min_periods to 12 (Months) to avoid CXG whose IPO date is less than one year earlier.
-        correlation = allprice['close'].corr(allprice[column], min_periods=12)
+        # Set min_periods to avoid CXG whose IPO date is less than one year earlier.
+        correlation = allprice['close'].corr(stock, min_periods=min_period_number)
         allcoef.ix[i,'code'] = column.replace('close_', '')
         allcoef.ix[i,'correlation'] = correlation
         null_count = allprice[column].isnull().sum()
@@ -193,13 +195,66 @@ def calculateCoefficient(postfix):
 
     return allcoef
 
+def ignoreData(stock, ignore_number):
+    # Find first valid data, assuming it has been sorted by date ascendingly.
+    date_number = len(stock)
+    row = -1
+    for j in range(date_number):
+        if not np.isnan(stock.ix[j]):
+            row = j
+            break
+    if row != -1:
+        for j in range(row, row+ignore_number if row+ignore_number <= date_number else date_number):
+            stock.ix[j] = np.nan
+
+    return stock
+
+###############################################################################
+
 def analyzeCoefficient(postfix, completeness_threshold, top_number):
-    # Load Coefficient_AllCoef
+    '''
+    函数功能：
+    --------
+    根据计算的系数文件，做进一步统计分析。
+    假定：全市场股票相对于业绩基准的系数已经计算完成并存储为CSV文件。
+
+    输入参数：
+    --------
+    postfix : string, 数据文件公共后缀 e.g. 000300_2015-01-01_2017-05-03_M, 即相对于沪深300自2015-01-01至2017-05-03月度数据。
+    completeness_threshold : string, 起始日期 e.g. '80.00%', 即选取不少于80.00%的历史数据的个股做后续分析。
+    top_number : int, 各类排行榜的入选个股数量 e.g. 20, 选取不多于20只个股。
+
+    输出参数：
+    --------
+    True/False : boolean, 策略分析是否完成
+
+    数据文件
+        Strategy_Coefficient_AllCoef_Benchmark_DateStart_DateEnd_Period_CompletenessThreshold.csv  : 经过数据完备性筛选的个股系数列表
+        Strategy_Coefficient_AllCoef_Benchmark_DateStart_DateEnd_Period_CompletenessThreshold_Positive_Correlation.csv  : 经过数据完备性筛选后正相关性最强的个股列表
+        Strategy_Coefficient_AllCoef_Benchmark_DateStart_DateEnd_Period_CompletenessThreshold_Zero_Correlation.csv      : 经过数据完备性筛选后相关性最弱的个股列表
+        Strategy_Coefficient_AllCoef_Benchmark_DateStart_DateEnd_Period_CompletenessThreshold_Negative_Correlation.csv  : 经过数据完备性筛选后负相关性最强的个股列表
+    '''
+    # Filter Stocks Based on Completeness Threshold
+    if not filterCoefficient(postfix, completeness_threshold):
+        return False
+
+    # Calculate Top Number on Stock Correlation
+    if not topCorrelation(postfix, completeness_threshold, top_number):
+        return False
+
+    # Calculate Histogram on Stock Correlation
+    if not histogramCorrelation(postfix, completeness_threshold):
+        return False
+
+    return True
+
+def filterCoefficient(postfix, completeness_threshold):
+    # Load Coefficient File
     fullpath = c.path_dict['strategy'] + c.file_dict['strategy'] % '_'.join(['Coefficient', 'AllCoef', postfix])
     allcoef = u.read_csv(fullpath)
     if u.isNoneOrEmpty(allcoef):
         print('Require Coefficient AllCoef File: %s!' % fullpath)
-        return None
+        return False
 
     # Filter Out Stocks without Sufficient Data
     threshold = float(completeness_threshold.replace('%',''))
@@ -213,7 +268,18 @@ def analyzeCoefficient(postfix, completeness_threshold, top_number):
     file_postfix = '_'.join(['Coefficient', 'AllCoef', postfix, completeness_threshold])
     u.to_csv(allcoef, c.path_dict['strategy'], c.file_dict['strategy'] % file_postfix)
 
+    return True
+
+def topCorrelation(postfix, completeness_threshold, top_number):
+    # Load Coefficient File
+    fullpath = c.path_dict['strategy'] + c.file_dict['strategy'] % '_'.join(['Coefficient', 'AllCoef', postfix, completeness_threshold])
+    allcoef = u.read_csv(fullpath)
+    if u.isNoneOrEmpty(allcoef):
+        print('Require Coefficient AllCoef File: %s!' % fullpath)
+        return False
+
     # Calculate Coefficient Statistics
+    allcoef.set_index('code',inplace=True)
     allcoef['correlation_abs'] = allcoef['correlation'].map(lambda x: abs(x))
     allcoef['correlation_abs'] = allcoef['correlation_abs'].astype(float)
     negative_correlation = allcoef[allcoef.correlation < 0.0]
@@ -244,4 +310,47 @@ def analyzeCoefficient(postfix, completeness_threshold, top_number):
     file_postfix = '_'.join(['Coefficient', 'AllCoef', postfix, completeness_threshold, 'Negative_Correlation'])
     u.to_csv(negative_correlation, c.path_dict['strategy'], c.file_dict['strategy'] % file_postfix)
 
-    return [positive_correlation, zero_correlation, negative_correlation]
+    return True
+
+def histogramCorrelation(postfix, completeness_threshold):
+    # Load Coefficient File
+    fullpath = c.path_dict['strategy'] + c.file_dict['strategy'] % '_'.join(['Coefficient', 'AllCoef', postfix, completeness_threshold])
+    allcoef = u.read_csv(fullpath)
+    if u.isNoneOrEmpty(allcoef):
+        print('Require Coefficient AllCoef File: %s!' % fullpath)
+        return False
+
+    # Calculate Coefficient Histogram
+    columns = ['Total', 'Very Strong', 'Strong', 'Medium', 'Weak', 'Very Weak', 'Negative Very Weak', 'Negative Weak', 'Negative Medium', 'Negative Strong', 'Negative Very Strong']
+    histogram = u.createDataFrame(1, columns, 0)
+    stock_number = len(allcoef)
+    histogram.ix[0, 'Total'] = stock_number
+    for i in range(stock_number):
+        correlation = allcoef.ix[i,'correlation']
+        if correlation > 0.8:   # (0.8, 1.0]
+            histogram.ix[0, 'Very Strong'] = histogram.ix[0, 'Very Strong'] + 1
+        elif correlation > 0.6: # (0.6, 0.8]
+            histogram.ix[0, 'Strong'] = histogram.ix[0, 'Strong'] + 1
+        elif correlation > 0.4: # (0.4, 0.6]
+            histogram.ix[0, 'Medium'] = histogram.ix[0, 'Medium'] + 1
+        elif correlation > 0.2: # (0.2, 0.4]
+            histogram.ix[0, 'Weak'] = histogram.ix[0, 'Weak'] + 1
+        elif correlation >= 0.0:# [0.0, 0.2]
+            histogram.ix[0, 'Very Weak'] = histogram.ix[0, 'Very Weak'] + 1
+        elif correlation > -0.2:# (-0.2, 0.0)
+            histogram.ix[0, 'Negative Very Weak'] = histogram.ix[0, 'Negative Very Weak'] + 1
+        elif correlation > -0.4:# (-0.4, -0.2]
+            histogram.ix[0, 'Negative Weak'] = histogram.ix[0, 'Negative Weak'] + 1
+        elif correlation > -0.6:# (-0.6, -0.4]
+            histogram.ix[0, 'Negative Medium'] = histogram.ix[0, 'Negative Medium'] + 1
+        elif correlation > -0.8:# (-0.8, -0.6]
+            histogram.ix[0, 'Negative Strong'] = histogram.ix[0, 'Negative Strong'] + 1
+        else:                   # [-1.0, -0.8]
+            histogram.ix[0, 'Negative Very Strong'] = histogram.ix[0, 'Negative Very Strong'] + 1
+
+    # Save to CSV File
+    histogram.set_index('Total', inplace=True)
+    file_postfix = '_'.join(['Coefficient', 'AllCoef', postfix, completeness_threshold, 'Correlation_Histogram'])
+    u.to_csv(histogram, c.path_dict['strategy'], c.file_dict['strategy'] % file_postfix)
+
+    return True
