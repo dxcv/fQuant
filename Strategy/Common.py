@@ -113,7 +113,7 @@ def updateSamplePrice(benchmark_id, stock_ids, is_index, period):
     # Load Benchmark
     benchmark = loadDailyQFQ(benchmark_id, True)
     if u.isNoneOrEmpty(benchmark):
-        print('Require Benchmark LSHQ File: %s!', benchmark_id)
+        print('Require Benchmark LSHQ File: %s!' % u.stockFileName(benchmark_id, True))
         return None
 
     # Resample Benchmark
@@ -131,6 +131,10 @@ def updateSamplePrice(benchmark_id, stock_ids, is_index, period):
     else:
         allprice = benchmark.resample(period).first()
         allprice['close'] = benchmark['close'].resample(period).last()
+        # Resample daily data by weekly may introduce N/A price (due to holiday weeks)
+        # This does not exist for monthly resample (as no holiday month so far)
+        if period == 'W':
+            allprice = allprice.dropna(axis=0, how='any')
     allprice['close'] = allprice['close'].map(lambda x: '%.3f' % x)
     allprice['close'] = allprice['close'].astype(float)
 
@@ -139,9 +143,9 @@ def updateSamplePrice(benchmark_id, stock_ids, is_index, period):
     for i in range(stocks_number):
         # Load Stock LSHQ
         stock_id = u.stockID(stock_ids[i])
-        stock = loadDailyQFQ(stock_id, False)
+        stock = loadDailyQFQ(stock_id, is_index)
         if u.isNoneOrEmpty(stock):
-            print('Require Stock LSHQ File: %s!', stock_id)
+            print('Require Stock/Index LSHQ File: %s!'% u.stockFileName(stock_id, is_index))
             continue
         stock['date'] = stock['date'].astype(np.datetime64)
         stock.set_index('date', inplace=True)
@@ -151,7 +155,9 @@ def updateSamplePrice(benchmark_id, stock_ids, is_index, period):
 
         # Resample Stock LSHQ
         stock.drop(drop_columns,axis=1,inplace=True)
-        if period != 'D':
+        if period == 'D':
+            stock_resample = stock
+        else:
             stock_resample = stock.resample(period).first()
             stock_resample['close'] = stock['close'].resample(period).last()
         stock_resample['close'] = stock_resample['close'].map(lambda x: '%.3f' % x)
