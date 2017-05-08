@@ -111,7 +111,7 @@ def updateSamplePrice(benchmark_id, stock_ids, is_index, period):
     采样失败时，None
     '''
     # Load Benchmark
-    benchmark = loadDailyQFQ(benchmark_id, is_index)
+    benchmark = loadDailyQFQ(benchmark_id, True)
     if u.isNoneOrEmpty(benchmark):
         print('Require Benchmark LSHQ File: %s!', benchmark_id)
         return None
@@ -125,8 +125,12 @@ def updateSamplePrice(benchmark_id, stock_ids, is_index, period):
 
     drop_columns = ['open','high','low','volume','amount']
     benchmark.drop(drop_columns,axis=1,inplace=True)
-    allprice = benchmark.resample(period).first()
-    allprice['close'] = benchmark['close'].resample(period).last()
+    allprice = pd.DataFrame()
+    if period == 'D':
+        allprice = benchmark
+    else:
+        allprice = benchmark.resample(period).first()
+        allprice['close'] = benchmark['close'].resample(period).last()
     allprice['close'] = allprice['close'].map(lambda x: '%.3f' % x)
     allprice['close'] = allprice['close'].astype(float)
 
@@ -147,8 +151,9 @@ def updateSamplePrice(benchmark_id, stock_ids, is_index, period):
 
         # Resample Stock LSHQ
         stock.drop(drop_columns,axis=1,inplace=True)
-        stock_resample = stock.resample(period).first()
-        stock_resample['close'] = stock['close'].resample(period).last()
+        if period != 'D':
+            stock_resample = stock.resample(period).first()
+            stock_resample['close'] = stock['close'].resample(period).last()
         stock_resample['close'] = stock_resample['close'].map(lambda x: '%.3f' % x)
         stock_resample['close'] = stock_resample['close'].astype(float)
 
