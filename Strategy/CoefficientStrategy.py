@@ -5,9 +5,6 @@ Created on Thu May  4 09:59:58 2017
 @author: freefrom
 """
 
-import pandas as pd
-import numpy as np
-
 import sys
 sys.path.append('..')
 
@@ -15,8 +12,7 @@ import Common.Constants as c
 import Common.Utilities as u
 import Common.GlobalSettings as gs
 
-from Data.GetTrading import loadDailyQFQ
-from Data.GetFundamental import loadStockBasics
+from Strategy.Common import loadAllStocks, samplePrice, ignoreData, checkPeriod
 
 def strategyCoefficient(benchmark_id = '000300', date_start = '2015-01-01', date_end = '2016-12-31', period = 'M'):
     '''
@@ -27,7 +23,7 @@ def strategyCoefficient(benchmark_id = '000300', date_start = '2015-01-01', date
 
     输入参数：
     --------
-    benchmark_id : string, 指数代码 e.g. 000300
+    benchmark_id : string, 指数代码 e.g. '000300'
     date_start : string, 起始日期 e.g. '2015-01-01'
     date_end : string, 终止日期 e.g. '2016-12-31'
     period : string, 采样周期 e.g. 'M'
@@ -51,12 +47,12 @@ def strategyCoefficient(benchmark_id = '000300', date_start = '2015-01-01', date
     common_postfix = '_'.join([benchmark_id, date_start, date_end, period])
 
     # Load All Stocks
-    allstock = loadAllStocks(common_postfix)
+    allstock = loadAllStocks()
     if u.isNoneOrEmpty(allstock):
         return False
 
     # Sample Prices
-    allprice = samplePrice(benchmark_id, allstock, date_start, date_end, period)
+    allprice = samplePrice(benchmark_id, allstock, False, period)
     if u.isNoneOrEmpty(allprice):
         return False
 
@@ -70,82 +66,6 @@ def strategyCoefficient(benchmark_id = '000300', date_start = '2015-01-01', date
         return False
 
     return True
-
-def loadAllStocks(postfix):
-    # Load Local Cache of Stock Basics
-    file_postfix = '_'.join(['Coefficient', 'AllStock', postfix])
-    fullpath = c.path_dict['strategy'] + c.file_dict['strategy'] % file_postfix
-    allstock = u.read_csv(fullpath)    
-    if not u.isNoneOrEmpty(allstock):
-        return allstock['code']
-
-    # Load from Fundamental Stock Basics
-    allstock = loadStockBasics()
-    if u.isNoneOrEmpty(allstock):
-        return None
-    stock_ids = allstock['code']
-    # Save to CSV File
-    allstock.set_index('code',inplace=True)
-    u.to_csv(allstock, c.path_dict['strategy'], c.file_dict['strategy'] % file_postfix)
-
-    return stock_ids
-
-def samplePrice(benchmark_id, stock_ids, date_start, date_end, period):
-    # Check if AllPrice File Already Exists
-    file_postfix = '_'.join(['Coefficient', 'AllPrice', benchmark_id, date_start, date_end, period])
-    fullpath = c.path_dict['strategy'] + c.file_dict['strategy'] % file_postfix
-    allprice = u.read_csv(fullpath)
-    if not u.isNoneOrEmpty(allprice):
-        return allprice
-
-    # Load Benchmark
-    benchmark = loadDailyQFQ(benchmark_id, True)
-    if u.isNoneOrEmpty(benchmark):
-        return None
-
-    # Resample Benchmark
-    benchmark['date'] = benchmark['date'].astype(np.datetime64)
-    benchmark.set_index('date', inplace=True)
-    benchmark.sort_index(ascending = True, inplace=True)
-    if gs.is_debug:
-        print(benchmark.head(10))
-
-    drop_columns = ['open','high','low','volume','amount']
-    benchmark.drop(drop_columns,axis=1,inplace=True)
-    allprice = benchmark.resample(period).first()
-    allprice['close'] = benchmark['close'].resample(period).last()
-    allprice['close'] = allprice['close'].map(lambda x: '%.3f' % x)
-    allprice['close'] = allprice['close'].astype(float)
-
-    # Iterate over all stocks
-    stocks_number = len(stock_ids)
-    for i in range(stocks_number):
-        # Load Stock LSHQ
-        stock_id = u.stockID(stock_ids[i])
-        stock = loadDailyQFQ(stock_id, False)
-        if u.isNoneOrEmpty(stock):
-            continue
-        stock['date'] = stock['date'].astype(np.datetime64)
-        stock.set_index('date', inplace=True)
-        stock.sort_index(ascending = True, inplace=True)
-        if gs.is_debug:
-            print(stock.head(10))
-
-        # Resample Stock LSHQ
-        stock.drop(drop_columns,axis=1,inplace=True)
-        stock_resample = stock.resample(period).first()
-        stock_resample['close'] = stock['close'].resample(period).last()
-        stock_resample['close'] = stock_resample['close'].map(lambda x: '%.3f' % x)
-        stock_resample['close'] = stock_resample['close'].astype(float)
-
-        # Merge Benchmark with Stock
-        allprice = pd.merge(allprice, stock_resample, how='left', left_index=True, right_index=True, 
-                             sort=True, suffixes=('','_'+stock_id))
-
-    # Save to CSV File
-    u.to_csv(allprice, c.path_dict['strategy'], c.file_dict['strategy'] % file_postfix)
-
-    return allprice
 
 def calculateCoefficient(postfix, ignore_number, min_period_number):
     # Check if AllPrice File Already Exists
@@ -194,20 +114,6 @@ def calculateCoefficient(postfix, ignore_number, min_period_number):
     u.to_csv(allcoef, c.path_dict['strategy'], c.file_dict['strategy'] % file_postfix)
 
     return allcoef
-
-def ignoreData(stock, ignore_number):
-    # Find first valid data, assuming it has been sorted by date ascendingly.
-    date_number = len(stock)
-    row = -1
-    for j in range(date_number):
-        if not np.isnan(stock.ix[j]):
-            row = j
-            break
-    if row != -1:
-        for j in range(row, row+ignore_number if row+ignore_number <= date_number else date_number):
-            stock.ix[j] = np.nan
-
-    return stock
 
 ###############################################################################
 

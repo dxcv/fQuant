@@ -6,6 +6,7 @@ Created on Thu May  4 11:50:08 2017
 """
 
 from Strategy.CoefficientStrategy import strategyCoefficient, analyzeCoefficient
+from Strategy.Common import updateCommonData
 from Data.UpdateDataCenter import updateStockBasics, updatePriceStock, updatePriceIndex
 from Plot.PlotFigures import plotCoefficient
 
@@ -18,15 +19,16 @@ if update_data:
     updateStockBasics()
     updatePriceStock(True)
     updatePriceIndex(True)
+    updateCommonData()
 
 # Strategy Parameters
 benchmark_id = '000300'
-date_start = '2015-01-01'
+date_start = '2005-01-01'
 date_end = '2017-05-03'
 period = 'M'
 #completeness_threshold = '8.05%'
 completeness_threshold = '80.00%' # 1350 / 42.7%
-top_number = 10 
+top_number = 10
 
 # Run Strategy
 run_strategy = False
