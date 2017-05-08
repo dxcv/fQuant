@@ -18,9 +18,8 @@ import Common.GlobalSettings as gs
 from Data.GetTrading import loadDailyQFQ
 from Data.GetFundamental import loadStockBasics
 
-default_benchmark = '000300'
 
-def updateCommonData():
+def updateCommonData(benchmark_id = '000300', period = 'M'):
     # Update All Stocks
     if not updateAllStocks():
         print('Update All Stocks Failed!')
@@ -32,10 +31,10 @@ def updateCommonData():
         return False
 
     # Update Sample Price for All Stocks
-    updateSamplePriceAllStocks(default_benchmark, 'M')
+    updateSamplePriceAllStocks(benchmark_id, period)
 
     # Update Sample Price for All Index
-    updateSamplePriceAllIndex(default_benchmark, 'M')
+    updateSamplePriceAllIndex(benchmark_id, period)
 
     return True
 
@@ -179,8 +178,6 @@ def updateSamplePriceAllStocks(benchmark_id, period):
     '''
     # Sample Price for All Stocks
     allstocks = loadAllStocks()
-    benchmark_id = '000300'
-    period = 'M'
     allprice = updateSamplePrice(benchmark_id, allstocks, False, period)
 
     # Save to CSV File
@@ -211,8 +208,6 @@ def updateSamplePriceAllIndex(benchmark_id, period):
     '''
     # Sample Price for All Index
     allindex = loadAllIndex()
-    benchmark_id = '000300'
-    period = 'M'
     allprice = updateSamplePrice(benchmark_id, allindex, True, period)
 
     # Save to CSV File

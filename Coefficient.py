@@ -13,14 +13,6 @@ from Plot.PlotFigures import plotCoefficient
 import Common.Utilities as u
 import Common.Constants as c
 
-# Update Data Center
-update_data = False
-if update_data:
-    updateStockBasics()
-    updatePriceStock(True)
-    updatePriceIndex(True)
-    updateCommonData()
-
 # Strategy Parameters
 benchmark_id = '000300'
 date_start = '2005-01-01'
@@ -29,6 +21,14 @@ period = 'M'
 #completeness_threshold = '8.05%'
 completeness_threshold = '80.00%' # 1350 / 42.7%
 top_number = 10
+
+# Update Data Center
+update_data = False
+if update_data:
+    updateStockBasics()
+    updatePriceStock(True)
+    updatePriceIndex(True)
+    updateCommonData(benchmark_id, period)
 
 # Run Strategy
 run_strategy = False
