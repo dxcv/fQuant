@@ -45,4 +45,7 @@ def plotIndex(index_names):
 def plotCoefficient(stock_ids, allprice, postfix, series_name, benchmark_name):
     plot_coefficient_price(stock_ids, allprice, postfix, series_name, benchmark_name)
 
+def plotRelativity():
+    pass
+
 ###############################################################################

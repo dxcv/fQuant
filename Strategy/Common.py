@@ -251,6 +251,7 @@ def loadAllStocks():
     fullpath = c.path_dict['strategy'] + c.file_dict['strategy'] % file_postfix
     allstock = u.read_csv(fullpath)
     if not u.isNoneOrEmpty(allstock):
+        allstock['code'] = allstock['code'].map(lambda x:str(x).zfill(6))
         return allstock['code']
 
     print('Failed to Load File: %s !' % fullpath)
@@ -276,6 +277,7 @@ def loadAllIndex():
     fullpath = c.path_dict['strategy'] + c.file_dict['strategy'] % file_postfix
     allindex = u.read_csv(fullpath)
     if not u.isNoneOrEmpty(allindex):
+        allindex['code'] = allindex['code'].map(lambda x:str(x).zfill(6))
         return allindex['code']
 
     print('Failed to Load File: %s !' % fullpath)
@@ -358,23 +360,29 @@ def samplePrice(benchmark_id, stock_ids, is_index, date_begin, date_end, period)
     # Load All Security and Filter Input stock_ids with Existed Ones.
     filtered_security_ids = []
     all_security = list(loadAllIndex() if is_index else loadAllStocks())
+    print('all_security', all_security)
     security_number = len(stock_ids)
+    print('security_number', security_number)
     for i in range(security_number):
         security_id = stock_ids[i]
         if security_id in all_security:
             filtered_security_ids.append(security_id)
+    print('filtered_security_ids', filtered_security_ids)
 
     # Extract Price for Filtered Security
-    all_price = loadSamplePriceAllIndex(default_benchmark, period) if is_index else loadSamplePriceAllStocks(default_benchmark, period)
-    column_dict = {}
+    all_price = loadSamplePriceAllIndex(benchmark_id, period) if is_index else loadSamplePriceAllStocks(benchmark_id, period)
+    sample_price = pd.DataFrame({'date':all_price['date']})
+    sample_price['close_'+benchmark_id] = all_price['close']
     filtered_stock_number = len(filtered_security_ids)
     for i in range(filtered_stock_number):
-        security_id = u.stockID(filtered_security_ids[i])
-        column_dict[security_id] = all_price['close_'+security_id]
-    sample_price = pd.DataFrame(column_dict)
+        security_id = filtered_security_ids[i]
+        sample_price['close_'+security_id] = all_price['close_'+security_id]
 
     # Filter by date_begin and date_end
-    sample_price = sample_price[sample_price.date >= date_begin and sample_price.date <= date_end]
+    sample_price = sample_price[sample_price.date >= date_begin]
+    sample_price = sample_price[sample_price.date <= date_end]
+    sample_price.reset_index(drop=True, inplace=True)
+    print('sample_price', sample_price)
 
     return sample_price
 
