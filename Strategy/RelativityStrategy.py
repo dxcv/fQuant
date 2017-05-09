@@ -61,8 +61,8 @@ def strategyRelativity(benchmark_id, stock_ids, is_index, date_start, date_end, 
     relativity['date'] = price['date']
     for col in range(1, column_number): # Skip 'date'
         column = relativity.columns[col]
-        for i in range(1, date_number):
-            prev_price = price.ix[i-1,column]
+        for i in range(0, date_number):
+            prev_price = price.ix[i,column] if i==0 else price.ix[i-1,column]
             curr_price = price.ix[i,column]
             if not np.isnan(prev_price) and not np.isnan(curr_price): # Both are valid prices
                 relativity.ix[i,column] = (curr_price-prev_price)/prev_price # Turn price to ratio
@@ -74,7 +74,7 @@ def strategyRelativity(benchmark_id, stock_ids, is_index, date_start, date_end, 
     # 2. Turn Ratios to Deltas
     for col in range(2, column_number): # Skip 'date' and 'close_benchmark'
         column = relativity.columns[col]
-        for i in range(1, date_number):
+        for i in range(0, date_number):
             ratio_stock = relativity.ix[i,column]
             ratio_bench = relativity.ix[i,'close_'+benchmark_id]
             if not np.isnan(ratio_stock) and not np.isnan(ratio_bench): # Both are valid ratios
@@ -87,8 +87,8 @@ def strategyRelativity(benchmark_id, stock_ids, is_index, date_start, date_end, 
     # 3. Turn Deltas to Accumulated Deltas
     for col in range(2, column_number): # Skip 'date' and 'close_benchmark'
         column = relativity.columns[col]
-        for i in range(1, date_number):
-            prev_delta = relativity.ix[i-1,column]
+        for i in range(0, date_number):
+            prev_delta = relativity.ix[i,column] if i==0 else relativity.ix[i-1,column]
             curr_delta = relativity.ix[i,column]
             if not np.isnan(prev_delta) and not np.isnan(curr_delta): # Both are valid deltas
                 relativity.ix[i,column] = prev_delta + curr_delta # Turn delta to accumulated delta
