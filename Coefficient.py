@@ -16,6 +16,7 @@ import Common.Constants as c
 
 # Strategy Parameters
 benchmark_id = '000300'
+benchmark_name = 'HS300'
 date_start = '2005-01-01'
 date_end = '2017-04-30'
 period = 'M'
@@ -44,47 +45,35 @@ if run_strategy:
     strategyCoefficient(benchmark_id, date_start, date_end, period, loadAllStocks(), False, 'AllStock')
 
 # Analyze Strategy Results
+analyze_strategy = False
 common_postfix = '_'.join(['Coefficient', date_start, date_end, period, 'AllStock', 'vs', benchmark_id])
-analyze_strategy = True
 if analyze_strategy:
     analyzeCoefficient(common_postfix, completeness_threshold, top_number)
 
 # Plot Strategy Results
-plot_strategy = False
+plot_strategy = True
 if plot_strategy:
     path = c.path_dict['strategy']
-    file = c.file_dict['strategy'] % '_'.join(['Coefficient', 'AllStock', common_postfix])
-    allstock = u.read_csv(path+file)
-    file = c.file_dict['strategy'] % '_'.join(['Coefficient', 'AllPrice', common_postfix])
-    allprice = u.read_csv(path+file)
-    file = c.file_dict['strategy'] % '_'.join(['Coefficient', 'AllCoef', common_postfix])
-    allcoef = u.read_csv(path+file)
+    file = c.file_dict['strategy'] % '_'.join(['Common', 'AllPrice', benchmark_id, period, 'AllStock'])
+    price_allstock = u.read_csv(path+file)
+    file = c.file_dict['strategy'] % '_'.join(['Common', 'AllPrice', benchmark_id, period, 'AllIndex'])
+    price_allindex = u.read_csv(path+file)
 
-    file = c.file_dict['strategy'] % '_'.join(['Coefficient', 'AllCoef', common_postfix, completeness_threshold, 'Positive_Correlation'])
-    positive_correlation = u.read_csv(path+file)
-    file = c.file_dict['strategy'] % '_'.join(['Coefficient', 'AllCoef', common_postfix, completeness_threshold, 'Zero_Correlation'])
-    zero_correlation = u.read_csv(path+file)
-    file = c.file_dict['strategy'] % '_'.join(['Coefficient', 'AllCoef', common_postfix, completeness_threshold, 'Negative_Correlation'])
-    negative_correlation = u.read_csv(path+file)
+    # Generate Statistics List
+    statistics = []
+    for coefficient in ['Correlation', 'Beta', 'Alpha']:
+        for classification in ['Positive', 'Zero', 'Negative']:
+            statistics.append(classification+coefficient)
+    print(statistics)
 
-    #print(allstock.head(10))
-    #print(allprice.head(10))
-    #print(allcoef.head(10))
-    #print(positive_correlation.head(10))
-    #print(zero_correlation.head(10))
-    #print(negative_correlation.head(10))
-
-    common_postfix = '_'.join([benchmark_id, date_start, date_end, period, completeness_threshold])
-    plotCoefficient(positive_correlation['code'], allprice, common_postfix, 'PositiveCorrelation', 'HS300')
-    plotCoefficient(zero_correlation['code'], allprice, common_postfix, 'ZeroCorrelation', 'HS300')
-    plotCoefficient(negative_correlation['code'], allprice, common_postfix, 'NegativeCorrelation', 'HS300')
-
-    for i in range(len(positive_correlation)):
-        stock_id = u.stockID(positive_correlation.ix[i,'code'])
-        plotCoefficient([stock_id], allprice, common_postfix, 'Positive_Correlation_'+stock_id, 'HS300')
-    for i in range(len(zero_correlation)):
-        stock_id = u.stockID(zero_correlation.ix[i,'code'])
-        plotCoefficient([stock_id], allprice, common_postfix, 'Zero_Correlation_'+stock_id, 'HS300')
-    for i in range(len(negative_correlation)):
-        stock_id = u.stockID(negative_correlation.ix[i,'code'])
-        plotCoefficient([stock_id], allprice, common_postfix, 'Negative_Correlation_'+stock_id, 'HS300')
+    # Plot Statistics List
+    for stats in statistics:
+        # Plot statistics
+        file = c.file_dict['strategy'] % '_'.join([common_postfix, completeness_threshold, stats])
+        data = u.read_csv(path+file)
+        postfix = '_'.join(['Coefficient', date_start, date_end, period, completeness_threshold])
+        plotCoefficient(data['code'], price_allstock, postfix, stats, benchmark_name)
+        # Plot single stock within each statistics
+        for i in range(len(data)):
+            stock_id = u.stockID(data.ix[i,'code'])
+            plotCoefficient([stock_id], price_allstock, postfix, 'Positive_Correlation_'+stock_id, benchmark_name)
