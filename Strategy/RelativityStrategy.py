@@ -17,7 +17,7 @@ import Common.GlobalSettings as gs
 
 from Strategy.Common import checkPeriod, samplePrice
 
-def strategyRelativity(benchmark_id, stock_ids, is_index, date_start, date_end, period):
+def strategyRelativity(benchmark_id, date_start, date_end, period, stock_ids, is_index, stock_name):
     '''
     函数功能：
     --------
@@ -27,11 +27,12 @@ def strategyRelativity(benchmark_id, stock_ids, is_index, date_start, date_end, 
     输入参数：
     --------
     benchmark_id : string, 指数代码 e.g. '000300'
-    stock_ids : pandas.Series or list, 股票/指数列表
-    is_index : boolean, 股票/指数标识
     date_start : string, 起始日期 e.g. '2005-01-01'
     date_end : string, 终止日期 e.g. '2016-12-31'
     period : string, 采样周期 e.g. 'M'
+    stock_ids : pandas.Series or list, 股票/指数列表
+    is_index : boolean, 股票/指数标识
+    stock_name : string, 股票/指数名称
 
     输出参数：
     --------
@@ -99,7 +100,7 @@ def strategyRelativity(benchmark_id, stock_ids, is_index, date_start, date_end, 
 
     # Save to CSV File
     df.set_index('date',inplace=True)
-    file_postfix = '_'.join(['Relativity', 'Data', date_start, date_end, period, 'AllIndex', 'vs', benchmark_id])
+    file_postfix = '_'.join(['Relativity', date_start, date_end, period, stock_name, 'vs', benchmark_id])
     u.to_csv(df, c.path_dict['strategy'], c.file_dict['strategy'] % file_postfix)
 
     return True

@@ -36,7 +36,7 @@ if update_data:
 run_strategy = True
 if run_strategy:
     all_index = loadAllIndex()
-    strategyRelativity(benchmark_id, all_index, True, date_start, date_end, period)
+    strategyRelativity(benchmark_id, date_start, date_end, period, all_index, True, 'AllIndex')
 
 # Analyze Strategy Results
 common_postfix = '_'.join([benchmark_id, date_start, date_end, period])
