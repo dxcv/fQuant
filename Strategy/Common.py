@@ -337,7 +337,7 @@ def loadSamplePriceAllIndex(benchmark_id, period):
 
 ###############################################################################
 
-def samplePrice(benchmark_id, stock_ids, is_index, date_begin, date_end, period):
+def samplePrice(benchmark_id, stock_ids, is_index, date_start, date_end, period):
     '''
     函数功能：
     --------
@@ -348,7 +348,7 @@ def samplePrice(benchmark_id, stock_ids, is_index, date_begin, date_end, period)
     benchmark_id : string, 指数代码 e.g. '000300'。
     stock_ids : pandas.Series or list, 股票/指数列表 e.g. ['600016']
     is_index : boolean, 股票/指数标示 e.g. True
-    date_begin : string, 起始日期 e.g. '2005-01-01'
+    date_start : string, 起始日期 e.g. '2005-01-01'
     date_end : string, 截止日期 e.g. '2016-12-31'
     period : string, 采样周期 e.g. 'M'
 
@@ -360,29 +360,29 @@ def samplePrice(benchmark_id, stock_ids, is_index, date_begin, date_end, period)
     # Load All Security and Filter Input stock_ids with Existed Ones.
     filtered_security_ids = []
     all_security = list(loadAllIndex() if is_index else loadAllStocks())
-    print('all_security', all_security)
     security_number = len(stock_ids)
-    print('security_number', security_number)
     for i in range(security_number):
         security_id = stock_ids[i]
         if security_id in all_security:
             filtered_security_ids.append(security_id)
-    print('filtered_security_ids', filtered_security_ids)
+    if gs.is_debug:
+        print('filtered_security_ids', filtered_security_ids)
 
     # Extract Price for Filtered Security
     all_price = loadSamplePriceAllIndex(benchmark_id, period) if is_index else loadSamplePriceAllStocks(benchmark_id, period)
     sample_price = pd.DataFrame({'date':all_price['date']})
-    sample_price['close_'+benchmark_id] = all_price['close']
+    sample_price['close'] = all_price['close']
     filtered_stock_number = len(filtered_security_ids)
     for i in range(filtered_stock_number):
         security_id = filtered_security_ids[i]
         sample_price['close_'+security_id] = all_price['close_'+security_id]
 
     # Filter by date_begin and date_end
-    sample_price = sample_price[sample_price.date >= date_begin]
+    sample_price = sample_price[sample_price.date >= date_start]
     sample_price = sample_price[sample_price.date <= date_end]
     sample_price.reset_index(drop=True, inplace=True)
-    print('sample_price', sample_price)
+    if gs.is_debug:
+        print('sample_price', sample_price.head(10))
 
     return sample_price
 
@@ -418,7 +418,7 @@ def ignoreData(price, ignore_number):
 
     return price
 
-def fillMissingData(price):
+def interpolateData(price):
     '''
     函数功能：
     --------
@@ -448,6 +448,39 @@ def fillMissingData(price):
                 price.ix[i] = price.ix[i-1]
 
     return price
+
+def dataToRatio(price):
+    '''
+    函数功能：
+    --------
+    对输入的价格序列，转换成涨跌幅。
+
+    输入参数：
+    --------
+    price : pandas.Series, 价格序列。
+
+    输出参数：
+    --------
+    ratio : pandas.Series, 处理后的价格序列。
+
+    '''
+    # Ignore Leading NaNs
+    date_number = len(price)
+    row = -1
+    for i in range(date_number):
+        if not np.isnan(price.ix[i]):
+            row = i
+            break
+    # Calculate Ratio.
+    ratio = price.copy()
+    if row != -1:
+        for i in range(row, date_number):
+            prev_price = price.ix[i] if i==row else price.ix[i-1]
+            curr_price = price.ix[i]
+            if not np.isnan(prev_price) and not np.isnan(curr_price): # Both are valid prices
+                ratio.ix[i] = (curr_price-prev_price)/prev_price # Turn price to ratio
+
+    return ratio
 
 def checkPeriod(period):
     '''

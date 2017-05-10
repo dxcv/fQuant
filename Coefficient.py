@@ -6,7 +6,8 @@ Created on Thu May  4 11:50:08 2017
 """
 
 from Strategy.CoefficientStrategy import strategyCoefficient, analyzeCoefficient
-from Strategy.Common import updateCommonData
+from Strategy.Common import loadAllStocks, loadAllIndex, updateAllIndex, updateAllStocks
+from Strategy.Common import updateSamplePriceAllIndex, updateSamplePriceAllStocks
 from Data.UpdateDataCenter import updateStockBasics, updatePriceStock, updatePriceIndex
 from Plot.PlotFigures import plotCoefficient
 
@@ -16,7 +17,7 @@ import Common.Constants as c
 # Strategy Parameters
 benchmark_id = '000300'
 date_start = '2005-01-01'
-date_end = '2017-05-03'
+date_end = '2017-04-30'
 period = 'M'
 #completeness_threshold = '8.05%'
 completeness_threshold = '80.00%' # 1350 / 42.7%
@@ -25,24 +26,31 @@ top_number = 10
 # Update Data Center
 update_data = False
 if update_data:
+    # Update All Index
+    updatePriceIndex(True)
+    updateAllIndex()
+    for period in ['D','W','M']:
+        updateSamplePriceAllIndex(benchmark_id, period)
+    # Update All Stocks
     updateStockBasics()
     updatePriceStock(True)
-    updatePriceIndex(True)
-    updateCommonData(benchmark_id, period)
+    for period in ['D','W','M']:
+        updateSamplePriceAllStocks(benchmark_id, period)
 
 # Run Strategy
 run_strategy = False
 if run_strategy:
-    strategyCoefficient(benchmark_id, date_start, date_end, period)
+    strategyCoefficient(benchmark_id, date_start, date_end, period, loadAllIndex(), True, 'AllIndex')
+    strategyCoefficient(benchmark_id, date_start, date_end, period, loadAllStocks(), False, 'AllStock')
 
 # Analyze Strategy Results
-common_postfix = '_'.join([benchmark_id, date_start, date_end, period])
-analyze_strategy = False
+common_postfix = '_'.join(['Coefficient', date_start, date_end, period, 'AllStock', 'vs', benchmark_id])
+analyze_strategy = True
 if analyze_strategy:
     analyzeCoefficient(common_postfix, completeness_threshold, top_number)
 
 # Plot Strategy Results
-plot_strategy = True
+plot_strategy = False
 if plot_strategy:
     path = c.path_dict['strategy']
     file = c.file_dict['strategy'] % '_'.join(['Coefficient', 'AllStock', common_postfix])

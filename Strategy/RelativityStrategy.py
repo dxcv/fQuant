@@ -39,8 +39,7 @@ def strategyRelativity(benchmark_id, date_start, date_end, period, stock_ids, is
     True/False : boolean, 策略运行是否完成
 
     数据文件
-        Strategy_Relativity_DateStart_DateEnd_Period_Stock_vs_Benchmark.csv : 参与计算的所有指数相对强弱
-
+        Strategy_Relativity_DateStart_DateEnd_Period_StockName_vs_Benchmark.csv : 参与计算的所有股票/指数相对强弱
     '''
     # Check Period
     if not checkPeriod(period):
@@ -73,20 +72,20 @@ def strategyRelativity(benchmark_id, date_start, date_end, period, stock_ids, is
         df['ratio_'+column[-6:]] = relativity[column]
 
     # 2. Turn Ratios to Deltas
-    for col in range(2, column_number): # Skip 'date' and 'close_benchmark'
+    for col in range(2, column_number): # Skip 'date' and 'close'
         column = relativity.columns[col]
         for i in range(0, date_number):
             ratio_stock = relativity.ix[i,column]
-            ratio_bench = relativity.ix[i,'close_'+benchmark_id]
+            ratio_bench = relativity.ix[i,'close']
             if not np.isnan(ratio_stock) and not np.isnan(ratio_bench): # Both are valid ratios
                 relativity.ix[i,column] = ratio_stock - ratio_bench # Turn ratio to delta
 
-    for col in range(2, column_number): # Skip 'date' and 'close_benchmark'
+    for col in range(2, column_number): # Skip 'date' and 'close'
         column = relativity.columns[col]
         df['delta_'+column[-6:]] = relativity[column]
 
     # 3. Turn Deltas to Accumulated Deltas
-    for col in range(2, column_number): # Skip 'date' and 'close_benchmark'
+    for col in range(2, column_number): # Skip 'date' and 'close'
         column = relativity.columns[col]
         for i in range(0, date_number):
             prev_delta = relativity.ix[i,column] if i==0 else relativity.ix[i-1,column]
@@ -94,7 +93,7 @@ def strategyRelativity(benchmark_id, date_start, date_end, period, stock_ids, is
             if not np.isnan(prev_delta) and not np.isnan(curr_delta): # Both are valid deltas
                 relativity.ix[i,column] = prev_delta + curr_delta # Turn delta to accumulated delta
 
-    for col in range(2, column_number): # Skip 'date' and 'close_benchmark'
+    for col in range(2, column_number): # Skip 'date' and 'close'
         column = relativity.columns[col]
         df['accumu_'+column[-6:]] = relativity[column]
 
