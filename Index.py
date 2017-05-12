@@ -14,7 +14,7 @@ from Plot.PlotFigures import plotIndex
 
 #index_names = ['FeiYan_NewEnergyVehicle', 'FeiYan_NewMaterial', 'FeiYan_BatteryMaterial', 'FeiYan_RareMaterial', 'FeiYan_AI']
 
-index_names = ['FeiYan_NewEnergyVehicle', 'FeiYan_BatteryMaterial']
+index_names = ['FeiYan_NewEnergyVehicle', 'FeiYan_BatteryMaterial', 'FeiYan_FY50', 'FeiYan_FY20']
 generateIndexFeiYan(index_names)
 plotIndex(index_names)
 
