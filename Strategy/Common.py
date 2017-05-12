@@ -475,13 +475,13 @@ def dataToRatio(price, method):
     # Calculate Ratio.
     ratio = price.copy()
     if row != -1:
-        if method == 'previous':
+        if method == 'P':
             for i in range(row, date_number):
                 prev_price = price.ix[i] if i==row else price.ix[i-1]
                 curr_price = price.ix[i]
                 if not np.isnan(prev_price) and not np.isnan(curr_price): # Both are valid prices
                     ratio.ix[i] = (curr_price-prev_price)/prev_price # Turn price to ratio
-        elif method == 'base':
+        elif method == 'B':
             base_price = price.ix[row]
             for i in range(row, date_number):
                 curr_price = price.ix[i]
@@ -512,7 +512,7 @@ def checkRatioMethod(method):
     '''
     函数功能：
     --------
-    检查是否是支持的比例计算方法：['previous','base']。
+    检查是否是支持的比例计算方法：['P': Previous,'B': Base]。
 
     输入参数：
     --------
@@ -523,5 +523,5 @@ def checkRatioMethod(method):
     True/False : boolean，是否支持。
 
     '''
-    ratio_methods = ['previous','base']
+    ratio_methods = ['P','B']
     return u.checkEnum('ratio method', method, ratio_methods)

@@ -17,7 +17,7 @@ import Common.GlobalSettings as gs
 
 from Strategy.Common import samplePrice, ignoreData, checkPeriod, checkRatioMethod, dataToRatio
 
-def strategyCoefficient(benchmark_id, date_start, date_end, period, stock_ids, is_index, stock_name, ratio_method):
+def strategyCoefficient(benchmark_id, date_start, date_end, period, ratio_method, stock_ids, is_index, stock_name):
     '''
     函数功能：
     --------
@@ -30,17 +30,17 @@ def strategyCoefficient(benchmark_id, date_start, date_end, period, stock_ids, i
     date_start : string, 起始日期 e.g. '2005-01-01'
     date_end : string, 终止日期 e.g. '2016-12-31'
     period : string, 采样周期 e.g. 'M'
+    ratio_method : string, 比例计算方法 e.g. 'B'
     stock_ids : pandas.Series or list, 股票/指数列表
     is_index : boolean, 股票/指数标识
     stock_name : string, 股票/指数名称
-    ratio_method : string, 比例计算方法 e.g. 'previous' or 'base'
 
     输出参数：
     --------
     True/False : boolean, 策略运行是否完成
 
     数据文件
-        Strategy_Coefficient_DateStart_DateEnd_Period_StockName_vs_Benchmark.csv : 参与计算的所有所有股票/指数系数
+        Strategy_Coefficient_DateStart_DateEnd_Period_RatioMethod_StockName_vs_Benchmark.csv : 参与计算的所有所有股票/指数系数
     '''
     # Check Period and Ratio Method
     if not checkPeriod(period) or not checkRatioMethod(ratio_method):
@@ -62,7 +62,7 @@ def strategyCoefficient(benchmark_id, date_start, date_end, period, stock_ids, i
         return False
 
     # Save to CSV File
-    file_postfix = '_'.join(['Coefficient', date_start, date_end, period, stock_name, 'vs', benchmark_id])
+    file_postfix = '_'.join(['Coefficient', date_start, date_end, period, ratio_method, stock_name, 'vs', benchmark_id])
     u.to_csv(coef, c.path_dict['strategy'], c.file_dict['strategy'] % file_postfix)
 
     return True
@@ -147,7 +147,7 @@ def calculateCoefficient(price, ignore_number, min_period_number, ratio_method):
 
 ###############################################################################
 
-def strategyCoefficientRolling(benchmark_id, date_start, date_end, period, stock_ids, is_index, stock_name, ratio_method):
+def strategyCoefficientRolling(benchmark_id, date_start, date_end, period, ratio_method, stock_ids, is_index, stock_name):
     '''
     函数功能：
     --------
@@ -160,17 +160,17 @@ def strategyCoefficientRolling(benchmark_id, date_start, date_end, period, stock
     date_start : string, 起始日期 e.g. '2005-01-01'
     date_end : string, 终止日期 e.g. '2016-12-31'
     period : string, 采样周期 e.g. 'M'
+    ratio_method : string, 比例计算方法 e.g. 'B'
     stock_ids : pandas.Series or list, 股票/指数列表
     is_index : boolean, 股票/指数标识
     stock_name : string, 股票/指数名称
-    ratio_method : string, 比例计算方法 e.g. 'previous' or 'base'
 
     输出参数：
     --------
     True/False : boolean, 策略运行是否完成
 
     数据文件
-        Strategy_Coefficient_DateStart_DateEnd_Period_StockName_vs_Benchmark.csv : 参与计算的所有所有股票/指数系数
+        Strategy_Coefficient_DateStart_DateEnd_Period_RatioMethod_StockName_vs_Benchmark.csv : 参与计算的所有所有股票/指数系数
     '''
     # Check Period and Ratio Method
     if not checkPeriod(period) or not checkRatioMethod(ratio_method):
@@ -189,7 +189,7 @@ def strategyCoefficientRolling(benchmark_id, date_start, date_end, period, stock
         return False
 
     # Save to CSV File
-    file_postfix = '_'.join(['Coefficient', date_start, date_end, period, stock_name, 'vs', benchmark_id, 'Rolling', str(rolling_number_dict[period])])
+    file_postfix = '_'.join(['Coefficient', date_start, date_end, period, ratio_method, stock_name, 'vs', benchmark_id, 'Rolling', str(rolling_number_dict[period])])
     u.to_csv(coef, c.path_dict['strategy'], c.file_dict['strategy'] % file_postfix)
 
     return True
@@ -315,7 +315,7 @@ def analyzeCoefficient(postfix, completeness_threshold, top_number):
     True/False : boolean, 策略分析是否完成
 
     数据文件
-        Common_Prefix = Strategy_Coefficient_DateStart_DateEnd_Period_StockName_vs_Benchmark_
+        Common_Prefix = Strategy_Coefficient_DateStart_DateEnd_Period_RatioMethod_StockName_vs_Benchmark_
         Common_Prefix_CompletenessThreshold.csv  : 经过数据完备性筛选的个股系数列表
         Common_Prefix_CompletenessThreshold_PositiveCorrelation.csv  : 经过数据完备性筛选后正相关性最强的个股列表
         Common_Prefix_CompletenessThreshold_ZeroCorrelation.csv      : 经过数据完备性筛选后相关性最弱的个股列表
