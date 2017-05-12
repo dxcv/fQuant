@@ -6,8 +6,8 @@ Created on Thu May  4 11:50:08 2017
 """
 
 from Strategy.CoefficientStrategy import strategyCoefficient, analyzeCoefficient
-from Strategy.CoefficientStrategy import strategyCoefficientRolling
-from Strategy.Common import loadAllStocks, loadAllIndex, updateAllIndex, updateAllStocks
+from Strategy.CoefficientStrategy import strategyCoefficientRolling, extractRollingBeta
+from Strategy.Common import loadAllStocks, loadAllIndex, updateAllIndex, updateAllStocks, loadIndexComponent
 from Strategy.Common import updateSamplePriceAllIndex, updateSamplePriceAllStocks
 from Data.UpdateDataCenter import updateStockBasics, updatePriceStock, updatePriceIndex
 from Plot.PlotFigures import plotCoefficient
@@ -18,13 +18,16 @@ import Common.Constants as c
 # Strategy Parameters
 benchmark_id = '000300'
 benchmark_name = 'HS300'
-date_start = '2005-01-01'
+date_start = '2015-01-01'
 date_end = '2017-04-30'
 period = 'M'
-ratio_method = 'B'
+ratio_method = 'P'
 #completeness_threshold = '8.05%'
 completeness_threshold = '80.00%' # 1350 / 42.7%
 top_number = 10
+
+#index_name = 'FeiYan_FY50'
+index_name = 'FeiYan_FY20'
 
 # Update Data Center
 update_data = False
@@ -44,15 +47,22 @@ if update_data:
 run_strategy = True
 if run_strategy:
     for period in ['D','W','M']:
-        strategyCoefficientRolling(benchmark_id, date_start, date_end, period, ratio_method, loadAllIndex(), True, 'AllIndex')
-#        strategyCoefficient(benchmark_id, date_start, date_end, period, ratio_method, loadAllStocks(), False, 'AllStock')   
+        strategyCoefficientRolling(benchmark_id, date_start, date_end, period, ratio_method, loadIndexComponent(index_name), False, index_name)
+        rolling_number_dict = {'M':3,'W':3*4,'D':3*4*5}
+        postfix = '_'.join(['Coefficient', date_start, date_end, period, ratio_method, index_name, 'vs', benchmark_id, 'Rolling', str(rolling_number_dict[period])])
+        extractRollingBeta(postfix)
+#    strategyCoefficientRolling(benchmark_id, date_start, date_end, 'D', ratio_method, ['300035'], False, '300035')
+#    for period in ['D','W','M']:
+#        strategyCoefficientRolling(benchmark_id, date_start, date_end, period, ratio_method, loadIndexComponent(index_name), False, index_name)
+#        strategyCoefficientRolling(benchmark_id, date_start, date_end, period, ratio_method, loadAllIndex(), True, 'AllIndex')
+#        strategyCoefficient(benchmark_id, date_start, date_end, period, ratio_method, loadAllStocks(), False, 'AllStock')
 #        strategyCoefficient(benchmark_id, date_start, date_end, period, ratio_method, loadAllIndex(), True, 'AllIndex')
 
 # Analyze Strategy Results
 analyze_strategy = False
 target_name = 'AllIndex'
 #target_name = 'AllStock'
-common_postfix = '_'.join(['Coefficient', date_start, date_end, period, target_name, 'vs', benchmark_id])
+common_postfix = '_'.join(['Coefficient', date_start, date_end, period, ratio_method, target_name, 'vs', benchmark_id])
 if analyze_strategy:
     analyzeCoefficient(common_postfix, completeness_threshold, top_number)
 

@@ -17,6 +17,7 @@ import Common.GlobalSettings as gs
 
 from Data.GetTrading import loadDailyQFQ
 from Data.GetFundamental import loadStockBasics
+from Index.Index import load_component
 
 
 def updateCommonData(benchmark_id = '000300', period = 'M'):
@@ -260,7 +261,7 @@ def loadAllStocks():
         allstock['code'] = allstock['code'].map(lambda x:str(x).zfill(6))
         return allstock['code']
 
-    print('Failed to Load File: %s !' % fullpath)
+    print('Failed to Load File: %s!' % fullpath)
     return None
 
 def loadAllIndex():
@@ -286,7 +287,31 @@ def loadAllIndex():
         allindex['code'] = allindex['code'].map(lambda x:str(x).zfill(6))
         return allindex['code']
 
-    print('Failed to Load File: %s !' % fullpath)
+    print('Failed to Load File: %s!' % fullpath)
+    return None
+
+def loadIndexComponent(index_name):
+    '''
+    函数功能：
+    --------
+    加载指数成份股列表。
+
+    输入参数：
+    --------
+    index_name : string, 指数名称
+
+    输出参数：
+    --------
+    加载成功时，index_ids : pandas.Series, 所有指数列表。
+    加载失败时，None
+    '''
+    # Load Index Component
+    component = load_component(index_name)
+    if not u.isNoneOrEmpty(component):
+        component['code'] = component['code'].map(lambda x:str(x).zfill(6))
+        return component['code']
+
+    print('Failed to Load Component File: %s!' % index_name)
     return None
 
 def loadSamplePriceAllStocks(benchmark_id, period):
@@ -312,7 +337,7 @@ def loadSamplePriceAllStocks(benchmark_id, period):
     if not u.isNoneOrEmpty(allprice):
         return allprice
 
-    print('Failed to Load File: %s !' % fullpath)
+    print('Failed to Load File: %s!' % fullpath)
     return None
 
 def loadSamplePriceAllIndex(benchmark_id, period):
@@ -338,7 +363,7 @@ def loadSamplePriceAllIndex(benchmark_id, period):
     if not u.isNoneOrEmpty(allprice):
         return allprice
 
-    print('Failed to Load File: %s !' % fullpath)
+    print('Failed to Load File: %s!' % fullpath)
     return None
 
 ###############################################################################
@@ -487,6 +512,8 @@ def dataToRatio(price, method):
                 curr_price = price.ix[i]
                 if not np.isnan(prev_price) and not np.isnan(curr_price): # Both are valid prices
                     ratio.ix[i] = (curr_price-prev_price)/prev_price # Turn price to ratio
+                else: # One of them is invalid
+                    ratio.ix[i] = np.nan
         elif method == 'B':
             base_price = price.ix[row]
             for i in range(row, date_number):

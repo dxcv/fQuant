@@ -180,6 +180,14 @@ def strategyCoefficientRolling(benchmark_id, date_start, date_end, period, ratio
     price = samplePrice(benchmark_id, stock_ids, is_index, date_start, date_end, period)
     if u.isNoneOrEmpty(price):
         return False
+    if gs.is_debug:
+        price2 = price.copy()
+        stock_number = len(price2.columns)-1
+        for i in range(stock_number):
+            column = price2.columns[i+1]
+            price2[column] = dataToRatio(price2[column], ratio_method)
+        file_postfix = '_'.join(['Coefficient', date_start, date_end, period, ratio_method, stock_name, 'vs', benchmark_id, 'SamplePrice'])
+        u.to_csv(price2, c.path_dict['strategy'], c.file_dict['strategy'] % file_postfix)
 
     # Calculate Coefficients: Alpha, Beta, Correlation
     rolling_number_dict = {'M':3,'W':3*4,'D':3*4*5}
@@ -294,6 +302,40 @@ def calculateCoefficientRolling(price, rolling_number, min_period_number, ratio_
             coef[column] = coef[column].map(lambda x: ('%.2f' % (x*100)) + '%' if not np.isnan(x) else np.nan)
 
     return coef
+
+###############################################################################
+def extractRollingBeta(postfix):
+    # Load Rolling Coefficient
+    fullpath = c.path_dict['strategy'] + c.file_dict['strategy'] % postfix
+    coef = u.read_csv(fullpath)
+    if u.isNoneOrEmpty(coef):
+        print('Require Coefficient File: %s!' % fullpath)
+        return False
+
+    # Extract Rolling Beta
+    row_number = len(coef)
+    beta = u.createDataFrame(row_number, ['date', 'beta'])
+    beta['date'] = coef['date']
+    for column in coef.columns:
+        if len(column) >= 4 and column[0:4] == 'beta':
+            beta[column] = coef[column]
+
+    # Calculate Rolling Beta Average
+    beta_number = len(beta.columns)-2
+    for i in range(row_number):
+        beta_avg = 0.0
+        beta_count = 0
+        for j in range(beta_number):
+            b = beta.ix[i,beta.columns[j+2]]
+            if not np.isnan(b):
+                beta_avg = beta_avg + b
+                beta_count = beta_count + 1
+        if beta_count > 0:
+            beta.ix[i,'beta'] = beta_avg/float(beta_count)
+
+    beta.set_index('date',inplace=True)
+    postfix = '_'.join([postfix, 'Beta'])
+    u.to_csv(beta, c.path_dict['strategy'], c.file_dict['strategy'] % postfix)
 
 ###############################################################################
 
