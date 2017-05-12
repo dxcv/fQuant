@@ -260,7 +260,28 @@ def stockFileName(stock_id, is_index):
     index = 'Index_' if is_index==True else 'Stock_'
     return index+stock_id
 
+def checkEnum(name, value, supported_values):
+    '''
+    函数功能：
+    --------
+    检查是否是支持的枚举类型。
 
+    输入参数：
+    --------
+    name : string, e.g. 'period'
+    value : string, e.g. 'W'
+    supported_values : list of strings, e.g. ['D','W','M']
+
+    输出参数：
+    --------
+    True/False : boolean，是否支持。
+
+    '''
+    if not value in supported_values:
+        print('Un-supported %s type - should be one of:' % name, supported_values)
+        return False
+
+    return True
 
 
 

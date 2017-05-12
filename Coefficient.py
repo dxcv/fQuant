@@ -20,7 +20,8 @@ benchmark_id = '000300'
 benchmark_name = 'HS300'
 date_start = '2005-01-01'
 date_end = '2017-04-30'
-period = 'D'
+period = 'M'
+ratio_method = 'base'
 #completeness_threshold = '8.05%'
 completeness_threshold = '80.00%' # 1350 / 42.7%
 top_number = 10
@@ -42,8 +43,10 @@ if update_data:
 # Run Strategy
 run_strategy = True
 if run_strategy:
-    strategyCoefficientRolling(benchmark_id, date_start, date_end, period, loadAllIndex(), True, 'AllIndex')
-#    strategyCoefficient(benchmark_id, date_start, date_end, period, loadAllStocks(), False, 'AllStock')
+#    strategyCoefficientRolling(benchmark_id, date_start, date_end, period, loadAllIndex(), True, 'AllIndex', ratio_method)
+#    strategyCoefficient(benchmark_id, date_start, date_end, period, loadAllStocks(), False, 'AllStock', ratio_method)
+    for period in ['D','W','M']:
+        strategyCoefficient(benchmark_id, date_start, date_end, period, loadAllIndex(), True, 'AllIndex', ratio_method)
 
 # Analyze Strategy Results
 analyze_strategy = False

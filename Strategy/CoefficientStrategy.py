@@ -15,9 +15,9 @@ import Common.Constants as c
 import Common.Utilities as u
 import Common.GlobalSettings as gs
 
-from Strategy.Common import samplePrice, ignoreData, checkPeriod, interpolateData, dataToRatio
+from Strategy.Common import samplePrice, ignoreData, checkPeriod, checkRatioMethod, dataToRatio
 
-def strategyCoefficient(benchmark_id, date_start, date_end, period, stock_ids, is_index, stock_name):
+def strategyCoefficient(benchmark_id, date_start, date_end, period, stock_ids, is_index, stock_name, ratio_method):
     '''
     函数功能：
     --------
@@ -33,6 +33,7 @@ def strategyCoefficient(benchmark_id, date_start, date_end, period, stock_ids, i
     stock_ids : pandas.Series or list, 股票/指数列表
     is_index : boolean, 股票/指数标识
     stock_name : string, 股票/指数名称
+    ratio_method : string, 比例计算方法 e.g. 'previous' or 'base'
 
     输出参数：
     --------
@@ -41,8 +42,8 @@ def strategyCoefficient(benchmark_id, date_start, date_end, period, stock_ids, i
     数据文件
         Strategy_Coefficient_DateStart_DateEnd_Period_StockName_vs_Benchmark.csv : 参与计算的所有所有股票/指数系数
     '''
-    # Check Period
-    if not checkPeriod(period):
+    # Check Period and Ratio Method
+    if not checkPeriod(period) or not checkRatioMethod(ratio_method):
         return False
 
     # Sample Prices
@@ -56,7 +57,7 @@ def strategyCoefficient(benchmark_id, date_start, date_end, period, stock_ids, i
     # For index, we need to ignore first data.
     ignore_dict = {'M':1,'W':1,'D':1} if is_index else {'M':3,'W':3*4,'D':3*4*5}
     min_period_dict = {'M':12,'W':12*4,'D':12*4*5}
-    coef = calculateCoefficient(price, ignore_dict[period], min_period_dict[period]-ignore_dict[period])
+    coef = calculateCoefficient(price, ignore_dict[period], min_period_dict[period]-ignore_dict[period], ratio_method)
     if u.isNoneOrEmpty(coef):
         return False
 
@@ -66,7 +67,7 @@ def strategyCoefficient(benchmark_id, date_start, date_end, period, stock_ids, i
 
     return True
 
-def calculateCoefficient(price, ignore_number, min_period_number):
+def calculateCoefficient(price, ignore_number, min_period_number, ratio_method):
     # Create Coefficient Data Frame
     stocks_number = len(price.columns) - 2 # Remove 'date', 'close_benchmark'
     if stocks_number <= 0:
@@ -76,21 +77,25 @@ def calculateCoefficient(price, ignore_number, min_period_number):
 
     # Calculate Coefficients
     # 1. Calculate Correlation - No need to interpolate price for stop trading
+    benchmark = price[price.columns[1]]
+    bench_ratio = dataToRatio(benchmark, ratio_method)
     for i in range(stocks_number):
         column = price.columns[i+2]
         stock = price[column].copy()
-        # Manually ignore a given number of valid data since IPO
-        stock = ignoreData(stock, ignore_number)
-        # Compute correlation with other Series, excluding missing values.
-        # Set min_periods to avoid CXG whose IPO date is less than one year earlier.
-        benchmark = price[price.columns[1]]
+        # Turn price to ratio
+        stock_ratio = dataToRatio(stock, ratio_method)
+        # Manually ignore a given number of valid data (since IPO)
+        stock_ratio = ignoreData(stock_ratio, ignore_number)
         # Compose data frame and drop NaN
-        df = pd.DataFrame({'benchmark':benchmark,'stock':stock})
+        df = pd.DataFrame({'bench_ratio':bench_ratio,'stock_ratio':stock_ratio})
         df = df.dropna(axis=0,how='any')
         df = df.reset_index(drop=True)
         df_number = len(df)
-        if df_number >= min_period_number: # Has sufficient data
-            correlation = benchmark.corr(stock, min_periods=min_period_number)
+        # Compute correlation with other Series, excluding missing values.
+        if df_number >= min_period_number: # Has sufficient data, exclude those IPO recently.
+            b_ratio = df['bench_ratio']
+            s_ratio = df['stock_ratio']
+            correlation = b_ratio.corr(s_ratio)
             coef.ix[i,'correlation'] = correlation
         # Calculate completeness
         coef.ix[i,'code'] = column.replace('close_', '')
@@ -99,13 +104,13 @@ def calculateCoefficient(price, ignore_number, min_period_number):
 
     # 2. Calculate Alpha and Beta - Need to interpolate price for stop trading
     benchmark = price[price.columns[1]]
-    bench_ratio = dataToRatio(benchmark)
+    bench_ratio = dataToRatio(benchmark, ratio_method)
     for i in range(stocks_number):
         column = price.columns[i+2]
         stock = price[column].copy()
         # Turn price to ratio
-        stock_ratio = dataToRatio(stock)
-        # Manually ignore a given number of valid data
+        stock_ratio = dataToRatio(stock, ratio_method)
+        # Manually ignore a given number of valid data (since IPO)
         stock_ratio = ignoreData(stock_ratio, ignore_number)
         # Compose data frame and drop NaN
         df = pd.DataFrame({'bench_ratio':bench_ratio,'stock_ratio':stock_ratio})
@@ -142,7 +147,7 @@ def calculateCoefficient(price, ignore_number, min_period_number):
 
 ###############################################################################
 
-def strategyCoefficientRolling(benchmark_id, date_start, date_end, period, stock_ids, is_index, stock_name):
+def strategyCoefficientRolling(benchmark_id, date_start, date_end, period, stock_ids, is_index, stock_name, ratio_method):
     '''
     函数功能：
     --------
@@ -158,6 +163,7 @@ def strategyCoefficientRolling(benchmark_id, date_start, date_end, period, stock
     stock_ids : pandas.Series or list, 股票/指数列表
     is_index : boolean, 股票/指数标识
     stock_name : string, 股票/指数名称
+    ratio_method : string, 比例计算方法 e.g. 'previous' or 'base'
 
     输出参数：
     --------
@@ -166,8 +172,8 @@ def strategyCoefficientRolling(benchmark_id, date_start, date_end, period, stock
     数据文件
         Strategy_Coefficient_DateStart_DateEnd_Period_StockName_vs_Benchmark.csv : 参与计算的所有所有股票/指数系数
     '''
-    # Check Period
-    if not checkPeriod(period):
+    # Check Period and Ratio Method
+    if not checkPeriod(period) or not checkRatioMethod(ratio_method):
         return False
 
     # Sample Prices
@@ -178,7 +184,7 @@ def strategyCoefficientRolling(benchmark_id, date_start, date_end, period, stock
     # Calculate Coefficients: Alpha, Beta, Correlation
     rolling_number_dict = {'M':3,'W':3*4,'D':3*4*5}
     min_period_dict = {'M':2,'W':2*4,'D':2*4*5}
-    coef = calculateCoefficientRolling(price, rolling_number_dict[period], min_period_dict[period])
+    coef = calculateCoefficientRolling(price, rolling_number_dict[period], min_period_dict[period], ratio_method)
     if u.isNoneOrEmpty(coef):
         return False
 
@@ -188,7 +194,7 @@ def strategyCoefficientRolling(benchmark_id, date_start, date_end, period, stock
 
     return True
 
-def calculateCoefficientRolling(price, rolling_number, min_period_number):
+def calculateCoefficientRolling(price, rolling_number, min_period_number, ratio_method):
     # Create Coefficient Data Frame
     stocks_number = len(price.columns) - 2 # Remove 'date', 'close_benchmark'
     if stocks_number <= 0:
@@ -216,17 +222,22 @@ def calculateCoefficientRolling(price, rolling_number, min_period_number):
         price_rolling = price.iloc[i-rolling_number:i,:]
         price_rolling = price_rolling.reset_index(drop=True)
         benchmark = price_rolling[price_rolling.columns[1]]
+        bench_ratio = dataToRatio(benchmark, ratio_method)
         for j in range(stocks_number):
             column = price_rolling.columns[j+2]
             stock_id = column.replace('close_', '')
             stock = price_rolling[column].copy()
+            # Turn price to ratio
+            stock_ratio = dataToRatio(stock, ratio_method)
             # Compose data frame and drop NaN
             df = pd.DataFrame({'benchmark':benchmark,'stock':stock})
             df = df.dropna(axis=0,how='any')
             df = df.reset_index(drop=True)
             df_number = len(df)
             if df_number >= min_period_number: # Has sufficient data
-                correlation = benchmark.corr(stock, min_periods=min_period_number)
+                b_ratio = df['bench_ratio']
+                s_ratio = df['stock_ratio']
+                correlation = b_ratio.corr(s_ratio)
                 coef.ix[i,'_'.join(['correlation',stock_id])] = correlation
             # Calculate completeness
             null_count = price_rolling[column].isnull().sum()
@@ -239,13 +250,13 @@ def calculateCoefficientRolling(price, rolling_number, min_period_number):
         price_rolling = price.iloc[i-rolling_number:i,:]
         price_rolling = price_rolling.reset_index(drop=True)
         benchmark = price_rolling[price_rolling.columns[1]]
-        bench_ratio = dataToRatio(benchmark)
+        bench_ratio = dataToRatio(benchmark, ratio_method)
         for j in range(stocks_number):
             column = price_rolling.columns[j+2]
             stock_id = column.replace('close_', '')
             stock = price_rolling[column].copy()
             # Turn price to ratio
-            stock_ratio = dataToRatio(stock)
+            stock_ratio = dataToRatio(stock, ratio_method)
             # Compose data frame and drop NaN
             df = pd.DataFrame({'bench_ratio':bench_ratio,'stock_ratio':stock_ratio})
             df = df.dropna(axis=0,how='any')

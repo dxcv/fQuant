@@ -449,7 +449,7 @@ def interpolateData(price):
 
     return price
 
-def dataToRatio(price):
+def dataToRatio(price, method):
     '''
     函数功能：
     --------
@@ -458,6 +458,7 @@ def dataToRatio(price):
     输入参数：
     --------
     price : pandas.Series, 价格序列。
+    method : string, 比例计算方法。
 
     输出参数：
     --------
@@ -474,11 +475,18 @@ def dataToRatio(price):
     # Calculate Ratio.
     ratio = price.copy()
     if row != -1:
-        for i in range(row, date_number):
-            prev_price = price.ix[i] if i==row else price.ix[i-1]
-            curr_price = price.ix[i]
-            if not np.isnan(prev_price) and not np.isnan(curr_price): # Both are valid prices
-                ratio.ix[i] = (curr_price-prev_price)/prev_price # Turn price to ratio
+        if method == 'previous':
+            for i in range(row, date_number):
+                prev_price = price.ix[i] if i==row else price.ix[i-1]
+                curr_price = price.ix[i]
+                if not np.isnan(prev_price) and not np.isnan(curr_price): # Both are valid prices
+                    ratio.ix[i] = (curr_price-prev_price)/prev_price # Turn price to ratio
+        elif method == 'base':
+            base_price = price.ix[row]
+            for i in range(row, date_number):
+                curr_price = price.ix[i]
+                if not np.isnan(curr_price): # Both are valid prices
+                    ratio.ix[i] = (curr_price-base_price)/base_price # Turn price to ratio
 
     return ratio
 
@@ -486,7 +494,7 @@ def checkPeriod(period):
     '''
     函数功能：
     --------
-    检查是否是支持的时间周期：'D','W','M'。
+    检查是否是支持的时间周期：['D','W','M']。
 
     输入参数：
     --------
@@ -498,8 +506,22 @@ def checkPeriod(period):
 
     '''
     period_types = ['D','W','M']
-    if not period in period_types:
-        print('Un-supported period type - should be one of:', period_types)
-        return False
+    return u.checkEnum('period', period, period_types)
 
-    return True
+def checkRatioMethod(method):
+    '''
+    函数功能：
+    --------
+    检查是否是支持的比例计算方法：['previous','base']。
+
+    输入参数：
+    --------
+    method : string, e.g. 'base'。
+
+    输出参数：
+    --------
+    True/False : boolean，是否支持。
+
+    '''
+    ratio_methods = ['previous','base']
+    return u.checkEnum('ratio method', method, ratio_methods)
