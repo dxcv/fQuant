@@ -6,6 +6,7 @@ Created on Thu May  4 11:50:08 2017
 """
 
 from Strategy.CoefficientStrategy import strategyCoefficient, analyzeCoefficient
+from Strategy.CoefficientStrategy import strategyCoefficientRolling
 from Strategy.Common import loadAllStocks, loadAllIndex, updateAllIndex, updateAllStocks
 from Strategy.Common import updateSamplePriceAllIndex, updateSamplePriceAllStocks
 from Data.UpdateDataCenter import updateStockBasics, updatePriceStock, updatePriceIndex
@@ -19,7 +20,7 @@ benchmark_id = '000300'
 benchmark_name = 'HS300'
 date_start = '2005-01-01'
 date_end = '2017-04-30'
-period = 'M'
+period = 'D'
 #completeness_threshold = '8.05%'
 completeness_threshold = '80.00%' # 1350 / 42.7%
 top_number = 10
@@ -39,19 +40,21 @@ if update_data:
         updateSamplePriceAllStocks(benchmark_id, period)
 
 # Run Strategy
-run_strategy = False
+run_strategy = True
 if run_strategy:
-    strategyCoefficient(benchmark_id, date_start, date_end, period, loadAllIndex(), True, 'AllIndex')
-    strategyCoefficient(benchmark_id, date_start, date_end, period, loadAllStocks(), False, 'AllStock')
+    strategyCoefficientRolling(benchmark_id, date_start, date_end, period, loadAllIndex(), True, 'AllIndex')
+#    strategyCoefficient(benchmark_id, date_start, date_end, period, loadAllStocks(), False, 'AllStock')
 
 # Analyze Strategy Results
 analyze_strategy = False
-common_postfix = '_'.join(['Coefficient', date_start, date_end, period, 'AllStock', 'vs', benchmark_id])
+target_name = 'AllIndex'
+#target_name = 'AllStock'
+common_postfix = '_'.join(['Coefficient', date_start, date_end, period, target_name, 'vs', benchmark_id])
 if analyze_strategy:
     analyzeCoefficient(common_postfix, completeness_threshold, top_number)
 
 # Plot Strategy Results
-plot_strategy = True
+plot_strategy = False
 if plot_strategy:
     path = c.path_dict['strategy']
     file = c.file_dict['strategy'] % '_'.join(['Common', 'AllPrice', benchmark_id, period, 'AllStock'])

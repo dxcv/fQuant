@@ -486,7 +486,7 @@ def checkPeriod(period):
     '''
     函数功能：
     --------
-    检查是否是支持的时间周期：'W','M','Q'。
+    检查是否是支持的时间周期：'D','W','M'。
 
     输入参数：
     --------
@@ -497,7 +497,7 @@ def checkPeriod(period):
     True/False : boolean，是否支持。
 
     '''
-    period_types = ['W','M','Q']
+    period_types = ['D','W','M']
     if not period in period_types:
         print('Un-supported period type - should be one of:', period_types)
         return False

@@ -6,6 +6,7 @@ Created on Thu May  4 09:59:58 2017
 """
 
 import pandas as pd
+import numpy as np
 
 import sys
 sys.path.append('..')
@@ -136,6 +137,150 @@ def calculateCoefficient(price, ignore_number, min_period_number):
         coef[column] = coef[column].map(lambda x: '%.3f' % x)
         coef[column] = coef[column].astype(float)
     coef['completeness'] = coef['completeness'].map(lambda x: ('%.2f' % (x*100)) + '%')
+
+    return coef
+
+###############################################################################
+
+def strategyCoefficientRolling(benchmark_id, date_start, date_end, period, stock_ids, is_index, stock_name):
+    '''
+    函数功能：
+    --------
+    按照给定起止时间和给定频率，按照滚动的方式，计算全市场所有股票和业绩基准之间的Alpha/Beta/Correlation。
+    假定：全市场股票列表，个股历史前复权数据，业绩基准历史前复权数据已经提前获取并存储为CSV文件。
+
+    输入参数：
+    --------
+    benchmark_id : string, 指数代码 e.g. '000300'
+    date_start : string, 起始日期 e.g. '2005-01-01'
+    date_end : string, 终止日期 e.g. '2016-12-31'
+    period : string, 采样周期 e.g. 'M'
+    stock_ids : pandas.Series or list, 股票/指数列表
+    is_index : boolean, 股票/指数标识
+    stock_name : string, 股票/指数名称
+
+    输出参数：
+    --------
+    True/False : boolean, 策略运行是否完成
+
+    数据文件
+        Strategy_Coefficient_DateStart_DateEnd_Period_StockName_vs_Benchmark.csv : 参与计算的所有所有股票/指数系数
+    '''
+    # Check Period
+    if not checkPeriod(period):
+        return False
+
+    # Sample Prices
+    price = samplePrice(benchmark_id, stock_ids, is_index, date_start, date_end, period)
+    if u.isNoneOrEmpty(price):
+        return False
+
+    # Calculate Coefficients: Alpha, Beta, Correlation
+    rolling_number_dict = {'M':3,'W':3*4,'D':3*4*5}
+    min_period_dict = {'M':2,'W':2*4,'D':2*4*5}
+    coef = calculateCoefficientRolling(price, rolling_number_dict[period], min_period_dict[period])
+    if u.isNoneOrEmpty(coef):
+        return False
+
+    # Save to CSV File
+    file_postfix = '_'.join(['Coefficient', date_start, date_end, period, stock_name, 'vs', benchmark_id, 'Rolling', str(rolling_number_dict[period])])
+    u.to_csv(coef, c.path_dict['strategy'], c.file_dict['strategy'] % file_postfix)
+
+    return True
+
+def calculateCoefficientRolling(price, rolling_number, min_period_number):
+    # Create Coefficient Data Frame
+    stocks_number = len(price.columns) - 2 # Remove 'date', 'close_benchmark'
+    if stocks_number <= 0:
+        print('No Stock Data to Calculate Coefficient!')
+        return None
+    date_number = len(price)
+    coef_columns = ['date', 'close']
+    for i in range(stocks_number):
+        column = price.columns[i+2]
+        stock_id = column.replace('close_', '')
+        for item in ['close','completeness','alpha','beta','correlation']:
+            coef_columns.append('_'.join([item,stock_id]))
+    coef = u.createDataFrame(date_number, columns=coef_columns)
+    coef['date'] = price['date']
+    coef['close'] = price['close']
+    for i in range(stocks_number):
+        column = price.columns[i+2]
+        coef[column] = price[column]
+
+    # Calculate Coefficients
+    # 1. Calculate Correlation - No need to interpolate price_rolling for stop trading
+    for i in range(date_number):
+        if i < rolling_number:
+            continue
+        price_rolling = price.iloc[i-rolling_number:i,:]
+        price_rolling = price_rolling.reset_index(drop=True)
+        benchmark = price_rolling[price_rolling.columns[1]]
+        for j in range(stocks_number):
+            column = price_rolling.columns[j+2]
+            stock_id = column.replace('close_', '')
+            stock = price_rolling[column].copy()
+            # Compose data frame and drop NaN
+            df = pd.DataFrame({'benchmark':benchmark,'stock':stock})
+            df = df.dropna(axis=0,how='any')
+            df = df.reset_index(drop=True)
+            df_number = len(df)
+            if df_number >= min_period_number: # Has sufficient data
+                correlation = benchmark.corr(stock, min_periods=min_period_number)
+                coef.ix[i,'_'.join(['correlation',stock_id])] = correlation
+            # Calculate completeness
+            null_count = price_rolling[column].isnull().sum()
+            coef.ix[i,'_'.join(['completeness',stock_id])] = 1.0 - float(null_count) / len(price[column])
+
+    # 2. Calculate Alpha and Beta - No need to interpolate price_rolling for stop trading
+    for i in range(date_number):
+        if i < rolling_number:
+            continue
+        price_rolling = price.iloc[i-rolling_number:i,:]
+        price_rolling = price_rolling.reset_index(drop=True)
+        benchmark = price_rolling[price_rolling.columns[1]]
+        bench_ratio = dataToRatio(benchmark)
+        for j in range(stocks_number):
+            column = price_rolling.columns[j+2]
+            stock_id = column.replace('close_', '')
+            stock = price_rolling[column].copy()
+            # Turn price to ratio
+            stock_ratio = dataToRatio(stock)
+            # Compose data frame and drop NaN
+            df = pd.DataFrame({'bench_ratio':bench_ratio,'stock_ratio':stock_ratio})
+            df = df.dropna(axis=0,how='any')
+            df = df.reset_index(drop=True)
+            df_number = len(df)
+            if df_number >= min_period_number: # Has sufficient data
+                # Compute Beta w.r.t. Benchmark
+                b_ratio = df['bench_ratio']
+                s_ratio = df['stock_ratio']
+                b_mean = b_ratio.mean()
+                s_mean = s_ratio.mean()
+                a = 0.0
+                b = 0.0
+                for k in range(df_number):
+                    a += (b_ratio[k]-b_mean) * (s_ratio[k]-s_mean)
+                    b += (b_ratio[k]-b_mean) * (b_ratio[k]-b_mean)
+                beta = a/b
+                # Same as below method
+                # beta = b_ratio.cov(s_ratio) / b_ratio.var()
+                coef.ix[i,'_'.join(['beta',stock_id])] = beta
+                # Calculate Alpha
+                alpha = s_mean - beta*b_mean
+                coef.ix[i,'_'.join(['alpha',stock_id])] = alpha
+
+    # Format Columns
+    coef.set_index('date',inplace=True)
+    for i in range(stocks_number):
+        stock_id = price.columns[i+2].replace('close_', '')
+        for item in ['alpha','beta','correlation']:
+            column = '_'.join([item,stock_id])
+            coef[column] = coef[column].map(lambda x: '%.3f' % x)
+            coef[column] = coef[column].astype(float)
+        for item in ['completeness']:
+            column = '_'.join([item,stock_id])
+            coef[column] = coef[column].map(lambda x: ('%.2f' % (x*100)) + '%' if not np.isnan(x) else np.nan)
 
     return coef
 
