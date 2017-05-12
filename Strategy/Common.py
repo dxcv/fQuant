@@ -125,19 +125,20 @@ def updateSamplePrice(benchmark_id, stock_ids, is_index, period):
 
     drop_columns = ['open','high','low','volume','amount']
     benchmark.drop(drop_columns,axis=1,inplace=True)
-    allprice = pd.DataFrame()
+    bench_resample = pd.DataFrame()
     if period == 'D':
-        allprice = benchmark
+        bench_resample = benchmark
     else:
-        allprice = benchmark.resample(period).first()
-        allprice['close'] = benchmark['close'].resample(period).last()
+        bench_resample = benchmark.resample(period).first()
+        bench_resample['close'] = benchmark['close'].resample(period).last()
         # Resample daily data by weekly may introduce N/A price (due to holiday weeks)
         # This does not exist for monthly resample (as no holiday month so far)
         if period == 'W':
-            allprice = allprice.dropna(axis=0, how='any')
-    allprice['close'] = allprice['close'].map(lambda x: '%.3f' % x)
-    allprice['close'] = allprice['close'].astype(float)
+            bench_resample.dropna(axis=0, how='any', inplace=True)
+    bench_resample['close'] = bench_resample['close'].map(lambda x: '%.3f' % x)
+    bench_resample['close'] = bench_resample['close'].astype(float)
 
+    stock_list = [bench_resample]
     # Iterate over all stocks
     stocks_number = len(stock_ids)
     for i in range(stocks_number):
@@ -164,8 +165,13 @@ def updateSamplePrice(benchmark_id, stock_ids, is_index, period):
         stock_resample['close'] = stock_resample['close'].astype(float)
 
         # Merge Benchmark with Stock
-        allprice = pd.merge(allprice, stock_resample, how='left', left_index=True, right_index=True,
-                             sort=True, suffixes=('','_'+stock_id))
+        df = pd.merge(bench_resample, stock_resample, how='left', left_index=True, right_index=True,
+                      sort=True, suffixes=('','_'+stock_id))
+        df.drop(['close'],axis=1,inplace=True)
+        stock_list.append(df)
+
+    # Merge Results
+    allprice = pd.concat(stock_list, axis=1, join='inner')
 
     return allprice
 
