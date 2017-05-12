@@ -43,10 +43,10 @@ if update_data:
 # Run Strategy
 run_strategy = True
 if run_strategy:
-#    strategyCoefficientRolling(benchmark_id, date_start, date_end, period, ratio_method, loadAllIndex(), True, 'AllIndex')
-#    strategyCoefficient(benchmark_id, date_start, date_end, period, ratio_method, loadAllStocks(), False, 'AllStock')
     for period in ['D','W','M']:
-        strategyCoefficient(benchmark_id, date_start, date_end, period, ratio_method, loadAllIndex(), True, 'AllIndex')
+        strategyCoefficientRolling(benchmark_id, date_start, date_end, period, ratio_method, loadAllIndex(), True, 'AllIndex')
+#        strategyCoefficient(benchmark_id, date_start, date_end, period, ratio_method, loadAllStocks(), False, 'AllStock')   
+#        strategyCoefficient(benchmark_id, date_start, date_end, period, ratio_method, loadAllIndex(), True, 'AllIndex')
 
 # Analyze Strategy Results
 analyze_strategy = False

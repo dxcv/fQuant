@@ -217,9 +217,9 @@ def calculateCoefficientRolling(price, rolling_number, min_period_number, ratio_
     # Calculate Coefficients
     # 1. Calculate Correlation - No need to interpolate price_rolling for stop trading
     for i in range(date_number):
-        if i < rolling_number:
+        if i+1 < rolling_number:
             continue
-        price_rolling = price.iloc[i-rolling_number:i,:]
+        price_rolling = price.iloc[i+1-rolling_number:i+1,:]
         price_rolling = price_rolling.reset_index(drop=True)
         benchmark = price_rolling[price_rolling.columns[1]]
         bench_ratio = dataToRatio(benchmark, ratio_method)
@@ -230,7 +230,7 @@ def calculateCoefficientRolling(price, rolling_number, min_period_number, ratio_
             # Turn price to ratio
             stock_ratio = dataToRatio(stock, ratio_method)
             # Compose data frame and drop NaN
-            df = pd.DataFrame({'benchmark':benchmark,'stock':stock})
+            df = pd.DataFrame({'bench_ratio':bench_ratio,'stock_ratio':stock_ratio})
             df = df.dropna(axis=0,how='any')
             df = df.reset_index(drop=True)
             df_number = len(df)
@@ -245,9 +245,9 @@ def calculateCoefficientRolling(price, rolling_number, min_period_number, ratio_
 
     # 2. Calculate Alpha and Beta - No need to interpolate price_rolling for stop trading
     for i in range(date_number):
-        if i < rolling_number:
+        if i+1 < rolling_number:
             continue
-        price_rolling = price.iloc[i-rolling_number:i,:]
+        price_rolling = price.iloc[i+1-rolling_number:i+1,:]
         price_rolling = price_rolling.reset_index(drop=True)
         benchmark = price_rolling[price_rolling.columns[1]]
         bench_ratio = dataToRatio(benchmark, ratio_method)
