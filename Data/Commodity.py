@@ -161,7 +161,7 @@ def _get_commodity_price(code, pageNo, df_all, retry_count, pause):
                 else: # 没有“下一页”
                     return df_all
             else:
-                return False
+                return df_all
         except Exception as e:
             print('Exception:', e)
             pass
