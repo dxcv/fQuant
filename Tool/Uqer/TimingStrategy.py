@@ -23,6 +23,9 @@ def initialize(account):                   # 初始化虚拟账户状态
     account.timing = pd.read_csv('Timing/HS300_Timing_1_2006.csv', encoding='gbk', dtype=str)
     account.timing_index = 0
     account.timing_date = dt.datetime.strptime(account.timing.ix[account.timing_index,'date'],'%Y/%m/%d')
+    while (account.timing_date < dt.datetime.strptime(start,'%Y-%m-%d')) and (account.timing_index < len(account.timing)-1):
+        account.timing_index += 1
+        account.timing_date = dt.datetime.strptime(account.timing.ix[account.timing_index,'date'],'%Y/%m/%d')
     account.timing_trend = account.timing.ix[account.timing_index,'trend']
 
 def handle_data(account):                  # 每个交易日的买入卖出指令
