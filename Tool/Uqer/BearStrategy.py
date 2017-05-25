@@ -81,7 +81,7 @@ def universeCorrelation(universe, benchmark, date, window = 30):
     stock_return = []
     stock_excess_return = []
     for stockID in universe:
-        stock = DataAPI.MktEqudGet(secID=[stockID],beginDate=start,endDate=end,field=stockField,pandas='1')
+        stock = DataAPI.MktEqudGet(secID=[stockID],beginDate=beginDate,endDate=endDate,field=stockField,pandas='1')
         name = DataAPI.EquGet(secID=[stockID],field=['secShortName'],pandas='1').ix[0,'secShortName']
         stock_ratio = dataToRatio(stock['closePrice'],'B')
         correlation = index_ratio.corr(stock_ratio)
