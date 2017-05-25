@@ -68,7 +68,9 @@ def universeCorrelation(universe, benchmark, date, window = 30):
     stockField=['secID','tradeDate','closePrice','chgPct','accumAdjFactor','PE','PE1','isOpen']
 
     # Get Index History
-    index = DataAPI.MktIdxdGet(indexID=indexList,beginDate=beginDate,endDate=endDate,field=indexField,pandas="1")
+    index_dict = {'HS300':'000300.ZICN'}
+    indexID = index_dict[benchmark]
+    index = DataAPI.MktIdxdGet(indexID=indexID,beginDate=beginDate,endDate=endDate,field=indexField,pandas="1")
     index_ratio = dataToRatio(index['closeIndex'],'B')
 
     # Calculate Stock Correlation w.r.t. Index
@@ -90,7 +92,7 @@ def universeCorrelation(universe, benchmark, date, window = 30):
         stock_return.append(stock_ratio.ix[len(stock_ratio)-1] if len(stock_ratio) > 0 else np.nan)
         excess_return = stock_ratio.ix[len(stock_ratio)-1] - index_ratio.ix[len(index_ratio)-1] if len(stock_ratio) > 0 else np.nan
         stock_excess_return.append(excess_return)
-        #print 'Correlation (%s vs. %s/%s) = %f' % (indexList[0], stockID, name, correlation)
+        #print 'Correlation (%s vs. %s/%s) = %f' % (benchmark, stockID, name, correlation)
 
     df = pd.DataFrame({'code':stock_id, 'name':stock_name, 'correlation':stock_correlation, 'corr_abs':stock_corr_abs, 'return':stock_return, 'excess_return':stock_excess_return})
     df = df.sort_values('corr_abs', axis=0, ascending=True).reset_index(drop=True)
@@ -104,14 +106,15 @@ def universeCorrelation(universe, benchmark, date, window = 30):
     return low_corr_with_return
 
 universe = set_universe('HS300')
-date = '2017-05-19'
-#date = dt.datetime.strftime(dt.date.today(),'%Y-%m-%d')
+#date = '2017-05-19'
+date = dt.datetime.strftime(dt.date.today(),'%Y-%m-%d')
+benchmark = 'HS300'
 
-stocks = universeCorrelation(universe, 'HS300', date)
+stocks = universeCorrelation(universe, benchmark, date)
 stocks = stocks.set_index('code')
 
-csv_fn = '.'.join(['_'.join(['HS300','Correlation',date]), 'csv'])
-excel_fn = '.'.join(['_'.join(['HS300','Correlation',date]), 'xlsx'])
+csv_fn = '/'.join(['Correlation', '.'.join(['_'.join([benchmark,'Correlation',date]), 'csv'])])
+excel_fn = '/'.join(['Correlation', '.'.join(['_'.join([benchmark,'Correlation',date]), 'xlsx'])])
 stocks.to_csv(csv_fn,encoding='gbk')
 stocks.to_excel(excel_fn,encoding='gbk')
 
