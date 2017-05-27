@@ -72,7 +72,7 @@ def dataToRatio(price, method):
 
     return ratio
 
-def universeCorrelation(universe, benchmark, date, window, excess_return, corr_coef, corr_abs):
+def universeCorrelation(universe, benchmark, date, window, use_excess_return, corr_coef, use_corr_abs):
     """
     计算给定股票池universe，相对于业绩基准benchmark的相关性。
     计算周期为截止于date的window个交易日。
@@ -102,7 +102,7 @@ def universeCorrelation(universe, benchmark, date, window, excess_return, corr_c
         stock_excess_return.append(excess_return)
 
     # Select Stocks with Positive (Excess) Return
-    column_return = 'excess_return' if excess_return else 'return'
+    column_return = 'excess_return' if use_excess_return else 'return'
     df = pd.DataFrame({'code':stock_id, 'return':stock_return, 'excess_return':stock_excess_return})
     df = df[df[column_return] > 0.0]
     df = df.sort_values(column_return, axis=0, ascending=False).reset_index(drop=True)
@@ -111,15 +111,16 @@ def universeCorrelation(universe, benchmark, date, window, excess_return, corr_c
     df['correlation'] = np.nan
     df['corr_abs'] = np.nan
     for i in range(len(df)):
-        stock_id = df.ix[i,'code']
+        stockID = df.ix[i,'code']
         stock = DataAPI.MktEqudGet(secID=[stockID],beginDate=beginDate,endDate=endDate,field=stockField,pandas='1')
-        stock_ratio = dataToRatio(stock['closePrice']*stock['accumAdjFactor'],'B')
+        stock_price = stock['closePrice']*stock['accumAdjFactor']
+        stock_ratio = dataToRatio(stock_price,'B')
         correlation = index_ratio.corr(stock_ratio)
         df.ix[i,'correlation'] = correlation
         df.ix[i,'corr_abs'] = np.abs(correlation)
 
     # Extract low correlation stocks
-    column_corr = 'corr_abs' if corr_abs else 'correlation'
+    column_corr = 'corr_abs' if use_corr_abs else 'correlation'
     low_corr_with_return = df[df[column_corr] < corr_coef].reset_index(drop=True)
 
     # Add Stock Name
@@ -128,7 +129,7 @@ def universeCorrelation(universe, benchmark, date, window, excess_return, corr_c
         stockID = low_corr_with_return.ix[i,'code']
         name = DataAPI.EquGet(secID=[stockID],field=['secShortName'],pandas='1').ix[0,'secShortName']
         low_corr_with_return.ix[i,'name'] = name
-    print 'Universe Correlation Calculation Done! Select %d Stocks' % len(low_corr_with_return)
+    print 'Universe Correlation Calculation Done! Select %d Stocks for %s' % (len(low_corr_with_return), date)
     return low_corr_with_return
 
 ###############################################################################
@@ -153,9 +154,10 @@ corr_coef = 0.3
 corr_abs = True
 
 stocks = universeCorrelation(universe, benchmark, date, window, excess_return, corr_coef, corr_abs)
-stocks = stocks.set_index('name')
+if len(stocks) > 0:
+    stocks = stocks.set_index('name')
 
-csv_fn = '/'.join(['Correlation', '.'.join(['_'.join([benchmark,'Correlation',date]), 'csv'])])
+#csv_fn = '/'.join(['Correlation', '.'.join(['_'.join([benchmark,'Correlation',date]), 'csv'])])
+#stocks.to_csv(csv_fn,encoding='gbk')
 excel_fn = '/'.join(['Correlation', '.'.join(['_'.join([benchmark,'Correlation',date]), 'xlsx'])])
-stocks.to_csv(csv_fn,encoding='gbk')
 stocks.to_excel(excel_fn,encoding='gbk')
