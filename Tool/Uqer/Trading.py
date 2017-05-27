@@ -70,3 +70,19 @@ def trade(account, wts):
             position = account.security_position[secID] if (secID in account.security_position) else 0.0
             if np.abs(amount-position) > 0.0:
                 order(secID,amount-position)
+
+###############################################################################
+
+# Test Codes
+# 1. Get a list of ST stocks for a given date.
+DataAPI.SecSTGet(beginDate=u"20170526",endDate=u"20170526",secID=u"",ticker=u"",field=['tradeDate','secID','STflg'],pandas="1")
+
+# 2. Get a list of open status for a given date for a give list of stocks.
+stocks = ['002312.XSHE', '002340.XSHE','600666.XSHG']
+date = '20170526'
+DataAPI.MktEqudGet(secID=stocks, tradeDate=date, field=['secID','isOpen'],pandas='1')
+
+# 3. Filter a given dict of trades by removing ST and non-open ones.
+wts = {'002312.XSHE':0.1, '002340.XSHE':0.2,'600666.XSHG':0.3}
+date = dt.datetime.strptime('20170526','%Y%m%d')
+filterTrades(wts,date,True,True)
