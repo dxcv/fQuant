@@ -37,6 +37,8 @@ def strategyPriceFollow(stock_id, is_index, trend_threshold):
     for i in range(lshq_number):
         if i == 0: # Initialization
             lshq.ix[i,'trend'] = 'Up'
+            trends.append('Up')
+            trend_turning_points.append(i)
             for column in ['trend_high','trend_low','trend_ref']:
                 lshq.ix[i,column] = lshq.ix[i,'close']
         else:
@@ -51,7 +53,7 @@ def strategyPriceFollow(stock_id, is_index, trend_threshold):
                 if (1.0-trend_cur/trend_high) > trend_threshold:
                     lshq.ix[i,'trend'] = 'Down'
                     up_to_down = True
-                    trends.append('Up')
+                    trends.append('Down')
                     trend_turning_points.append(i)
                     trend_index_highs.append(index_high)
                 else:
@@ -61,7 +63,7 @@ def strategyPriceFollow(stock_id, is_index, trend_threshold):
                 if (trend_cur/trend_low-1.0) > trend_threshold:
                     lshq.ix[i,'trend'] = 'Up'
                     down_to_up = True
-                    trends.append('Down')
+                    trends.append('Up')
                     trend_turning_points.append(i)
                     trend_index_lows.append(index_low)
                 else:
@@ -109,8 +111,6 @@ def strategyPriceFollow(stock_id, is_index, trend_threshold):
                     index_high = i
             # Handle Last Trend
             if i == lshq_number-1:
-                trends.append(trend)
-                trend_turning_points.append(i)
                 if trend == 'Up':
                     trend_index_highs.append(i)
                 else:
@@ -144,12 +144,27 @@ def strategyPriceFollow(stock_id, is_index, trend_threshold):
         if i == trend_number-1:
             lshq.ix[index_tar,'trend_price'] = price_tar
 
+    # Record Timing Data
+    trend_number = len(trends)
+    timing = u.createDataFrame(trend_number, ['date','trend'])
+    for i in range(trend_number):
+        trend = trends[i]
+        index = trend_turning_points[i]
+        timing.ix[i,'date'] = lshq.ix[index,'date']
+        timing.ix[i,'trend'] = trend
+    timing.set_index('date', inplace=True)
+    timing.sort_index(ascending=True, inplace=True)
+
+    # Save to CSV File
+    file_postfix = 'Timing_%s_%s' % (u.stockFileName(stock_id, is_index), trend_threshold)
+    u.to_csv(timing, c.path_dict['strategy'], file_postfix+'.csv', encoding='gbk')
+
     # Format Data Frame
     for column in ['trend_high','trend_low','trend_ref','trend_price']:
         lshq[column] = lshq[column].map(lambda x: '%.3f' % x)
         lshq[column] = lshq[column].astype(float)
     lshq.set_index('date', inplace=True)
-    lshq.sort_index(ascending = True, inplace=True)
+    lshq.sort_index(ascending=True, inplace=True)
 
     # Save to CSV File
     file_postfix = 'PriceFollow_%s_%s' % (u.stockFileName(stock_id, is_index), trend_threshold)
