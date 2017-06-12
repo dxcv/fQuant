@@ -7,6 +7,7 @@ Created on Thu Apr  6 13:16:02 2017
 
 import pandas as pd
 import numpy as np
+import datetime as dt
 
 import sys
 sys.path.append('..')
@@ -363,3 +364,24 @@ def runOptimizationPriceFollow(stock_list=c.index_list, is_index = True, thresho
         optimizePriceFollow(stock_list, is_index, threshold_list, method)
 
 ###############################################################################
+
+# Analyze Strategy Price Follow
+def analyzeStrategyPriceFollow(target_date, stock_list=c.index_list, is_index = True, threshold_list=[0.02, 0.03, 0.05, 0.08, 0.13, 0.21, 0.33]):
+    for stock_id in stock_list:
+        for threshold in threshold_list:
+            analyzePriceFollow(target_date, stock_id, is_index, threshold)
+
+def analyzePriceFollow(target_date, stock_id, is_index, threshold):
+    file_postfix = 'Timing_%s_%s' % (u.stockFileName(stock_id, is_index), threshold)
+    timing = u.read_csv(c.path_dict['strategy'] + file_postfix+'.csv', encoding='gbk')
+    timing_number = len(timing)
+    if timing_number > 0:
+        date  = timing.ix[timing_number-1,'date']
+        date  = dt.datetime.strptime(date,'%Y-%m-%d').date()
+        if date == target_date: # Given target_date is Timing Date
+            trend = timing.ix[timing_number-1,'trend']
+            print ('Date', target_date, ': Trend of', u.stockFileName(stock_id, is_index), 'Goes', trend)
+        else:
+            print('Date', target_date, ': Trend of', u.stockFileName(stock_id, is_index), 'Does Not Change')
+    else:
+        print('Date', target_date, ': Trend of', u.stockFileName(stock_id, is_index), 'Does Not Change')
