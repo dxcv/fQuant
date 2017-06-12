@@ -378,10 +378,10 @@ def analyzePriceFollow(target_date, stock_id, is_index, threshold):
     if timing_number > 0:
         date  = timing.ix[timing_number-1,'date']
         date  = dt.datetime.strptime(date,'%Y-%m-%d').date()
+        trend = timing.ix[timing_number-1,'trend']
         if date == target_date: # Given target_date is Timing Date
-            trend = timing.ix[timing_number-1,'trend']
             print ('Date', target_date, ': Trend of', u.stockFileName(stock_id, is_index), 'Goes', trend)
         else:
-            print('Date', target_date, ': Trend of', u.stockFileName(stock_id, is_index), 'Does Not Change')
+            print('Date', target_date, ': Trend of', u.stockFileName(stock_id, is_index), 'Does Not Change, Still', trend)
     else:
-        print('Date', target_date, ': Trend of', u.stockFileName(stock_id, is_index), 'Does Not Change')
+        print('Date', target_date, ': Trend of', u.stockFileName(stock_id, is_index), 'Does Not Change, No Timing Data')
