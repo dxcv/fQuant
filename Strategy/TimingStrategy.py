@@ -112,7 +112,7 @@ def strategyPriceFollow(stock_id, is_index, trend_threshold):
                     index_high = i
             # Handle Last Trend
             if i == lshq_number-1:
-                if trend == 'Up':
+                if lshq.ix[i,'trend'] == 'Up':
                     trend_index_highs.append(i)
                 else:
                     trend_index_lows.append(i)
@@ -375,13 +375,23 @@ def analyzePriceFollow(target_date, stock_id, is_index, threshold):
     file_postfix = 'Timing_%s_%s' % (u.stockFileName(stock_id, is_index), threshold)
     timing = u.read_csv(c.path_dict['strategy'] + file_postfix+'.csv', encoding='gbk')
     timing_number = len(timing)
-    if timing_number > 0:
-        date  = timing.ix[timing_number-1,'date']
-        date  = dt.datetime.strptime(date,'%Y-%m-%d').date()
-        trend = timing.ix[timing_number-1,'trend']
+
+    # Find the matched timing date and trend
+    timing_index = -1
+    for i in range(timing_number):
+        date = dt.datetime.strptime(timing.ix[i,'date'],'%Y-%m-%d').date()
+        if date <= target_date:
+            timing_index = i
+        else:
+            break
+
+    # Report results
+    if timing_index != -1:
+        date = dt.datetime.strptime(timing.ix[timing_index,'date'],'%Y-%m-%d').date()
+        trend = timing.ix[timing_index,'trend']
         if date == target_date: # Given target_date is Timing Date
             print ('Date', target_date, ': Trend of', u.stockFileName(stock_id, is_index), 'Goes', trend)
         else:
             print('Date', target_date, ': Trend of', u.stockFileName(stock_id, is_index), 'Does Not Change, Still', trend)
     else:
-        print('Date', target_date, ': Trend of', u.stockFileName(stock_id, is_index), 'Does Not Change, No Timing Data')
+        print('Date', target_date, ': Trend of', u.stockFileName(stock_id, is_index), 'Not Available, No Timing Data')
